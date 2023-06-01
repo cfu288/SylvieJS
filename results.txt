@@ -1,0 +1,19 @@
+
+> lokijs@1.5.12 benchmark
+> ts-node --esm benchmark/benchmark.ts
+
+load (insert) : 9.70ms (515463.92) ops/s
+coll.get() : 231.95ms (8622547.96) ops/s
+coll.by() : 225.98ms (8850340.74) ops/s
+
+-- Benchmarking query on NON-INDEXED column --
+coll.find() : 2.40ms (8333333.33 ops/s) 20000 iterations
+resultset chained find() :  2.40ms (8333333.33 ops/s) 20000 iterations
+loki dynamic view first find : 1019.91ms (19609.57 ops/s) 20000 iterations
+loki dynamic view subsequent finds : 22.55ms (886917.96 ops/s) 20000 iterations
+
+-- ADDING BINARY INDEX to query column and repeating benchmarks --
+coll.find() : 45.11ms (8867213.48 ops/s) 400000 iterations
+resultset chained find() :  34.72ms (8640553.00 ops/s) 300000 iterations
+loki dynamic view first find : 11385.76ms (26348.70 ops/s) 300000 iterations
+loki dynamic view subsequent finds : 63.70ms (4709576.14 ops/s) 300000 iterations

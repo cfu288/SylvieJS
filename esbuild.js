@@ -1,7 +1,10 @@
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-var-requires */
-const esbuild = require("esbuild");
-const { dtsPlugin } = require("esbuild-plugin-d.ts");
+// const esbuild = require("esbuild");
+// const { dtsPlugin } = require("esbuild-plugin-d.ts");
+
+import esbuild from "esbuild";
+import { dtsPlugin } from "esbuild-plugin-d.ts";
 
 esbuild
   .build({
@@ -17,7 +20,7 @@ esbuild
     minifyWhitespace: true,
     minify: true,
     keepNames: true,
-    format: "iife",
+    format: "esm",
     plugins: [dtsPlugin()],
   })
   .catch(() => process.exit(1));

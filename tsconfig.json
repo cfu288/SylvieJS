@@ -3,7 +3,9 @@
     "target": "es6",
     "skipLibCheck": true,
     "lib": ["es2022", "esnext", "dom"],
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "module": "es6"
   },
   "include": ["./src/**/*", "./spec/**/*"],
   "exclude": ["node_modules", "dist"]

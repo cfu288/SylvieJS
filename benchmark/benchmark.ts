@@ -1,17 +1,21 @@
-var loki = require("../dist/lokijs.min.js"),
-var db = new loki("perftest"),
+// @ts-nocheck
+// import { Loki } from "../dist/lokijs.js";
+import Loki from "../dist/lokijs.js";
+const loki = Loki;
+
+let db = new loki("perftest"),
   samplecoll = null,
-  uniquecoll = null,
-  arraySize = 5000, // how large of a dataset to generate
+  uniquecoll = null;
+const arraySize = 5000, // how large of a dataset to generate
   totalIterations = 20000, // how many times we search it
   getIterations = 2000000; // get is crazy fast due to binary search so this needs separate scale
 
 function genRandomVal() {
-  var text = "";
-  var possible =
+  let text = "";
+  const possible =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-  for (var i = 0; i < 20; i++)
+  for (let i = 0; i < 20; i++)
     text += possible.charAt(Math.floor(Math.random() * possible.length));
 
   return text;
@@ -25,9 +29,9 @@ function genRandomVal() {
 function initializeDB() {
   db = new loki("perftest");
 
-  var start, end;
-  var totalTimes = [];
-  var totalMS = 0.0;
+  let start, end;
+  const totalTimes = [];
+  let totalMS = 0.0;
 
   samplecoll = db.addCollection("samplecoll");
   /*
@@ -41,8 +45,8 @@ function initializeDB() {
   */
 
   for (var idx = 0; idx < arraySize; idx++) {
-    var v1 = genRandomVal();
-    var v2 = genRandomVal();
+    const v1 = genRandomVal();
+    const v2 = genRandomVal();
 
     start = process.hrtime();
     samplecoll.insert({
@@ -61,7 +65,7 @@ function initializeDB() {
 
   //var totalMS = end[0] * 1e3 + end[1]/1e6;
   totalMS = totalMS.toFixed(2);
-  var rate = (arraySize * 1000) / totalMS;
+  let rate = (arraySize * 1000) / totalMS;
   rate = rate.toFixed(2);
   console.log("load (insert) : " + totalMS + "ms (" + rate + ") ops/s");
 }
@@ -75,9 +79,9 @@ function initializeUnique() {
     unique: ["customId"],
   });
 
-  for (var idx = 0; idx < arraySize; idx++) {
-    var v1 = genRandomVal();
-    var v2 = genRandomVal();
+  for (let idx = 0; idx < arraySize; idx++) {
+    const v1 = genRandomVal();
+    const v2 = genRandomVal();
 
     uniquecoll.insert({
       customId: arraySize - idx,
@@ -88,14 +92,13 @@ function initializeUnique() {
   }
 }
 
-
 function benchUniquePerf() {
-  var start, end;
-  var totalTimes = [];
-  var totalMS = 0.0;
+  let start, end;
+  const totalTimes = [];
+  let totalMS = 0.0;
 
   for (var idx = 0; idx < getIterations; idx++) {
-    var customidx = Math.floor(Math.random() * arraySize) + 1;
+    const customidx = Math.floor(Math.random() * arraySize) + 1;
 
     start = process.hrtime();
     end = process.hrtime(start);
@@ -107,18 +110,18 @@ function benchUniquePerf() {
   }
 
   totalMS = totalMS.toFixed(2);
-  var rate = (getIterations * 1000) / totalMS;
+  let rate = (getIterations * 1000) / totalMS;
   rate = rate.toFixed(2);
   console.log("coll.by() : " + totalMS + "ms (" + rate + ") ops/s");
 }
 
 function testperfGet() {
-  var start, end;
-  var totalTimes = [];
-  var totalMS = 0.0;
+  let start, end;
+  const totalTimes = [];
+  let totalMS = 0.0;
 
   for (var idx = 0; idx < getIterations; idx++) {
-    var customidx = Math.floor(Math.random() * arraySize) + 1;
+    const customidx = Math.floor(Math.random() * arraySize) + 1;
 
     start = process.hrtime();
     end = process.hrtime(start);
@@ -130,23 +133,23 @@ function testperfGet() {
   }
 
   totalMS = totalMS.toFixed(2);
-  var rate = (getIterations * 1000) / totalMS;
+  let rate = (getIterations * 1000) / totalMS;
   rate = rate.toFixed(2);
   console.log("coll.get() : " + totalMS + "ms (" + rate + ") ops/s");
 }
 
 function testperfFind(multiplier) {
-  var start, end;
-  var totalTimes = [];
-  var totalMS = 0;
+  let start, end;
+  const totalTimes = [];
+  let totalMS = 0;
 
-  var loopIterations = totalIterations;
+  let loopIterations = totalIterations;
   if (typeof multiplier != "undefined") {
     loopIterations = loopIterations * multiplier;
   }
 
   for (var idx = 0; idx < loopIterations; idx++) {
-    var customidx = Math.floor(Math.random() * arraySize) + 1;
+    const customidx = Math.floor(Math.random() * arraySize) + 1;
 
     start = process.hrtime();
     end = process.hrtime(start);
@@ -158,7 +161,7 @@ function testperfFind(multiplier) {
   }
 
   totalMS = totalMS.toFixed(2);
-  var rate = (loopIterations * 1000) / totalMS;
+  let rate = (loopIterations * 1000) / totalMS;
   rate = rate.toFixed(2);
   console.log(
     "coll.find() : " +
@@ -172,17 +175,17 @@ function testperfFind(multiplier) {
 }
 
 function testperfRS(multiplier) {
-  var start, end;
-  var totalTimes = [];
-  var totalMS = 0;
+  let start, end;
+  const totalTimes = [];
+  let totalMS = 0;
 
-  var loopIterations = totalIterations;
+  let loopIterations = totalIterations;
   if (typeof multiplier != "undefined") {
     loopIterations = loopIterations * multiplier;
   }
 
   for (var idx = 0; idx < loopIterations; idx++) {
-    var customidx = Math.floor(Math.random() * arraySize) + 1;
+    const customidx = Math.floor(Math.random() * arraySize) + 1;
 
     start = process.hrtime();
     end = process.hrtime(start);
@@ -194,7 +197,7 @@ function testperfRS(multiplier) {
   }
 
   totalMS = totalMS.toFixed(2);
-  var rate = (loopIterations * 1000) / totalMS;
+  let rate = (loopIterations * 1000) / totalMS;
   rate = rate.toFixed(2);
   console.log(
     "resultset chained find() :  " +
@@ -208,24 +211,23 @@ function testperfRS(multiplier) {
 }
 
 function testperfDV(multiplier) {
-  var start, end;
-  var start2,
-    end2;
-  var totalTimes = [];
-  var totalTimes2 = [];
-  var totalMS = 0;
-  var totalMS2 = 0;
+  let start, end;
+  let start2, end2;
+  const totalTimes = [];
+  const totalTimes2 = [];
+  let totalMS = 0;
+  let totalMS2 = 0;
 
-  var loopIterations = totalIterations;
+  let loopIterations = totalIterations;
   if (typeof multiplier != "undefined") {
     loopIterations = loopIterations * multiplier;
   }
 
   for (var idx = 0; idx < loopIterations; idx++) {
-    var customidx = Math.floor(Math.random() * arraySize) + 1;
+    const customidx = Math.floor(Math.random() * arraySize) + 1;
 
     start = process.hrtime();
-    var dv = samplecoll.addDynamicView("perfview");
+    const dv = samplecoll.addDynamicView("perfview");
     dv.applyFind({
       customId: customidx,
     });
@@ -249,8 +251,8 @@ function testperfDV(multiplier) {
 
   totalMS = totalMS.toFixed(2);
   totalMS2 = totalMS2.toFixed(2);
-  var rate = (loopIterations * 1000) / totalMS;
-  var rate2 = (loopIterations * 1000) / totalMS2;
+  let rate = (loopIterations * 1000) / totalMS;
+  let rate2 = (loopIterations * 1000) / totalMS2;
   rate = rate.toFixed(2);
   rate2 = rate2.toFixed(2);
 
