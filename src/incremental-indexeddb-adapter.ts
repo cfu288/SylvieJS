@@ -910,5 +910,6 @@ function idbReq(request, onsuccess, onerror) {
 }
 
 if (window !== undefined) {
+  // @ts-ignore
   window.IncrementalIndexedDBAdapter = IncrementalIndexedDBAdapter;
 }

@@ -8,14 +8,14 @@ interface Constructable<T> {
   new (...args: any): T;
 }
 
-declare global {
-  let IncrementalIndexedDBAdapter: Constructable<LokiPersistenceAdapter>;
-}
+let IncrementalIndexedDBAdapter: Constructable<LokiPersistenceAdapter>;
 
 describe("IncrementalIndexedDBAdapter", function () {
   it("initializes Loki properly", function () {
     const adapter = new IncrementalIndexedDBAdapter("tests");
-    const db = new loki("test.db", { adapter: adapter });
+    const db = new loki("test.db", {
+      adapter: (adapter as unknown) as LokiPersistenceAdapter,
+    });
     const coll = db.addCollection("coll");
 
     expect(db.isIncremental).toBe(true);
@@ -108,7 +108,9 @@ describe("IncrementalIndexedDBAdapter", function () {
   // NOTE: Because PhantomJS doesn't support IndexedDB, I moved tests to spec/incrementalidb.html
   it("handles dirtyIds during save properly", function () {
     const adapter = new IncrementalIndexedDBAdapter("tests");
-    const db = new loki("test.db", { adapter: adapter });
+    const db = new loki("test.db", {
+      adapter: (adapter as unknown) as LokiPersistenceAdapter,
+    });
     const col1 = db.addCollection("test_collection");
     const col2 = db.addCollection("test_collection2");
     col2.dirty = false;

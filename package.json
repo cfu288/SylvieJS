@@ -43,8 +43,12 @@
     "jsdoc": "./node_modules/.bin/jsdoc -c jsdoc-conf.json",
     "benchmark": "node benchmark/benchmark"
   },
-  "author": "Joe Minichino <joe.minichino@gmail.com>",
+  "author": "Christopher Fu <invent288cfu@gmail.com>",
   "contributors": [
+    {
+      "name": "Joe Minichino",
+      "email": "joe.minichino@gmail.com"
+    },
     {
       "name": "Dave",
       "email": "github@obeliskos.com"

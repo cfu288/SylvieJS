@@ -8,6 +8,9 @@ declare global {
     ): void;
     unobserve(beingObserved: any, callback: (update: any) => any): void;
   }
+  interface Window {
+    __loki_incremental_idb_debug: boolean;
+  }
 }
 
 // Type definitions for lokijs v1.5.9
