@@ -2,18 +2,42 @@
 > lokijs@1.5.12 benchmark
 > ts-node --esm benchmark/benchmark.ts
 
-load (insert) : 9.70ms (515463.92) ops/s
-coll.get() : 231.95ms (8622547.96) ops/s
-coll.by() : 225.98ms (8850340.74) ops/s
+initalizing
+benching coll.get()
+orig is 1.57% faster
+orig is 5.96% faster
+new is 9.99% faster
+benching coll.by()
+orig is 0.36% faster
+orig is 6.04% faster
+orig is 3.83% faster
 
 -- Benchmarking query on NON-INDEXED column --
-coll.find() : 2.40ms (8333333.33 ops/s) 20000 iterations
-resultset chained find() :  2.40ms (8333333.33 ops/s) 20000 iterations
-loki dynamic view first find : 1019.91ms (19609.57 ops/s) 20000 iterations
-loki dynamic view subsequent finds : 22.55ms (886917.96 ops/s) 20000 iterations
+benching coll.find()
+orig is 3.70% faster
+orig is 0.29% faster
+orig is 0.80% faster
+benching rs.chain().find()
+orig is 0.41% faster
+new is 0.13% faster
+orig is 0.30% faster
+benching dv.data() initial
+new is 17.47% faster
+orig is 0.85% faster
+new is 2.72% faster
+benching dv.data() sub
+new is 249.28% faster
+orig is 255.83% faster
+new is 88.23% faster
 
 -- ADDING BINARY INDEX to query column and repeating benchmarks --
-coll.find() : 45.11ms (8867213.48 ops/s) 400000 iterations
-resultset chained find() :  34.72ms (8640553.00 ops/s) 300000 iterations
-loki dynamic view first find : 11385.76ms (26348.70 ops/s) 300000 iterations
-loki dynamic view subsequent finds : 63.70ms (4709576.14 ops/s) 300000 iterations
+benching coll.find()
+orig is 2.78% faster
+new is 0.34% faster
+new is 0.27% faster
+benching rs.chain().find()
+new is 1.72% faster
+new is 3.13% faster
+new is 1.35% faster
+benching dv.data() initial
+orig is 65.75% faster

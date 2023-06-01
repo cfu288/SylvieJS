@@ -20,7 +20,7 @@ esbuild
     minifyWhitespace: true,
     minify: true,
     keepNames: true,
-    format: "esm",
+    format: "iife",
     plugins: [dtsPlugin()],
   })
   .catch(() => process.exit(1));
