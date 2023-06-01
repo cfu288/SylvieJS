@@ -1,6 +1,6 @@
 # LokiJS
 
-This repo is a fork of the original [LokiJS repository](https://github.com/techfort/LokiJS).
+**This repo is a fork of the original [LokiJS repository](https://github.com/techfort/LokiJS) maintained by cfu288.**
 
 The super fast in-memory javascript document oriented database.
 
@@ -17,6 +17,8 @@ LokiJS is a document oriented database written in javascript, published under MI
 Its purpose is to store javascript objects as documents in a nosql fashion and retrieve them with a similar mechanism.
 Runs in node (including cordova/phonegap and node-webkit), [nativescript](http://www.nativescript.org) and the browser.
 LokiJS is ideal for the following scenarios:
+
+Originally made by [@techfort](http://twitter.com/tech_fort), with the precious help of Dave Easterday.
 
 1. client-side in-memory db is ideal (e.g., a session store)
 2. performance critical applications
