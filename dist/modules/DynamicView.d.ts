@@ -1,4 +1,4 @@
-import { Collection } from "./Collection";
+import { Collection, CollectionDocument } from "./Collection";
 import { LokiEventEmitter } from "./LokiEventEmitter";
 import { Resultset } from "./Resultset";
 /**
@@ -27,9 +27,7 @@ interface DynamicViewOptions {
     sortPriority: "passive" | "active";
     minRebuildInterval: number;
 }
-export declare class DynamicView<DT extends {
-    $loki: number;
-}> extends LokiEventEmitter {
+export declare class DynamicView<DT extends Partial<CollectionDocument>> extends LokiEventEmitter {
     collection: Collection<DT>;
     name: string;
     rebuildPending: boolean;
@@ -96,11 +94,7 @@ export declare class DynamicView<DT extends {
      *
      * var results = dv.branchResultset('viewPaging', { pageStart: 10, pageSize: 10 }).data();
      */
-    branchResultset: (transform: any, parameters: any) => {
-        $loki: number;
-    } | Resultset<{
-        $loki: number;
-    }>;
+    branchResultset: (transform: any, parameters: any) => Resultset<any>;
     /**
      * toJSON() - Override of toJSON to avoid circular references
      *
@@ -238,7 +232,7 @@ export declare class DynamicView<DT extends {
      * @returns {number} The number of documents representing the current DynamicView contents.
      * @memberof DynamicView
      */
-    count: () => any;
+    count: () => number;
     /**
      * data() - resolves and pending filtering and sorting, then returns document array as result.
      *

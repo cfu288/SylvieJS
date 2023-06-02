@@ -1,9 +1,9 @@
-export declare class ExactIndex {
-    index: any;
-    field: any;
-    constructor(exactField: any);
-    set(key: any, val: any): void;
-    remove(key: any, val: any): void;
-    get(key: any): any;
+export declare class ExactIndex<T extends number> {
+    index: Record<string, T[]>;
+    field: string;
+    constructor(exactField: string);
+    set(key: string, val: T): void;
+    remove(key: string, val: T): void;
+    get(key: string): T[];
     clear(): void;
 }

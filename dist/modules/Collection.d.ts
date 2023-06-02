@@ -1,12 +1,45 @@
-import { LokiEventEmitter } from "./LokiEventEmitter";
+import { CloneMethods } from "../utils/clone";
 import { DynamicView } from "./DynamicView";
+import { ChangeOps } from "./Loki";
+import { LokiEventEmitter } from "./LokiEventEmitter";
 import { Resultset } from "./Resultset";
+import { ExactIndex } from "./index/ExactIndex";
+import { UniqueIndex } from "./index/UniqueIndex";
 export type ChainTransform = string | {
     type: string;
     value?: any;
     mapFunction?: (_: any) => any;
     reduceFunction?: (values: any[]) => any;
 }[];
+interface CollectionOptions {
+    unique: string | string[];
+    exact: string[];
+    adaptiveBinaryIndices: boolean;
+    transactional: boolean;
+    cloneObjects: boolean;
+    cloneMethod: CloneMethods;
+    asyncListeners: boolean;
+    disableMeta: boolean;
+    disableChangesApi: boolean;
+    disableDeltaChangesApi: boolean;
+    autoupdate: boolean;
+    serializableIndices: boolean;
+    disableFreeze: boolean;
+    ttl: number;
+    ttlInterval: number;
+    indices: string | string[];
+    clone: boolean;
+}
+export type CollectionDocument = object & Record<string, any> & CollectionDocumentBase;
+export interface CollectionDocumentBase {
+    meta?: CollectionDocumentMeta;
+    $loki?: number;
+}
+export interface CollectionDocumentMeta {
+    created?: number;
+    revision?: number;
+    updated?: number;
+}
 /**
  * Collection class that handles documents of same type
  * @constructor Collection
@@ -30,20 +63,24 @@ export type ChainTransform = string | {
  * @param {int=} options.ttlInterval - time interval for clearing out 'aged' documents; not set by default.
  * @see {@link Loki#addCollection} for normal creation of collections
  */
-export declare class Collection<ColT extends {
-    $loki: number;
-}> extends LokiEventEmitter {
+export declare class Collection<ColT extends Partial<CollectionDocument>> extends LokiEventEmitter {
     data: ColT[];
-    isIncremental: any;
-    name: any;
-    idIndex: any;
-    binaryIndices: {};
+    isIncremental: boolean;
+    name: string;
+    idIndex: number[];
+    binaryIndices: Record<string, {
+        name: string;
+        dirty: boolean;
+        values: any[];
+    }>;
     constraints: {
-        unique: Record<string, any>;
-        exact: Record<string, any>;
+        unique: Record<string, UniqueIndex>;
+        exact: Record<string, ExactIndex<number>>;
     };
-    uniqueNames: any[];
-    transforms: {};
+    uniqueNames: string[];
+    transforms: Record<string, (Record<string, any> & {
+        type: string;
+    })[]>;
     objType: any;
     dirty: boolean;
     cachedIndex: any;
@@ -60,44 +97,42 @@ export declare class Collection<ColT extends {
     serializableIndices: any;
     disableFreeze: any;
     ttl: {
-        age: any;
-        ttlInterval: any;
-        daemon: any;
+        age?: number;
+        ttlInterval?: number;
+        daemon?: ReturnType<typeof setInterval>;
     };
     maxId: number;
-    DynamicViews: any[];
-    changes: any[];
-    dirtyIds: any[];
+    DynamicViews: DynamicView<ColT>[];
+    changes: ChangeOps[];
+    dirtyIds: number[];
     observerCallback: (changes: any) => void;
     getChangeDelta: (obj: any, old: any) => any;
     getObjectDelta: (oldObject: any, newObject: any) => any;
     getChanges: () => any;
     flushChanges: () => void;
     setChangesApi: (enabled: any) => void;
-    cachedDirtyIds: any;
+    cachedDirtyIds: number[];
     /**
      * stages: a map of uniquely identified 'stages', which hold copies of objects to be
      * manipulated without affecting the data in the original collection
      */
-    stages: object & Partial<{
-        $loki: number;
-    }>;
+    stages: Record<string, CollectionDocument>;
     /**
      * a collection of objects recording the changes applied through a commmitStage
      */
     commitLog: any[];
     contructor: typeof Collection;
     no_op: () => void;
-    constructor(name: any, options?: Record<string, any>);
-    createChange(name: string, op: string, obj: object, old?: object): void;
-    insertMeta(obj: any): void;
-    updateMeta(obj: any): any;
-    createInsertChange(obj: any): void;
-    createUpdateChange(obj: any, old: any): void;
-    insertMetaWithChange(obj: any): void;
-    updateMetaWithChange(obj: any, old: any): any;
-    addAutoUpdateObserver(object: any): void;
-    removeAutoUpdateObserver(object: any): void;
+    constructor(name: string, options?: Partial<CollectionOptions>);
+    createChange(name: string, op: "U" | "I" | "R", obj: object, old?: object): void;
+    insertMeta(obj: CollectionDocument): void;
+    updateMeta(obj: CollectionDocument): CollectionDocument;
+    createInsertChange(obj: CollectionDocument): void;
+    createUpdateChange(obj: CollectionDocument, old: CollectionDocument): void;
+    insertMetaWithChange(obj: CollectionDocument): void;
+    updateMetaWithChange(obj: CollectionDocument, old: CollectionDocument): CollectionDocument;
+    addAutoUpdateObserver(object: object): void;
+    removeAutoUpdateObserver(object: object): void;
     /**
      * Adds a named collection transform to the collection
      * @param {string} name - name to associate with transform
@@ -115,31 +150,37 @@ export declare class Collection<ColT extends {
      *
      * var results = users.chain('progeny').data();
      */
-    addTransform(name: any, transform: any): void;
+    addTransform(name: string, transform: (Record<string, any> & {
+        type: string;
+    })[]): void;
     /**
      * Retrieves a named transform from the collection.
      * @param {string} name - name of the transform to lookup.
      * @memberof Collection
      */
-    getTransform(name: any): any;
+    getTransform(name: string): (Record<string, any> & {
+        type: string;
+    })[];
     /**
      * Updates a named collection transform to the collection
      * @param {string} name - name to associate with transform
      * @param {object} transform - a transformation object to save into collection
      * @memberof Collection
      */
-    setTransform(name: any, transform: any): void;
+    setTransform(name: string, transform: (Record<string, any> & {
+        type: string;
+    })[]): void;
     /**
      * Removes a named collection transform from the collection
      * @param {string} name - name of collection transform to remove
      * @memberof Collection
      */
-    removeTransform(name: any): void;
-    byExample(template: any): {
+    removeTransform(name: string): void;
+    byExample(template: Record<string, any>): {
         $and: any[];
     };
-    findObject(template: any): any;
-    findObjects(template: any): any;
+    findObject(template: Record<string, any>): any;
+    findObjects(template: Record<string, any>): ColT[];
     ttlDaemonFuncGen(): () => void;
     /**
      * Updates or applies collection TTL settings.
@@ -147,7 +188,7 @@ export declare class Collection<ColT extends {
      * @param {int} interval - time (in ms) to clear collection of aged documents.
      * @memberof Collection
      */
-    setTTL(age: any, interval: any): void;
+    setTTL(age: number, interval: number): void;
     /**
      * create a row filter that covers all documents in the collection
      */
@@ -157,7 +198,9 @@ export declare class Collection<ColT extends {
      * @param {boolean} options.adaptiveBinaryIndices - collection indices will be actively rebuilt rather than lazily
      * @memberof Collection
      */
-    configureOptions: (options?: Record<string, any>) => void;
+    configureOptions: (options?: {
+        adaptiveBinaryIndices?: boolean;
+    }) => void;
     /**
      * Ensure binary index on a certain field
      * @param {string} property - name of property to create binary index on
@@ -182,7 +225,11 @@ export declare class Collection<ColT extends {
      *   });
      * }
      */
-    checkAllIndexes(options: any): any[];
+    checkAllIndexes(options?: {
+        randomSampling: boolean;
+        randomSamplingFactor: number;
+        repair: boolean;
+    }): string[];
     /**
      * Perform checks to determine validity/consistency of a binary index
      * @param {string} property - name of the binary-indexed property to check
@@ -206,15 +253,19 @@ export declare class Collection<ColT extends {
      * // random sampling with repair (if issues found)
      * valid = coll.checkIndex('name', { repair: true, randomSampling: true });
      */
-    checkIndex(property: any, options?: Record<string, any>): boolean;
-    getBinaryIndexValues(property: any): any[];
+    checkIndex(property: string, options?: {
+        randomSampling?: boolean;
+        randomSamplingFactor?: number;
+        repair?: boolean;
+    }): boolean;
+    getBinaryIndexValues(property: string): any[];
     /**
      * Returns a named unique index
      * @param {string} field - indexed field name
      * @param {boolean} force - if `true`, will rebuild index; otherwise, function may return null
      */
-    getUniqueIndex(field: any, force?: boolean): any;
-    ensureUniqueIndex(field: any): any;
+    getUniqueIndex(field: string, force?: boolean): UniqueIndex;
+    ensureUniqueIndex(field: any): UniqueIndex;
     /**
      * Ensure all binary indices
      * @param {boolean} force - whether to force rebuild of existing lazy binary indices
@@ -235,7 +286,7 @@ export declare class Collection<ColT extends {
      * @returns {number} number of documents in the collection
      * @memberof Collection
      */
-    count: (query?: Record<string, any>) => any;
+    count: (query?: Record<string, any>) => number;
     /**
      * Rebuild idIndex
      */
@@ -273,7 +324,7 @@ export declare class Collection<ColT extends {
      * @returns {DynamicView} A reference to the dynamic view with that name
      * @memberof Collection
      **/
-    getDynamicView(name: any): any;
+    getDynamicView(name: any): DynamicView<ColT>;
     /**
      * Applies a 'mongo-like' find query object and passes all results to an update function.
      * For filter function querying you should migrate to [updateWhere()]{@link Collection#updateWhere}.
@@ -330,7 +381,7 @@ export declare class Collection<ColT extends {
      * @param {object} doc - document to update within the collection
      * @memberof Collection
      */
-    update(doc: any): any;
+    update(doc: CollectionDocument | CollectionDocument[]): any;
     /**
      * Add object to collection
      */
@@ -349,24 +400,24 @@ export declare class Collection<ColT extends {
      * @param {function|object} query - query object to filter on
      * @memberof Collection
      */
-    removeWhere(query: any): void;
+    removeWhere(query: (...args: any[]) => any | object): void;
     removeDataOnly(): void;
     /**
      * Internal method to remove a batch of documents from the collection.
      * @param {number[]} positions - data/idIndex positions to remove
      */
-    removeBatchByPositions(positions: any): any;
+    removeBatchByPositions(positions: number[]): any;
     /**
      *  Internal method called by remove()
      * @param {object[]|number[]} batch - array of documents or $loki ids to remove
      */
-    removeBatch(batch: any): void;
+    removeBatch(batch: CollectionDocument[] | number[]): void;
     /**
      * Remove a document from the collection
      * @param {object} doc - document to remove from collection
      * @memberof Collection
      */
-    remove(doc: any): any;
+    remove(doc: CollectionDocument): CollectionDocument;
     /**
      * Get by Id - faster than other methods because of the searching algorithm
      * @param {int} id - $loki id of document you want to retrieve
@@ -375,7 +426,7 @@ export declare class Collection<ColT extends {
      *     or an array if 'returnPosition' was passed.
      * @memberof Collection
      */
-    get(id: any, returnPosition?: boolean): ColT | (number | ColT)[];
+    get(id: number, returnPosition?: boolean): object | Array<any> | null;
     /**
      * Perform binary range lookup for the data[dataPosition][binaryIndexName] property value
      *    Since multiple documents may contain the same value (which the index is sorted on),
@@ -383,25 +434,25 @@ export declare class Collection<ColT extends {
      * @param {int} dataPosition : coll.data array index/position
      * @param {string} binaryIndexName : index to search for dataPosition in
      */
-    getBinaryIndexPosition(dataPosition: any, binaryIndexName: any): any;
+    getBinaryIndexPosition(dataPosition: number, binaryIndexName: string): number;
     /**
      * Adaptively insert a selected item to the index.
      * @param {int} dataPosition : coll.data array index/position
      * @param {string} binaryIndexName : index to search for dataPosition in
      */
-    adaptiveBinaryIndexInsert(dataPosition: any, binaryIndexName: any): void;
+    adaptiveBinaryIndexInsert(dataPosition: number, binaryIndexName: string): void;
     /**
      * Adaptively update a selected item within an index.
      * @param {int} dataPosition : coll.data array index/position
      * @param {string} binaryIndexName : index to search for dataPosition in
      */
-    adaptiveBinaryIndexUpdate(dataPosition: any, binaryIndexName: any): void;
+    adaptiveBinaryIndexUpdate(dataPosition: number, binaryIndexName: string): void;
     /**
      * Adaptively remove a selected item from the index.
      * @param {number|number[]} dataPosition : coll.data array index/position
      * @param {string} binaryIndexName : index to search for dataPosition in
      */
-    adaptiveBinaryIndexRemove(dataPosition: any, binaryIndexName: any, removedFromIndexOnly?: boolean): any;
+    adaptiveBinaryIndexRemove(dataPosition: number | number[], binaryIndexName: string, removedFromIndexOnly?: boolean): any;
     /**
      * Internal method used for index maintenance and indexed searching.
      * Calculates the beginning of an index range for a given value.
@@ -416,12 +467,12 @@ export declare class Collection<ColT extends {
      * @param {any} val - value to find within index
      * @param {bool?} adaptive - if true, we will return insert position
      */
-    calculateRangeStart(prop: any, val: any, adaptive: any, usingDotNotation: any): number;
+    calculateRangeStart(prop: string, val: any, adaptive: boolean | null, usingDotNotation: boolean): number;
     /**
      * Internal method used for indexed $between.  Given a prop (index name), and a value
      * (which may or may not yet exist) this will find the final position of that upper range value.
      */
-    calculateRangeEnd(prop: any, val: any, usingDotNotation: any): number;
+    calculateRangeEnd(prop: string, val: any, usingDotNotation: boolean): number;
     /**
      * calculateRange() - Binary Search utility method to find range/segment of values matching criteria.
      *    this is used for collection.find() and first find filter of resultset/dynview
@@ -432,7 +483,7 @@ export declare class Collection<ColT extends {
      * @param {object} val - value to use for range calculation.
      * @returns {array} [start, end] index array positions
      */
-    calculateRange(op: any, prop: any, val: any): any[];
+    calculateRange(op: string, prop: string, val: any): [start: number, end: number];
     /**
      * Retrieve doc by Unique index
      * @param {string} field - name of uniquely indexed property to use when doing lookup
@@ -457,7 +508,7 @@ export declare class Collection<ColT extends {
      * @returns {Resultset} (this) resultset, or data array if any map or join functions where called
      * @memberof Collection
      */
-    chain(transform?: ChainTransform, parameters?: unknown): Resultset<ColT> | ColT;
+    chain(transform?: ChainTransform, parameters?: unknown): Resultset<ColT>;
     /**
      * Find method, api is similar to mongodb.
      * for more complex queries use [chain()]{@link Collection#chain} or [where()]{@link Collection#where}.
@@ -466,7 +517,7 @@ export declare class Collection<ColT extends {
      * @returns {array} Array of matching documents
      * @memberof Collection
      */
-    find(query?: Record<string, object>): any;
+    find(query?: Record<string, object>): ColT[];
     /**
      * Find object by unindexed field by property equal to value,
      * simply iterates and returns the first element matching the query
@@ -517,23 +568,17 @@ export declare class Collection<ColT extends {
      * @returns {Resultset} Result of the mapping operation
      * @memberof Collection
      */
-    eqJoin(joinData: any, leftJoinProp: any, rightJoinProp: any, mapFun: any, dataOptions: any): Resultset<{
-        $loki: number;
-    }>;
+    eqJoin(joinData: any, leftJoinProp: any, rightJoinProp: any, mapFun: any, dataOptions: any): Resultset<ColT>;
     /**
      * (Staging API) create a stage and/or retrieve it
      * @memberof Collection
      */
-    getStage(name: string): Record<number, Record<string, any> & {
-        $loki: number;
-    }>;
+    getStage(name: string): CollectionDocument;
     /**
      * (Staging API) create a copy of an object and insert it into a stage
      * @memberof Collection
      */
-    stage(stageName: string, obj: Record<string, any> & {
-        $loki: number;
-    }): any;
+    stage(stageName: string, obj: CollectionDocument): any;
     /**
      * (Staging API) re-attach all objects to the original collection, so indexes and views can be rebuilt
      * then create a message to be inserted in the commitlog
@@ -602,3 +647,4 @@ export declare class Collection<ColT extends {
         error(message: string): void;
     };
 }
+export {};

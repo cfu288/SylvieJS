@@ -12,15 +12,15 @@ export declare var Comparators: {
  *     aeqHelper([1, 2, 3], [1, 2, 3]) === true
  *     aeqHelper(undefined, null) === true
  */
-export declare function aeqHelper(prop1: any, prop2: any): boolean;
+export declare function aeqHelper(prop1: boolean | string | number, prop2: boolean | string | number): boolean;
 /** Helper function for determining 'less-than' conditions for ops, sorting, and binary indices.
  *     In the future we might want $lt and $gt ops to use their own functionality/helper.
  *     Since binary indices on a property might need to index [12, NaN, new Date(), Infinity], we
  *     need this function (as well as gtHelper) to always ensure one value is LT, GT, or EQ to another.
  */
-export declare function ltHelper(prop1: any, prop2: any, equal: any): any;
-export declare function gtHelper(prop1: any, prop2: any, equal: any): any;
-export declare function sortHelper(prop1: any, prop2: any, desc: any): 0 | 1 | -1;
+export declare function ltHelper(prop1: number | boolean | string, prop2: number | boolean | string, equal: boolean): boolean;
+export declare function gtHelper(prop1: number | boolean | string, prop2: number | boolean | string, equal: boolean): boolean;
+export declare function sortHelper(prop1: string | number | boolean, prop2: string | number | boolean, desc: boolean): 0 | 1 | -1;
 /**
  * compoundeval() - helper function for compoundsort(), performing individual object comparisons
  *
@@ -29,4 +29,4 @@ export declare function sortHelper(prop1: any, prop2: any, desc: any): 0 | 1 | -
  * @param {object} obj2 - second object to compare
  * @returns {integer} 0, -1, or 1 to designate if identical (sortwise) or which should be first
  */
-export declare function compoundeval(properties: any, obj1: any, obj2: any): number;
+export declare function compoundeval(properties: Array<any>, obj1: object, obj2: object): number;

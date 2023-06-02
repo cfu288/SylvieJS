@@ -3,7 +3,7 @@
 /* eslint-disable no-var */
 "use strict";
 import { deepFreeze, freeze } from "../utils/icebox";
-import { Collection } from "./Collection";
+import { Collection, CollectionDocument } from "./Collection";
 import { LokiEventEmitter } from "./LokiEventEmitter";
 import { Resultset } from "./Resultset";
 
@@ -36,7 +36,7 @@ interface DynamicViewOptions {
 }
 
 export class DynamicView<
-  DT extends { $loki: number }
+  DT extends Partial<CollectionDocument>
 > extends LokiEventEmitter {
   collection: Collection<DT>;
   name: string;

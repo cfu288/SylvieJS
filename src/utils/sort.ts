@@ -18,7 +18,7 @@ export var Comparators = {
  *     aeqHelper([1, 2, 3], [1, 2, 3]) === true
  *     aeqHelper(undefined, null) === true
  */
-export function aeqHelper(prop1, prop2) {
+export function aeqHelper(prop1: boolean | string | number, prop2: boolean | string | number) {
   var cv1, cv2, t1, t2;
 
   if (prop1 === prop2) return true;
@@ -102,7 +102,7 @@ export function aeqHelper(prop1, prop2) {
  *     Since binary indices on a property might need to index [12, NaN, new Date(), Infinity], we
  *     need this function (as well as gtHelper) to always ensure one value is LT, GT, or EQ to another.
  */
-export function ltHelper(prop1, prop2, equal) {
+export function ltHelper(prop1: number | boolean | string, prop2: number | boolean | string, equal: boolean): boolean {
   var cv1, cv2, t1, t2;
 
   // if one of the params is falsy or strictly true or not equal to itself
@@ -201,7 +201,7 @@ export function ltHelper(prop1, prop2, equal) {
   return false;
 }
 
-export function gtHelper(prop1, prop2, equal) {
+export function gtHelper(prop1: number | boolean | string, prop2: number | boolean | string, equal: boolean): boolean {
   var cv1, cv2, t1, t2;
 
   // 'falsy' and Boolean handling
@@ -303,7 +303,7 @@ export function gtHelper(prop1, prop2, equal) {
 // warning: overriding these methods will override behavior for all loki db instances in memory.
 // warning: if you use binary indices these comparators should be the same for all inserts/updates/removes.
 
-export function sortHelper(prop1, prop2, desc) {
+export function sortHelper(prop1: string | number | boolean, prop2: string | number | boolean, desc: boolean) {
   if (Comparators.aeq(prop1, prop2)) return 0;
 
   if (Comparators.lt(prop1, prop2, false)) {
@@ -326,7 +326,7 @@ export function sortHelper(prop1, prop2, desc) {
  * @param {object} obj2 - second object to compare
  * @returns {integer} 0, -1, or 1 to designate if identical (sortwise) or which should be first
  */
-export function compoundeval(properties, obj1, obj2) {
+export function compoundeval(properties: Array<any>, obj1: object, obj2: object): number {
   var res = 0;
   var prop, field, val1, val2, arr;
   for (var i = 0, len = properties.length; i < len; i++) {

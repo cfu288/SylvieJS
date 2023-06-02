@@ -3,16 +3,16 @@
 /* eslint-disable no-var */
 "use strict";
 
-export class ExactIndex {
-  index: any;
-  field: any;
-  constructor(exactField) {
+export class ExactIndex<T extends number> {
+  index: Record<string, T[]>;
+  field: string;
+  constructor(exactField: string) {
     this.index = Object.create(null);
     this.field = exactField;
   }
 
   // add the value you want returned to the key in the index
-  set(key, val) {
+  set(key: string, val: T) {
     if (this.index[key]) {
       this.index[key].push(val);
     } else {
@@ -21,9 +21,9 @@ export class ExactIndex {
   }
 
   // remove the value from the index, if the value was the last one, remove the key
-  remove(key, val) {
+  remove(key: string, val: T) {
     const idxSet = this.index[key];
-    for (const i in idxSet) {
+    for (const i of idxSet) {
       if (idxSet[i] == val) {
         idxSet.splice(i, 1);
       }
@@ -34,7 +34,7 @@ export class ExactIndex {
   }
 
   // get the values related to the key, could be more than one
-  get(key) {
+  get(key: string) {
     return this.index[key];
   }
 

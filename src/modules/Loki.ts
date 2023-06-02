@@ -4,7 +4,7 @@
 "use strict";
 
 import { LokiFsAdapter } from "./loki-storage-adapter/LokiFsAdapter";
-import { Collection } from "./Collection";
+import { Collection, CollectionDocument } from "./Collection";
 import { deepFreeze, freeze, unFreeze } from "../utils/icebox";
 import { Utils } from "../utils/index";
 import { LokiEventEmitter } from "./LokiEventEmitter";
@@ -23,8 +23,8 @@ import { LokiPersistenceAdapter } from "./loki-storage-adapter/LokiPersistenceAd
 
 export type ChangeOpsLoadJSONUsersOptions = {
   inflate:
-    | ((src: any) => ChangeOpsLoadJSONOptionsMeta)
-    | ((src: any, dest: ChangeOpsLoadJSONOptionsMeta) => void);
+  | ((src: any) => ChangeOpsLoadJSONOptionsMeta)
+  | ((src: any, dest: ChangeOpsLoadJSONOptionsMeta) => void);
   proto: (n: any) => void;
 };
 
@@ -42,8 +42,8 @@ export interface ChangeOpsLoadJSONOptions extends ChangeOpsLoadJSONOptionsMeta {
 
 export interface ChangeOps {
   name: string;
-  operation: string;
-  obj: Obj;
+  operation: "U" | "I" | "R";
+  obj: Record<string, any>;
 }
 
 export interface Obj {
@@ -106,8 +106,8 @@ interface LokiConfigOptions {
                                               and guaranteeing proper serialization of the calls.
    */
 export default class Loki extends LokiEventEmitter {
-  filename: any;
-  collections: Collection<any | { $loki: number }>[];
+  filename: string;
+  collections: Collection<Partial<CollectionDocument>>[];
   databaseVersion: number;
   engineVersion: number;
   autosave: boolean;
@@ -119,10 +119,10 @@ export default class Loki extends LokiEventEmitter {
   persistenceAdapter: any;
   throttledSavePending: boolean;
   throttledCallbacks: any[];
-  verbose: any;
-  ENV: any;
+  verbose: boolean;
+  ENV: string;
   isIncremental: boolean;
-  name: any;
+  name: string;
   ignoreAutosave: boolean;
   static deepFreeze: (obj: object) => void;
   static freeze: (obj: object) => void;

@@ -12,30 +12,26 @@
  * @param {Collection} collection - The collection which this Resultset will query against.
  */
 import { CloneMethods } from "../utils/clone";
-import { ChainTransform, Collection } from "./Collection";
-export declare class Resultset<RST extends {
-    $loki: number;
-}> {
+import { ChainTransform, Collection, CollectionDocument } from "./Collection";
+export declare class Resultset<RST extends Partial<CollectionDocument>> {
     options: Record<string, any>;
     collection: Collection<RST>;
-    filteredrows: any[];
+    filteredrows: number[];
     filterInitialized: boolean;
-    disableFreeze: any;
-    rightData: any;
-    constructor(collection: any, options?: Record<string, any>);
+    disableFreeze: boolean;
+    rightData: RST[];
+    constructor(collection: Collection<RST>, options?: Record<string, any>);
     /**
      * reset() - Reset the resultset to its initial state.
      *
      * @returns {Resultset} Reference to this resultset, for future chain operations.
      */
-    reset(): this;
+    reset(): Resultset<RST>;
     /**
      * toJSON() - Override of toJSON to avoid circular references
      *
      */
-    toJSON(): Resultset<{
-        $loki: number;
-    }>;
+    toJSON(): Resultset<RST>;
     /**
      * Allows you to limit the number of documents passed to next chain operation.
      *    A resultset copy() is made to avoid altering original resultset.
@@ -46,9 +42,7 @@ export declare class Resultset<RST extends {
      * // find the two oldest users
      * var result = users.chain().simplesort("age", true).limit(2).data();
      */
-    limit(qty: any): Resultset<{
-        $loki: number;
-    }>;
+    limit(qty: number): Resultset<RST>;
     /**
      * Used for skipping 'pos' number of documents in the resultset.
      *
@@ -58,18 +52,14 @@ export declare class Resultset<RST extends {
      * // find everyone but the two oldest users
      * var result = users.chain().simplesort("age", true).offset(2).data();
      */
-    offset(pos: any): Resultset<{
-        $loki: number;
-    }>;
+    offset(pos: number): Resultset<RST>;
     /**
      * copy() - To support reuse of resultset in branched query situations.
      *
      * @returns {Resultset} Returns a copy of the resultset (set) but the underlying document references will be the same.
      * @memberof Resultset
      */
-    copy(): Resultset<{
-        $loki: number;
-    }>;
+    copy(): Resultset<RST>;
     /**
      * transform() - executes a named collection transform or raw array of transform steps against the resultset.
      *
@@ -93,7 +83,7 @@ export declare class Resultset<RST extends {
      * ]);
      * var results = users.chain().transform("CountryFilter", { Country: 'fr' }).data();
      */
-    transform(transform: ChainTransform, parameters?: Record<string, any>): Resultset<RST> | RST;
+    transform(transform: ChainTransform, parameters?: Record<string, any>): Resultset<RST>;
     /**
      * User supplied compare function is provided two documents to compare. (chainable)
      * @example
@@ -167,7 +157,7 @@ export declare class Resultset<RST extends {
      * @example
      * var over30 = users.chain().find({ age: { $gte: 30 } }).data();
      */
-    find(query: any, firstOnly?: boolean): any;
+    find(query: object, firstOnly?: boolean): Resultset<RST>;
     /**
      * where() - Used for filtering via a javascript filter function.
      *
@@ -186,7 +176,7 @@ export declare class Resultset<RST extends {
      * @example
      * var over30Count = users.chain().find({ age: { $gte: 30 } }).count();
      */
-    count(): any;
+    count(): number;
     /**
      * Terminates the chain and returns array of filtered documents
      *
@@ -223,7 +213,7 @@ export declare class Resultset<RST extends {
      * // remove users inactive since 1/1/2001
      * users.chain().find({ lastActive: { $lte: new Date("1/1/2001").getTime() } }).remove();
      */
-    remove(): this;
+    remove(): Resultset<RST>;
     /**
      * data transformation via user supplied functions
      *
@@ -294,7 +284,7 @@ export declare class Resultset<RST extends {
      *
      * console.log(orderSummary);
      */
-    eqJoin(joinData: any, leftJoinKey: any, rightJoinKey: any, mapFun: any, dataOptions: any): this;
+    eqJoin(joinData: Resultset<RST> | Collection<RST>, leftJoinKey: (string | ((...args: any[]) => string)), rightJoinKey: (string | ((...args: any[]) => string)), mapFun: ((...args: any[]) => any) | undefined, dataOptions: object | undefined): Resultset<RST>;
     /**
      * Terminates the chain and returns array of filtered documents
      *
@@ -333,9 +323,7 @@ export declare class Resultset<RST extends {
      * Alias of copy()
      * @memberof Resultset
      */
-    branch: () => Resultset<{
-        $loki: number;
-    }>;
+    branch: () => Resultset<any>;
     $or: (expressionArray: any) => Resultset<any>;
     $and: (expressionArray: any) => Resultset<any>;
 }

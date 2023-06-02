@@ -20,16 +20,16 @@ import { dotSubScan } from "../utils/dotSubScan";
 import { Utils } from "../utils/index";
 import { indexedOps, LokiOps } from "../utils/ops";
 import { sortHelper, compoundeval } from "../utils/sort";
-import { ChainTransform, Collection } from "./Collection";
+import { ChainTransform, Collection, CollectionDocument } from "./Collection";
 
-export class Resultset<RST extends { $loki: number }> {
+export class Resultset<RST extends Partial<CollectionDocument>> {
   options: Record<string, any>;
   collection: Collection<RST>;
-  filteredrows: any[];
+  filteredrows: number[];
   filterInitialized: boolean;
-  disableFreeze: any;
-  rightData: any;
-  constructor(collection, options?: Record<string, any>) {
+  disableFreeze: boolean;
+  rightData: RST[];
+  constructor(collection: Collection<RST>, options?: Record<string, any>) {
     this.options = options || {};
 
     // retain reference to collection we are querying against
@@ -45,7 +45,7 @@ export class Resultset<RST extends { $loki: number }> {
    *
    * @returns {Resultset} Reference to this resultset, for future chain operations.
    */
-  reset() {
+  reset(): Resultset<RST> {
     if (this.filteredrows.length > 0) {
       this.filteredrows = [];
     }
@@ -73,7 +73,7 @@ export class Resultset<RST extends { $loki: number }> {
    * // find the two oldest users
    * var result = users.chain().simplesort("age", true).limit(2).data();
    */
-  limit(qty) {
+  limit(qty: number): Resultset<RST> {
     // if this has no filters applied, we need to populate filteredrows first
     if (!this.filterInitialized && this.filteredrows.length === 0) {
       this.filteredrows = this.collection.prepareFullDocIndex();
@@ -94,7 +94,7 @@ export class Resultset<RST extends { $loki: number }> {
    * // find everyone but the two oldest users
    * var result = users.chain().simplesort("age", true).offset(2).data();
    */
-  offset(pos) {
+  offset(pos: number): Resultset<RST> {
     // if this has no filters applied, we need to populate filteredrows first
     if (!this.filterInitialized && this.filteredrows.length === 0) {
       this.filteredrows = this.collection.prepareFullDocIndex();
@@ -112,7 +112,7 @@ export class Resultset<RST extends { $loki: number }> {
    * @returns {Resultset} Returns a copy of the resultset (set) but the underlying document references will be the same.
    * @memberof Resultset
    */
-  copy() {
+  copy(): Resultset<RST> {
     const result = new Resultset(this.collection);
 
     if (this.filteredrows.length > 0) {
@@ -149,7 +149,7 @@ export class Resultset<RST extends { $loki: number }> {
   transform(
     transform: ChainTransform,
     parameters?: Record<string, any>
-  ): Resultset<RST> | RST {
+  ): Resultset<RST> {
     let idx;
     let step;
     let rs: Resultset<RST> = this;
@@ -511,7 +511,7 @@ export class Resultset<RST extends { $loki: number }> {
    * @example
    * var over30 = users.chain().find({ age: { $gte: 30 } }).data();
    */
-  find(query, firstOnly?: boolean) {
+  find(query: object, firstOnly?: boolean): Resultset<RST> {
     if (this.collection.data.length === 0) {
       this.filteredrows = [];
       this.filterInitialized = true;
@@ -913,7 +913,7 @@ export class Resultset<RST extends { $loki: number }> {
    * // remove users inactive since 1/1/2001
    * users.chain().find({ lastActive: { $lte: new Date("1/1/2001").getTime() } }).remove();
    */
-  remove() {
+  remove(): Resultset<RST> {
     // if this has no filters applied, we need to populate filteredrows first
     if (!this.filterInitialized && this.filteredrows.length === 0) {
       this.filteredrows = this.collection.prepareFullDocIndex();
@@ -999,7 +999,7 @@ export class Resultset<RST extends { $loki: number }> {
    *
    * console.log(orderSummary);
    */
-  eqJoin(joinData, leftJoinKey, rightJoinKey, mapFun, dataOptions) {
+  eqJoin(joinData: Resultset<RST> | Collection<RST>, leftJoinKey: (string | ((...args: any[]) => string)), rightJoinKey: (string | ((...args: any[]) => string)), mapFun: ((...args: any[]) => any) | undefined, dataOptions: object | undefined): Resultset<RST> {
     let leftData = [];
     let rightData = [];
     let key;
@@ -1016,7 +1016,8 @@ export class Resultset<RST extends { $loki: number }> {
     if (joinData instanceof Collection) {
       rightData = joinData.chain().data(dataOptions);
     } else if (joinData instanceof Resultset) {
-      const x = new Resultset({}, {});
+      const x = new Resultset(new Collection<RST>(""));
+      const res = joinData.data(dataOptions)
       x.rightData = joinData.data(dataOptions);
     } else if (Array.isArray(joinData)) {
       rightData = joinData;

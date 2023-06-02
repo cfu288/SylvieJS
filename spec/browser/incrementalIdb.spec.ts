@@ -1,19 +1,11 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import Loki from "../../src/lokijs";
+import { Collection } from "../../src/modules/Collection";
 import { LokiPersistenceAdapter } from "../../src/modules/loki-storage-adapter/LokiPersistenceAdapter";
 const loki = Loki;
 
-// IncrementalIndexedDBAdapter is exported globally in browser environment, see web-test-runner.config.js
-// interface Constructable<T> {
-//   new (...args: any): T;
-// }
-
-// declare global {
-//   let IncrementalIndexedDBAdapter: Constructable<LokiPersistenceAdapter>;
-// }
-
-describe("IncrementalIndexedDBAdapter", function () {
-  it("initializes Loki properly", function () {
+describe("IncrementalIndexedDBAdapter", function() {
+  it("initializes Loki properly", function() {
     const adapter = (new IncrementalIndexedDBAdapter(
       "tests"
     ) as unknown) as LokiPersistenceAdapter;
@@ -29,19 +21,19 @@ describe("IncrementalIndexedDBAdapter", function () {
     expect(adapter.mode).toBe("incremental");
   });
   function checkDatabaseCopyIntegrity(source, copy) {
-    source.collections.forEach(function (sourceCol, i) {
+    source.collections.forEach(function(sourceCol: Collection<any>, i) {
       const copyCol = copy.collections[i];
       expect(copyCol.name).toBe(sourceCol.name);
       expect(copyCol.data.length).toBe(sourceCol.data.length);
 
-      copyCol.data.every(function (copyEl, elIndex) {
+      copyCol.data.every(function(copyEl, elIndex) {
         expect(JSON.stringify(copyEl)).toBe(
           JSON.stringify(source.collections[i].data[elIndex])
         );
       });
     });
   }
-  it("checkDatabaseCopyIntegrity works", function () {
+  it("checkDatabaseCopyIntegrity works", function() {
     const db = new loki("test.db");
     const col1 = db.addCollection("test_collection");
 
@@ -110,7 +102,7 @@ describe("IncrementalIndexedDBAdapter", function () {
   // it('stores data in the expected format', function() {
   // })
   // NOTE: Because PhantomJS doesn't support IndexedDB, I moved tests to spec/incrementalidb.html
-  it("handles dirtyIds during save properly", function () {
+  it("handles dirtyIds during save properly", function() {
     const adapter = new IncrementalIndexedDBAdapter("tests");
     const db = new loki("test.db", {
       adapter: (adapter as unknown) as LokiPersistenceAdapter,
@@ -134,7 +126,7 @@ describe("IncrementalIndexedDBAdapter", function () {
 
     // simulate save - don't go through IDB, just check that logic is good
     let callCallback;
-    adapter.saveDatabase = function (dbname, getLokiCopy, callback) {
+    adapter.saveDatabase = function(dbname, getLokiCopy, callback) {
       getLokiCopy();
       callCallback = callback;
     };

@@ -2,27 +2,60 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable no-var */
 "use strict";
-import { clone } from "../utils/clone";
-import { freeze, deepFreeze, unFreeze } from "../utils/icebox";
+import { deepProperty, hasOwnProperty, parseBase10 } from "../lokijs";
+import { CloneMethods, clone } from "../utils/clone";
+import { deepFreeze, freeze, unFreeze } from "../utils/icebox";
 import { Utils } from "../utils/index";
+import { average, isDeepProperty, standardDeviation, sub } from "../utils/math";
 import { LokiOps } from "../utils/ops";
 import { Comparators } from "../utils/sort";
+import { DynamicView } from "./DynamicView";
+import { ChangeOps } from "./Loki";
 import { LokiEventEmitter } from "./LokiEventEmitter";
-import { hasOwnProperty, deepProperty, parseBase10 } from "../lokijs";
+import { Resultset } from "./Resultset";
 import { ExactIndex } from "./index/ExactIndex";
 import { UniqueIndex } from "./index/UniqueIndex";
-import { DynamicView } from "./DynamicView";
-import { Resultset } from "./Resultset";
-import { isDeepProperty, average, standardDeviation, sub } from "../utils/math";
 
 export type ChainTransform =
   | string
   | {
-      type: string;
-      value?: any;
-      mapFunction?: (_: any) => any;
-      reduceFunction?: (values: any[]) => any;
-    }[];
+    type: string;
+    value?: any;
+    mapFunction?: (_: any) => any;
+    reduceFunction?: (values: any[]) => any;
+  }[];
+
+interface CollectionOptions {
+  unique: string | string[];
+  exact: string[];
+  adaptiveBinaryIndices: boolean;
+  transactional: boolean;
+  cloneObjects: boolean;
+  cloneMethod: CloneMethods;
+  asyncListeners: boolean;
+  disableMeta: boolean;
+  disableChangesApi: boolean;
+  disableDeltaChangesApi: boolean;
+  autoupdate: boolean;
+  serializableIndices: boolean;
+  disableFreeze: boolean;
+  ttl: number;
+  ttlInterval: number;
+  indices: string | string[];
+  clone: boolean;
+}
+
+export type CollectionDocument = object & Record<string, any> & CollectionDocumentBase;
+export interface CollectionDocumentBase {
+  meta?: CollectionDocumentMeta;
+  $loki?: number;
+}
+export interface CollectionDocumentMeta {
+  created?: number;
+  revision?: number;
+  updated?: number;
+}
+
 /**
  * Collection class that handles documents of same type
  * @constructor Collection
@@ -48,19 +81,26 @@ export type ChainTransform =
  */
 
 export class Collection<
-  ColT extends { $loki: number }
+  ColT extends Partial<CollectionDocument>
 > extends LokiEventEmitter {
   data: ColT[];
-  isIncremental: any;
-  name: any;
-  idIndex: any;
-  binaryIndices: {};
+  isIncremental: boolean;
+  name: string;
+  idIndex: number[];
+  binaryIndices: Record<
+    string,
+    {
+      name: string;
+      dirty: boolean;
+      values: any[];
+    }
+  >;
   constraints: {
-    unique: Record<string, any>;
-    exact: Record<string, any>;
+    unique: Record<string, UniqueIndex>;
+    exact: Record<string, ExactIndex<number>>;
   };
-  uniqueNames: any[];
-  transforms: {};
+  uniqueNames: string[];
+  transforms: Record<string, (Record<string, any> & { type: string })[]>;
   objType: any;
   dirty: boolean;
   cachedIndex: any;
@@ -76,30 +116,34 @@ export class Collection<
   autoupdate: any;
   serializableIndices: any;
   disableFreeze: any;
-  ttl: { age: any; ttlInterval: any; daemon: any };
+  ttl: {
+    age?: number;
+    ttlInterval?: number;
+    daemon?: ReturnType<typeof setInterval>;
+  };
   maxId: number;
-  DynamicViews: any[];
-  changes: any[];
-  dirtyIds: any[];
+  DynamicViews: DynamicView<ColT>[];
+  changes: ChangeOps[];
+  dirtyIds: number[];
   observerCallback: (changes: any) => void;
   getChangeDelta: (obj: any, old: any) => any;
   getObjectDelta: (oldObject: any, newObject: any) => any;
   getChanges: () => any;
   flushChanges: () => void;
   setChangesApi: (enabled: any) => void;
-  cachedDirtyIds: any;
+  cachedDirtyIds: number[];
   /**
    * stages: a map of uniquely identified 'stages', which hold copies of objects to be
    * manipulated without affecting the data in the original collection
    */
-  stages: object & Partial<{ $loki: number }> = {};
+  stages: Record<string, CollectionDocument> = {};
   /**
    * a collection of objects recording the changes applied through a commmitStage
    */
   commitLog = [];
   contructor: typeof Collection;
   no_op: () => void;
-  constructor(name, options?: Record<string, any>) {
+  constructor(name: string, options?: Partial<CollectionOptions>) {
     super();
     // the name of the collection
     this.name = name;
@@ -248,12 +292,12 @@ export class Collection<
     this.dirtyIds = [];
 
     // initialize optional user-supplied indices array ['age', 'lname', 'zip']
-    let indices = [];
+    let indices: string[] = [];
     if (options && options.indices) {
       if (
         Object.prototype.toString.call(options.indices) === "[object Array]"
       ) {
-        indices = options.indices;
+        indices = options.indices as string[];
       } else if (typeof options.indices === "string") {
         indices = [options.indices];
       } else {
@@ -267,11 +311,11 @@ export class Collection<
       this.ensureIndex(indices[idx]);
     }
 
-    function observerCallback(changes) {
-      const changedObjects = new Set();
+    function observerCallback(changes: { object: object }[]) {
+      const changedObjects = new Set<object>();
 
       if (!changedObjects.add)
-        changedObjects.add = function (object) {
+        changedObjects.add = function(object) {
           if (!this.includes(object)) this.push(object);
           return this;
         };
@@ -294,7 +338,7 @@ export class Collection<
     this.observerCallback = observerCallback;
 
     //Compare changed object (which is a forced clone) with existing object and return the delta
-    function getChangeDelta(obj, old) {
+    function getChangeDelta(obj: object, old: object) {
       if (old) {
         return getObjectDelta(old, obj);
       } else {
@@ -304,7 +348,7 @@ export class Collection<
 
     this.getChangeDelta = getChangeDelta;
 
-    function getObjectDelta(oldObject, newObject) {
+    function getObjectDelta(oldObject: object, newObject: object) {
       const propertyNames =
         newObject !== null && typeof newObject === "object"
           ? Object.keys(newObject)
@@ -376,7 +420,7 @@ export class Collection<
   /*
    * For ChangeAPI default to clone entire object, for delta changes create object with only differences (+ $loki and meta)
    */
-  createChange(name: string, op: string, obj: object, old?: object) {
+  createChange(name: string, op: "U" | "I" | "R", obj: object, old?: object) {
     this.changes.push({
       name,
       operation: op,
@@ -387,9 +431,9 @@ export class Collection<
     });
   }
 
-  insertMeta(obj) {
-    let len;
-    let idx;
+  insertMeta(obj: CollectionDocument) {
+    let len: number;
+    let idx: number;
 
     if (this.disableMeta || !obj) {
       return;
@@ -420,7 +464,7 @@ export class Collection<
     obj.meta.revision = 0;
   }
 
-  updateMeta(obj) {
+  updateMeta(obj: CollectionDocument) {
     if (this.disableMeta || !obj) {
       return obj;
     }
@@ -433,26 +477,26 @@ export class Collection<
     return obj;
   }
 
-  createInsertChange(obj) {
+  createInsertChange(obj: CollectionDocument) {
     this.createChange(this.name, "I", obj);
   }
 
-  createUpdateChange(obj, old) {
+  createUpdateChange(obj: CollectionDocument, old: CollectionDocument) {
     this.createChange(this.name, "U", obj, old);
   }
 
-  insertMetaWithChange(obj) {
+  insertMetaWithChange(obj: CollectionDocument) {
     this.insertMeta(obj);
     this.createInsertChange(obj);
   }
 
-  updateMetaWithChange(obj, old) {
+  updateMetaWithChange(obj: CollectionDocument, old: CollectionDocument) {
     obj = this.updateMeta(obj);
     this.createUpdateChange(obj, old);
     return obj;
   }
 
-  addAutoUpdateObserver(object) {
+  addAutoUpdateObserver(object: object) {
     // @ts-ignore
     if (!this.autoupdate || typeof Object.observe !== "function") return;
 
@@ -466,7 +510,7 @@ export class Collection<
     ]);
   }
 
-  removeAutoUpdateObserver(object) {
+  removeAutoUpdateObserver(object: object) {
     // @ts-ignore
     if (!this.autoupdate || typeof Object.observe !== "function") return;
 
@@ -491,7 +535,10 @@ export class Collection<
    *
    * var results = users.chain('progeny').data();
    */
-  addTransform(name, transform) {
+  addTransform(
+    name: string,
+    transform: (Record<string, any> & { type: string })[]
+  ) {
     if (this.transforms.hasOwnProperty(name)) {
       throw new Error("a transform by that name already exists");
     }
@@ -504,7 +551,7 @@ export class Collection<
    * @param {string} name - name of the transform to lookup.
    * @memberof Collection
    */
-  getTransform(name) {
+  getTransform(name: string) {
     return this.transforms[name];
   }
 
@@ -514,7 +561,10 @@ export class Collection<
    * @param {object} transform - a transformation object to save into collection
    * @memberof Collection
    */
-  setTransform(name, transform) {
+  setTransform(
+    name: string,
+    transform: (Record<string, any> & { type: string })[]
+  ) {
     this.transforms[name] = transform;
   }
 
@@ -523,41 +573,42 @@ export class Collection<
    * @param {string} name - name of collection transform to remove
    * @memberof Collection
    */
-  removeTransform(name) {
+  removeTransform(name: string) {
     delete this.transforms[name];
   }
 
-  byExample(template) {
-    let k;
-    let obj;
+  // convert a template into a $and query
+  byExample(template: Record<string, any>) {
+    let prop: string;
+    let obj: object;
     const query = [];
-    for (k in template) {
-      if (!template.hasOwnProperty(k)) continue;
-      query.push(((obj = {}), (obj[k] = template[k]), obj));
+    for (prop in template) {
+      if (!template.hasOwnProperty(prop)) continue;
+      query.push(((obj = {}), (obj[prop] = template[prop]), obj));
     }
     return {
       $and: query,
     };
   }
 
-  findObject(template) {
+  findObject(template: Record<string, any>) {
     return this.findOne(this.byExample(template));
   }
 
-  findObjects(template) {
+  findObjects(template: Record<string, any>) {
     return this.find(this.byExample(template));
   }
 
   /*----------------------------+
-        | TTL daemon                  |
-        +----------------------------*/
+  | TTL daemon                  |
+  +----------------------------*/
   ttlDaemonFuncGen() {
     const collection = this;
     const age = this.ttl.age;
     return function ttlDaemon() {
       const now = Date.now();
       const toRemove = (collection.chain() as Resultset<ColT>).where(
-        function daemonFilter(member) {
+        function daemonFilter(member: CollectionDocument) {
           const timestamp = member.meta.updated || member.meta.created;
           const diff = now - timestamp;
           return age < diff;
@@ -573,7 +624,7 @@ export class Collection<
    * @param {int} interval - time (in ms) to clear collection of aged documents.
    * @memberof Collection
    */
-  setTTL(age, interval) {
+  setTTL(age: number, interval: number) {
     if (age < 0) {
       clearInterval(this.ttl.daemon);
     } else {
@@ -584,12 +635,12 @@ export class Collection<
   }
 
   /*----------------------------+
-        | INDEXING                    |
-        +----------------------------*/
+  | INDEXING                    |
+  +----------------------------*/
   /**
    * create a row filter that covers all documents in the collection
    */
-  prepareFullDocIndex() {
+  prepareFullDocIndex(): any[] {
     const len = this.data.length;
     const indexes = new Array(len);
     for (let i = 0; i < len; i += 1) {
@@ -603,7 +654,7 @@ export class Collection<
    * @param {boolean} options.adaptiveBinaryIndices - collection indices will be actively rebuilt rather than lazily
    * @memberof Collection
    */
-  configureOptions = (options: Record<string, any> = {}) => {
+  configureOptions = (options: { adaptiveBinaryIndices?: boolean } = {}) => {
     if (options.hasOwnProperty("adaptiveBinaryIndices")) {
       this.adaptiveBinaryIndices = options.adaptiveBinaryIndices;
 
@@ -694,11 +745,15 @@ export class Collection<
    *   });
    * }
    */
-  checkAllIndexes(options) {
-    let key;
+  checkAllIndexes(options?: {
+    randomSampling: boolean;
+    randomSamplingFactor: number;
+    repair: boolean;
+  }): string[] {
+    let key: string;
     const bIndices = this.binaryIndices;
     const results = [];
-    let result;
+    let result: boolean;
 
     for (key in bIndices) {
       if (hasOwnProperty.call(bIndices, key)) {
@@ -735,7 +790,14 @@ export class Collection<
    * // random sampling with repair (if issues found)
    * valid = coll.checkIndex('name', { repair: true, randomSampling: true });
    */
-  checkIndex(property, options: Record<string, any> = {}) {
+  checkIndex(
+    property: string,
+    options: {
+      randomSampling?: boolean;
+      randomSamplingFactor?: number;
+      repair?: boolean;
+    } = {}
+  ): boolean {
     // if 'randomSamplingFactor' specified but not 'randomSampling', assume true
     if (options.randomSamplingFactor && options.randomSampling !== false) {
       options.randomSampling = true;
@@ -847,7 +909,7 @@ export class Collection<
     return valid;
   }
 
-  getBinaryIndexValues(property) {
+  getBinaryIndexValues(property: string) {
     let idx;
     const idxvals = this.binaryIndices[property].values;
     const result = [];
@@ -864,7 +926,7 @@ export class Collection<
    * @param {string} field - indexed field name
    * @param {boolean} force - if `true`, will rebuild index; otherwise, function may return null
    */
-  getUniqueIndex(field, force?: boolean) {
+  getUniqueIndex(field: string, force?: boolean) {
     const index = this.constraints.unique[field];
     if (!index && force) {
       return this.ensureUniqueIndex(field);
@@ -873,7 +935,7 @@ export class Collection<
   }
 
   ensureUniqueIndex(field) {
-    let index = this.constraints.unique[field];
+    let index: UniqueIndex = this.constraints.unique[field];
     if (!index) {
       // keep track of new unique index for regenerate after database (re)load.
       if (!this.uniqueNames.includes(field)) {
@@ -959,7 +1021,7 @@ export class Collection<
    * Rebuild idIndex async with callback - useful for background syncing with a remote server
    */
   ensureIdAsync(callback) {
-    this.async(function () {
+    this.async(function() {
       this.ensureId();
     }, callback);
   }
@@ -1220,7 +1282,7 @@ export class Collection<
    * @param {object} doc - document to update within the collection
    * @memberof Collection
    */
-  update(doc) {
+  update(doc: CollectionDocument | CollectionDocument[]) {
     let adaptiveBatchOverride;
     let k;
     let len;
@@ -1277,7 +1339,7 @@ export class Collection<
       // if configured to clone, do so now... otherwise just use same obj reference
       newInternal =
         this.cloneObjects ||
-        (!this.disableDeltaChangesApi && this.disableFreeze)
+          (!this.disableDeltaChangesApi && this.disableFreeze)
           ? clone(doc, this.cloneMethod)
           : doc;
 
@@ -1458,8 +1520,8 @@ export class Collection<
    * @param {function|object} query - query object to filter on
    * @memberof Collection
    */
-  removeWhere(query) {
-    let list;
+  removeWhere(query: (...args: any[]) => any | object) {
+    let list: ColT[];
     if (typeof query === "function") {
       list = this.data.filter(query);
       this.remove(list);
@@ -1476,7 +1538,7 @@ export class Collection<
    * Internal method to remove a batch of documents from the collection.
    * @param {number[]} positions - data/idIndex positions to remove
    */
-  removeBatchByPositions(positions) {
+  removeBatchByPositions(positions: number[]) {
     const len = positions.length;
     const xo = {};
     let dlen;
@@ -1587,7 +1649,7 @@ export class Collection<
    *  Internal method called by remove()
    * @param {object[]|number[]} batch - array of documents or $loki ids to remove
    */
-  removeBatch(batch) {
+  removeBatch(batch: CollectionDocument[] | number[]) {
     const len = batch.length;
     const dlen = this.data.length;
     let idx;
@@ -1602,9 +1664,9 @@ export class Collection<
     // iterate the batch
     for (idx = 0; idx < len; idx++) {
       if (typeof batch[idx] === "object") {
-        posx.push(xlt[batch[idx].$loki]);
+        posx.push(xlt[(batch[idx] as CollectionDocument).$loki]);
       } else {
-        posx.push(xlt[batch[idx]]);
+        posx.push(xlt[batch[idx] as number]);
       }
     }
 
@@ -1616,7 +1678,7 @@ export class Collection<
    * @param {object} doc - document to remove from collection
    * @memberof Collection
    */
-  remove(doc) {
+  remove(doc: CollectionDocument) {
     if (typeof doc === "number") {
       doc = this.get(doc);
     }
@@ -1698,8 +1760,8 @@ export class Collection<
   }
 
   /*---------------------+
-        | Finding methods     |
-        +----------------------*/
+  | Finding methods     |
+  +----------------------*/
   /**
    * Get by Id - faster than other methods because of the searching algorithm
    * @param {int} id - $loki id of document you want to retrieve
@@ -1708,7 +1770,7 @@ export class Collection<
    *     or an array if 'returnPosition' was passed.
    * @memberof Collection
    */
-  get(id, returnPosition?: boolean) {
+  get(id: number, returnPosition?: boolean): object | Array<any> | null {
     if (!this.idIndex) {
       this.ensureId();
     }
@@ -1751,7 +1813,7 @@ export class Collection<
    * @param {int} dataPosition : coll.data array index/position
    * @param {string} binaryIndexName : index to search for dataPosition in
    */
-  getBinaryIndexPosition(dataPosition, binaryIndexName) {
+  getBinaryIndexPosition(dataPosition: number, binaryIndexName: string) {
     const val = Utils.getIn(this.data[dataPosition], binaryIndexName, true);
     const index = this.binaryIndices[binaryIndexName].values;
 
@@ -1783,7 +1845,7 @@ export class Collection<
    * @param {int} dataPosition : coll.data array index/position
    * @param {string} binaryIndexName : index to search for dataPosition in
    */
-  adaptiveBinaryIndexInsert(dataPosition, binaryIndexName) {
+  adaptiveBinaryIndexInsert(dataPosition: number, binaryIndexName: string) {
     const usingDotNotation = binaryIndexName.includes(".");
     const index = this.binaryIndices[binaryIndexName].values;
     let val = Utils.getIn(
@@ -1794,6 +1856,7 @@ export class Collection<
 
     // If you are inserting a javascript Date value into a binary index, convert to epoch time
     if (this.serializableIndices === true && val instanceof Date) {
+      // @ts-ignore
       this.data[dataPosition][binaryIndexName] = val.getTime();
       val = Utils.getIn(this.data[dataPosition], binaryIndexName);
     }
@@ -1802,11 +1865,11 @@ export class Collection<
       index.length === 0
         ? 0
         : this.calculateRangeStart(
-            binaryIndexName,
-            val,
-            true,
-            usingDotNotation
-          );
+          binaryIndexName,
+          val,
+          true,
+          usingDotNotation
+        );
 
     // insert new data index into our binary index at the proper sorted location for relevant property calculated by idxPos.
     // doing this after adjusting dataPositions so no clash with previous item at that position.
@@ -1818,7 +1881,7 @@ export class Collection<
    * @param {int} dataPosition : coll.data array index/position
    * @param {string} binaryIndexName : index to search for dataPosition in
    */
-  adaptiveBinaryIndexUpdate(dataPosition, binaryIndexName) {
+  adaptiveBinaryIndexUpdate(dataPosition: number, binaryIndexName: string) {
     // linear scan needed to find old position within index unless we optimize for clone scenarios later
     // within (my) node 5.6.0, the following for() loop with strict compare is -much- faster than indexOf()
     let idxPos;
@@ -1843,8 +1906,8 @@ export class Collection<
    * @param {string} binaryIndexName : index to search for dataPosition in
    */
   adaptiveBinaryIndexRemove(
-    dataPosition,
-    binaryIndexName,
+    dataPosition: number | number[],
+    binaryIndexName: string,
     removedFromIndexOnly?: boolean
   ) {
     const bi = this.binaryIndices[binaryIndexName];
@@ -1945,7 +2008,12 @@ export class Collection<
    * @param {any} val - value to find within index
    * @param {bool?} adaptive - if true, we will return insert position
    */
-  calculateRangeStart(prop, val, adaptive, usingDotNotation) {
+  calculateRangeStart(
+    prop: string,
+    val: any,
+    adaptive: boolean | null,
+    usingDotNotation: boolean
+  ) {
     const rcd = this.data;
     const index = this.binaryIndices[prop].values;
     let min = 0;
@@ -2004,7 +2072,7 @@ export class Collection<
    * Internal method used for indexed $between.  Given a prop (index name), and a value
    * (which may or may not yet exist) this will find the final position of that upper range value.
    */
-  calculateRangeEnd(prop, val, usingDotNotation) {
+  calculateRangeEnd(prop: string, val: any, usingDotNotation: boolean) {
     const rcd = this.data;
     const index = this.binaryIndices[prop].values;
     let min = 0;
@@ -2079,7 +2147,7 @@ export class Collection<
    * @param {object} val - value to use for range calculation.
    * @returns {array} [start, end] index array positions
    */
-  calculateRange(op, prop, val) {
+  calculateRange(op: string, prop: string, val: any): [start: number, end: number] {
     const rcd = this.data;
     const index = this.binaryIndices[prop].values;
     const min = 0;
@@ -2213,7 +2281,7 @@ export class Collection<
             }
           }
         }
-        return segResult;
+        return segResult as [start: number, end: number];
       }
     }
 
@@ -2368,7 +2436,7 @@ export class Collection<
   chain(
     transform?: ChainTransform,
     parameters?: unknown
-  ): Resultset<ColT> | ColT {
+  ): Resultset<ColT> {
     const rs = new Resultset<ColT>(this);
 
     if (typeof transform === "undefined") {
@@ -2530,7 +2598,7 @@ export class Collection<
    */
   getStage(
     name: string
-  ): Record<number, Record<string, any> & { $loki: number }> {
+  ): CollectionDocument {
     if (!this.stages[name]) {
       this.stages[name] = {};
     }
@@ -2541,7 +2609,7 @@ export class Collection<
    * (Staging API) create a copy of an object and insert it into a stage
    * @memberof Collection
    */
-  stage(stageName: string, obj: Record<string, any> & { $loki: number }) {
+  stage(stageName: string, obj: CollectionDocument) {
     const copy = JSON.parse(JSON.stringify(obj));
     this.getStage(stageName)[obj.$loki] = copy;
     return copy;
@@ -2735,8 +2803,8 @@ export class Collection<
     }
   }
   lokiConsoleWrapper = {
-    log(message: string) {},
-    warn(message: string) {},
-    error(message: string) {},
+    log(message: string) { },
+    warn(message: string) { },
+    error(message: string) { },
   };
 }
