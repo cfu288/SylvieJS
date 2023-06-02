@@ -12,6 +12,9 @@ const jestConfig: JestConfigWithTsJest = {
     "<rootDir>/dist/",
     "<rootDir>/spec/browser/",
   ],
+  collectCoverage: true,
+  collectCoverageFrom: ["src/**/*.ts"],
+  coverageDirectory: "coverage",
 };
 
 export default jestConfig;

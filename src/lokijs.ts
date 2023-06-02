@@ -49,8 +49,7 @@ export function deepProperty(obj, property, isDeep) {
 }
 
 if (typeof window !== "undefined") {
-  // @ts-ignore
-  window.loki = Loki;
+  Object.assign(window, { loki: Loki, Loki });
 }
 
 export default Loki;

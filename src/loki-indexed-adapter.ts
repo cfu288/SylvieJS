@@ -411,22 +411,25 @@ class LokiCatalog {
     const appkey = `${app},${key}`;
     const request = index.get(appkey);
 
-    request.onsuccess = ((usercallback) => ({ target }) => {
-      let lres = target.result;
+    request.onsuccess = (
+      (usercallback) =>
+      ({ target }) => {
+        let lres = target.result;
 
-      if (lres === null || typeof lres === "undefined") {
-        lres = {
-          id: 0,
-          success: false,
-        };
-      }
+        if (lres === null || typeof lres === "undefined") {
+          lres = {
+            id: 0,
+            success: false,
+          };
+        }
 
-      if (typeof usercallback === "function") {
-        usercallback(lres);
-      } else {
-        console.log(lres);
+        if (typeof usercallback === "function") {
+          usercallback(lres);
+        } else {
+          console.log(lres);
+        }
       }
-    })(callback);
+    )(callback);
 
     request.onerror = ((usercallback) => (e) => {
       if (typeof usercallback === "function") {
@@ -442,13 +445,16 @@ class LokiCatalog {
     const store = transaction.objectStore("LokiAKV");
     const request = store.get(id);
 
-    request.onsuccess = ((data, usercallback) => ({ target }) => {
-      if (typeof usercallback === "function") {
-        usercallback(target.result, data);
-      } else {
-        console.log(target.result);
+    request.onsuccess = (
+      (data, usercallback) =>
+      ({ target }) => {
+        if (typeof usercallback === "function") {
+          usercallback(target.result, data);
+        } else {
+          console.log(target.result);
+        }
       }
-    })(data, callback);
+    )(data, callback);
   }
 
   setAppKey(app, key, val, callback) {
@@ -536,22 +542,25 @@ class LokiCatalog {
     // this.data[] when done (similar to service)
     const localdata = [];
 
-    cursor.onsuccess = ((data, callback) => ({ target }) => {
-      const cursor = target.result;
-      if (cursor) {
-        const currObject = cursor.value;
+    cursor.onsuccess = (
+      (data, callback) =>
+      ({ target }) => {
+        const cursor = target.result;
+        if (cursor) {
+          const currObject = cursor.value;
 
-        data.push(currObject);
+          data.push(currObject);
 
-        cursor.continue();
-      } else {
-        if (typeof callback === "function") {
-          callback(data);
+          cursor.continue();
         } else {
-          console.log(data);
+          if (typeof callback === "function") {
+            callback(data);
+          } else {
+            console.log(data);
+          }
         }
       }
-    })(localdata, callback);
+    )(localdata, callback);
 
     cursor.onerror = ((usercallback) => (e) => {
       if (typeof usercallback === "function") {
@@ -571,22 +580,25 @@ class LokiCatalog {
 
     const localdata = [];
 
-    cursor.onsuccess = ((data, callback) => ({ target }) => {
-      const cursor = target.result;
-      if (cursor) {
-        const currObject = cursor.value;
+    cursor.onsuccess = (
+      (data, callback) =>
+      ({ target }) => {
+        const cursor = target.result;
+        if (cursor) {
+          const currObject = cursor.value;
 
-        data.push(currObject);
+          data.push(currObject);
 
-        cursor.continue();
-      } else {
-        if (typeof callback === "function") {
-          callback(data);
+          cursor.continue();
         } else {
-          console.log(data);
+          if (typeof callback === "function") {
+            callback(data);
+          } else {
+            console.log(data);
+          }
         }
       }
-    })(localdata, callback);
+    )(localdata, callback);
 
     cursor.onerror = ((usercallback) => (e) => {
       if (typeof usercallback === "function") usercallback(null);
@@ -595,6 +607,5 @@ class LokiCatalog {
 }
 
 if (typeof window !== "undefined") {
-  // @ts-ignore
-  window.LokiIndexedAdapter = LokiIndexedAdapter;
+  Object.assign(window, { LokiIndexedAdapter });
 }

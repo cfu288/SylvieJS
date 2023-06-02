@@ -25,26 +25,29 @@
     "lint": "eslint . --ext .ts || exit 0",
     "format": "prettier src/**/*.ts spec/**/*.ts -w",
     "typecheck": "tsc --noEmit",
-    "test:browser:old": "karma start karma.conf.js --single-run",
     "test:browser": "web-test-runner spec/**/*.ts --node-resolve",
-    "test:node:old": "istanbul cover --dir coverage/nodejs node_modules/jasmine/bin/jasmine.js",
     "test:node": "jest --config jest.config.ts spec/*.ts --silent=false",
-    "test:incrementalidb": "npm run build:only && mkdir -p spec/incrementalidb/dist/ && cp src/incremental-indexeddb-adapter.js spec/incrementalidb/dist && cp -r dist/ spec/incrementalidb/dist && serve spec/incrementalidb",
+    "test:incrementalidb": "npm run build:only && mkdir -p spec/incrementalidb/dist/ && cp dist/incremental-indexeddb-adapter.js spec/incrementalidb/dist && cp -r dist/ spec/incrementalidb/dist && serve spec/incrementalidb",
+    "test:web": "mkdir -p benchmark/benchmark_web/dist/ && cp dist/incremental-indexeddb-adapter.js benchmark/benchmark_web/dist/ && cp -r dist/ benchmark/benchmark_web/dist/ && serve benchmark/benchmark_web",
     "pretest": "npm run build:only",
     "test": "npm run test:node && npm run test:browser",
     "build": "node esbuild.js",
     "build:only": "node esbuild.js",
-    "postbuild:old": "karma start karma.build.conf.js --single-run",
     "postbuild": "jest --config jest.config.ts spec/*.ts --silent=false",
     "prebuild": "npm run format && npm run typecheck",
     "prepublish": "npm run build",
     "clean": "rimraf dist/* coverage/*",
     "pour:beer": "echo New npm version published, one beer for you !",
     "jsdoc": "./node_modules/.bin/jsdoc -c jsdoc-conf.json",
-    "benchmark": "node benchmark/benchmark"
+    "benchmark": "node benchmark/benchmark.js",
+    "benchmark:web": "npm run build:only && mkdir -p benchmark/benchmark_web/dist/ && cp dist/incremental-indexeddb-adapter.js benchmark/benchmark_web/dist && cp -r dist/ benchmark/benchmark_web/dist && serve benchmark/benchmark_web"
   },
-  "author": "Joe Minichino <joe.minichino@gmail.com>",
+  "author": "Christopher Fu <invent288cfu@gmail.com>",
   "contributors": [
+    {
+      "name": "Joe Minichino",
+      "email": "joe.minichino@gmail.com"
+    },
     {
       "name": "Dave",
       "email": "github@obeliskos.com"
@@ -64,10 +67,10 @@
     "@web/dev-server-esbuild": "^0.4.1",
     "@web/test-runner": "^0.16.1",
     "@web/test-runner-playwright": "^0.10.0",
+    "chalk": "^5.2.0",
     "esbuild": "0.17.19",
     "esbuild-plugin-d.ts": "^1.1.0",
     "eslint": "^8.41.0",
-    "istanbul": "^0.4.4",
     "jasmine": "^2.4.1",
     "jest": "^29.5.0",
     "jest-browser-globals": "^25.1.0-beta",

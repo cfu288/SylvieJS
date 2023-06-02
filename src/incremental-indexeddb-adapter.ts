@@ -910,5 +910,5 @@ function idbReq(request, onsuccess, onerror) {
 }
 
 if (window !== undefined) {
-  window.IncrementalIndexedDBAdapter = IncrementalIndexedDBAdapter;
+  Object.assign(window, { IncrementalIndexedDBAdapter });
 }
