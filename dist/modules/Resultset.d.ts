@@ -284,7 +284,7 @@ export declare class Resultset<RST extends Partial<CollectionDocument>> {
      *
      * console.log(orderSummary);
      */
-    eqJoin(joinData: Resultset<RST> | Collection<RST>, leftJoinKey: (string | ((...args: any[]) => string)), rightJoinKey: (string | ((...args: any[]) => string)), mapFun: ((...args: any[]) => any) | undefined, dataOptions: object | undefined): Resultset<RST>;
+    eqJoin(joinData: Resultset<RST> | Collection<RST>, leftJoinKey: string | ((...args: any[]) => string), rightJoinKey: string | ((...args: any[]) => string), mapFun: ((...args: any[]) => any) | undefined, dataOptions: object | undefined): Resultset<RST>;
     /**
      * Terminates the chain and returns array of filtered documents
      *

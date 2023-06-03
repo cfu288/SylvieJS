@@ -19,11 +19,11 @@ import { UniqueIndex } from "./index/UniqueIndex";
 export type ChainTransform =
   | string
   | {
-    type: string;
-    value?: any;
-    mapFunction?: (_: any) => any;
-    reduceFunction?: (values: any[]) => any;
-  }[];
+      type: string;
+      value?: any;
+      mapFunction?: (_: any) => any;
+      reduceFunction?: (values: any[]) => any;
+    }[];
 
 interface CollectionOptions {
   unique: string | string[];
@@ -45,7 +45,9 @@ interface CollectionOptions {
   clone: boolean;
 }
 
-export type CollectionDocument = object & Record<string, any> & CollectionDocumentBase;
+export type CollectionDocument = object &
+  Record<string, any> &
+  CollectionDocumentBase;
 export interface CollectionDocumentBase {
   meta?: CollectionDocumentMeta;
   $loki?: number;
@@ -315,7 +317,7 @@ export class Collection<
       const changedObjects = new Set<object>();
 
       if (!changedObjects.add)
-        changedObjects.add = function(object) {
+        changedObjects.add = function (object) {
           if (!this.includes(object)) this.push(object);
           return this;
         };
@@ -1021,7 +1023,7 @@ export class Collection<
    * Rebuild idIndex async with callback - useful for background syncing with a remote server
    */
   ensureIdAsync(callback) {
-    this.async(function() {
+    this.async(function () {
       this.ensureId();
     }, callback);
   }
@@ -1339,7 +1341,7 @@ export class Collection<
       // if configured to clone, do so now... otherwise just use same obj reference
       newInternal =
         this.cloneObjects ||
-          (!this.disableDeltaChangesApi && this.disableFreeze)
+        (!this.disableDeltaChangesApi && this.disableFreeze)
           ? clone(doc, this.cloneMethod)
           : doc;
 
@@ -1865,11 +1867,11 @@ export class Collection<
       index.length === 0
         ? 0
         : this.calculateRangeStart(
-          binaryIndexName,
-          val,
-          true,
-          usingDotNotation
-        );
+            binaryIndexName,
+            val,
+            true,
+            usingDotNotation
+          );
 
     // insert new data index into our binary index at the proper sorted location for relevant property calculated by idxPos.
     // doing this after adjusting dataPositions so no clash with previous item at that position.
@@ -2147,7 +2149,11 @@ export class Collection<
    * @param {object} val - value to use for range calculation.
    * @returns {array} [start, end] index array positions
    */
-  calculateRange(op: string, prop: string, val: any): [start: number, end: number] {
+  calculateRange(
+    op: string,
+    prop: string,
+    val: any
+  ): [start: number, end: number] {
     const rcd = this.data;
     const index = this.binaryIndices[prop].values;
     const min = 0;
@@ -2433,10 +2439,7 @@ export class Collection<
    * @returns {Resultset} (this) resultset, or data array if any map or join functions where called
    * @memberof Collection
    */
-  chain(
-    transform?: ChainTransform,
-    parameters?: unknown
-  ): Resultset<ColT> {
+  chain(transform?: ChainTransform, parameters?: unknown): Resultset<ColT> {
     const rs = new Resultset<ColT>(this);
 
     if (typeof transform === "undefined") {
@@ -2596,9 +2599,7 @@ export class Collection<
    * (Staging API) create a stage and/or retrieve it
    * @memberof Collection
    */
-  getStage(
-    name: string
-  ): CollectionDocument {
+  getStage(name: string): CollectionDocument {
     if (!this.stages[name]) {
       this.stages[name] = {};
     }
@@ -2803,8 +2804,8 @@ export class Collection<
     }
   }
   lokiConsoleWrapper = {
-    log(message: string) { },
-    warn(message: string) { },
-    error(message: string) { },
+    log(message: string) {},
+    warn(message: string) {},
+    error(message: string) {},
   };
 }

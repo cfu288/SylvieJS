@@ -23,8 +23,8 @@ import { LokiPersistenceAdapter } from "./loki-storage-adapter/LokiPersistenceAd
 
 export type ChangeOpsLoadJSONUsersOptions = {
   inflate:
-  | ((src: any) => ChangeOpsLoadJSONOptionsMeta)
-  | ((src: any, dest: ChangeOpsLoadJSONOptionsMeta) => void);
+    | ((src: any) => ChangeOpsLoadJSONOptionsMeta)
+    | ((src: any, dest: ChangeOpsLoadJSONOptionsMeta) => void);
   proto: (n: any) => void;
 };
 

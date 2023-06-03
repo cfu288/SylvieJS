@@ -999,7 +999,13 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    *
    * console.log(orderSummary);
    */
-  eqJoin(joinData: Resultset<RST> | Collection<RST>, leftJoinKey: (string | ((...args: any[]) => string)), rightJoinKey: (string | ((...args: any[]) => string)), mapFun: ((...args: any[]) => any) | undefined, dataOptions: object | undefined): Resultset<RST> {
+  eqJoin(
+    joinData: Resultset<RST> | Collection<RST>,
+    leftJoinKey: string | ((...args: any[]) => string),
+    rightJoinKey: string | ((...args: any[]) => string),
+    mapFun: ((...args: any[]) => any) | undefined,
+    dataOptions: object | undefined
+  ): Resultset<RST> {
     let leftData = [];
     let rightData = [];
     let key;
@@ -1017,7 +1023,7 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
       rightData = joinData.chain().data(dataOptions);
     } else if (joinData instanceof Resultset) {
       const x = new Resultset(new Collection<RST>(""));
-      const res = joinData.data(dataOptions)
+      const res = joinData.data(dataOptions);
       x.rightData = joinData.data(dataOptions);
     } else if (Array.isArray(joinData)) {
       rightData = joinData;

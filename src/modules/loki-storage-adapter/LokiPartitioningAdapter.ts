@@ -301,7 +301,9 @@ LokiPartitioningAdapter.prototype.saveNextPartition = function (callback) {
  *
  * @param {function} callback - adapter callback to return load result to caller
  */
-LokiPartitioningAdapter.prototype.saveNextPage = function (callback) {
+LokiPartitioningAdapter.prototype.saveNextPage = function (
+  callback: (err?: Error) => void
+): void {
   var self = this;
   var coll = this.dbref.collections[this.pageIterator.collection];
   var keyname =
@@ -338,7 +340,8 @@ LokiPartitioningAdapter.prototype.saveNextPage = function (callback) {
     doneWithPartition = true;
   }
 
-  while (true) {
+  let completed = false;
+  while (!completed) {
     if (!doneWithPartition) {
       // serialize object
       serializedObject = JSON.stringify(coll.data[this.pageIterator.docIndex]);
@@ -361,7 +364,7 @@ LokiPartitioningAdapter.prototype.saveNextPage = function (callback) {
     // if we are done with page save it and pass off to next recursive call or callback
     if (doneWithPartition || doneWithPage) {
       this.adapter.saveDatabase(keyname, pageBuilder, pageSaveCallback);
-      return;
+      completed = true;
     }
   }
 };
