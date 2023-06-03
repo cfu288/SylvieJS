@@ -1,6 +1,5 @@
 import Loki from "../../src/lokijs";
 import { ExactIndex } from "../../src/modules/index/ExactIndex";
-const loki = Loki;
 
 describe("exact index", function () {
   it("can set a value to a key and get that value as an single object array", function () {

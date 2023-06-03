@@ -1,89 +1,98 @@
-/* eslint-disable @typescript-eslint/no-this-alias */
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable no-var */
+// /* eslint-disable @typescript-eslint/no-this-alias */
+// /* eslint-disable no-prototype-builtins */
+// /* eslint-disable no-var */
 "use strict";
 
 import { BSonSort, binarySearch } from "../../utils/binarySearch";
 
-export function SortedIndex(sortedField) {
-  this.field = sortedField;
-}
+export class SortedIndex {
+  field: string;
+  #keys: (string | number)[];
+  #values: (string | number)[][];
+  #bs = BSonSort(this.sort);
 
-SortedIndex.prototype = {
-  keys: [],
-  values: [],
+  constructor(sortedField: string) {
+    this.field = sortedField;
+    this.#keys = [];
+    this.#values = [];
+  }
+
   // set the default sort
-  sort: function (a, b) {
+  sort(a: number | string, b: number | string) {
     return a < b ? -1 : a > b ? 1 : 0;
-  },
-  bs: function () {
-    return BSonSort(this.sort);
-  },
+  }
+
   // and allow override of the default sort
-  setSort: function (fun) {
-    this.bs = BSonSort(fun);
-  },
+  setSort(fun: (a: number, b: number) => number) {
+    this.#bs = BSonSort(fun);
+  }
+
   // add the value you want returned  to the key in the index
-  set: function (key, value) {
-    var pos = binarySearch(this.keys, key, this.sort);
+  set(key: string | number, value) {
+    const pos = binarySearch(this.#keys, key, this.sort);
     if (pos.found) {
-      this.values[pos.index].push(value);
+      this.#values[pos.index].push(value);
     } else {
-      this.keys.splice(pos.index, 0, key);
-      this.values.splice(pos.index, 0, [value]);
+      // Insert key at position index
+      this.#keys.splice(pos.index, 0, key);
+      this.#values.splice(pos.index, 0, [value]);
     }
-  },
+  }
+
   // get all values which have a key == the given key
-  get: function (key) {
-    var bsr = binarySearch(this.keys, key, this.sort);
+  get(key: string | number) {
+    const bsr = binarySearch(this.#keys, key, this.sort);
     if (bsr.found) {
-      return this.values[bsr.index];
+      return this.#values[bsr.index];
     } else {
       return [];
     }
-  },
+  }
+
   // get all values which have a key < the given key
-  getLt: function (key) {
-    var bsr = binarySearch(this.keys, key, this.sort);
-    var pos = bsr.index;
-    if (bsr.found) pos--;
-    return this.getAll(key, 0, pos);
-  },
+  getLt(key: string | number) {
+    const bsr = binarySearch(this.#keys, key, this.sort);
+    return this.getAll(0, bsr.index);
+  }
+
   // get all values which have a key > the given key
-  getGt: function (key) {
-    var bsr = binarySearch(this.keys, key, this.sort);
-    var pos = bsr.index;
+  getGt(key: string | number) {
+    const bsr = binarySearch(this.#keys, key, this.sort);
+    let pos = bsr.index;
     if (bsr.found) pos++;
-    return this.getAll(key, pos, this.keys.length);
-  },
+    return this.getAll(pos, this.#keys.length);
+  }
 
   // get all vals from start to end
-  getAll: function (key, start, end) {
-    var results = [];
-    for (var i = start; i < end; i++) {
-      results = results.concat(this.values[i]);
+  getAll(start: number, end: number) {
+    let results = [];
+    for (let i = start; i < end; i++) {
+      results = results.concat(this.#values[i]);
     }
     return results;
-  },
+  }
+
   // just in case someone wants to do something smart with ranges
-  getPos: function (key) {
-    return binarySearch(this.keys, key, this.sort);
-  },
+  getPos(key: string | number) {
+    return binarySearch(this.#keys, key, this.sort);
+  }
+
   // remove the value from the index, if the value was the last one, remove the key
-  remove: function (key, value) {
-    var pos = binarySearch(this.keys, key, this.sort).index;
-    var idxSet = this.values[pos];
-    for (var i in idxSet) {
-      if (idxSet[i] == value) idxSet.splice(i, 1);
+  remove(key: string | number, value) {
+    const pos = binarySearch(this.#keys, key, this.sort).index;
+    const idxSet = this.#values[pos];
+    for (const i in idxSet) {
+      if (idxSet[i] == value) idxSet.splice(parseInt(i), 1);
     }
     if (idxSet.length < 1) {
-      this.keys.splice(pos, 1);
-      this.values.splice(pos, 1);
+      this.#keys.splice(pos, 1);
+      this.#values.splice(pos, 1);
     }
-  },
+  }
+
   // clear will zap the index
-  clear: function () {
-    this.keys = [];
-    this.values = [];
-  },
-};
+  clear() {
+    this.#keys = [];
+    this.#values = [];
+  }
+}
