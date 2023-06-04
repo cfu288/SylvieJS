@@ -143,7 +143,6 @@ export class Collection<
    * a collection of objects recording the changes applied through a commmitStage
    */
   commitLog = [];
-  contructor: typeof Collection;
   no_op: () => void;
   constructor(name: string, options?: Partial<CollectionOptions>) {
     super();
@@ -684,7 +683,9 @@ export class Collection<
     }
 
     if (this.binaryIndices[property] && !force) {
-      if (!this.binaryIndices[property].dirty) return;
+      if (!this.binaryIndices[property].dirty) {
+        return;
+      }
     }
 
     // if the index is already defined and we are using adaptiveBinaryIndices and we are not forcing a rebuild, return.
@@ -959,9 +960,8 @@ export class Collection<
    * @memberof Collection
    */
   ensureAllIndexes(force?: boolean) {
-    let key;
     const bIndices = this.binaryIndices;
-    for (key in bIndices) {
+    for (const key in bIndices) {
       if (hasOwnProperty.call(bIndices, key)) {
         this.ensureIndex(key, force);
       }
@@ -972,9 +972,8 @@ export class Collection<
    * Internal method used to flag all lazy index as dirty
    */
   flagBinaryIndexesDirty() {
-    let key;
     const bIndices = this.binaryIndices;
-    for (key in bIndices) {
+    for (const key in bIndices) {
       if (hasOwnProperty.call(bIndices, key)) {
         bIndices[key].dirty = true;
       }

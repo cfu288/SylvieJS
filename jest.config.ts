@@ -1,9 +1,8 @@
 import type { JestConfigWithTsJest } from "ts-jest";
 import { defaults as tsjPreset } from "ts-jest/presets";
 
-const jestConfig: JestConfigWithTsJest = {
+const config: JestConfigWithTsJest = {
   preset: "ts-jest",
-  verbose: true,
   transform: {
     ...tsjPreset.transform,
   },
@@ -17,4 +16,4 @@ const jestConfig: JestConfigWithTsJest = {
   coverageDirectory: "coverage",
 };
 
-export default jestConfig;
+export default config;

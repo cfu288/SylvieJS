@@ -121,7 +121,6 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      * a collection of objects recording the changes applied through a commmitStage
      */
     commitLog: any[];
-    contructor: typeof Collection;
     no_op: () => void;
     constructor(name: string, options?: Partial<CollectionOptions>);
     createChange(name: string, op: "U" | "I" | "R", obj: object, old?: object): void;
