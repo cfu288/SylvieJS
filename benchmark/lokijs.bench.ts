@@ -22,7 +22,6 @@ function genRandomVal() {
 
 const benchConfig: SuiteOptions = {
   minSamples: 100,
-  maxTime: 1,
   timeoutSeconds: 60,
 };
 
