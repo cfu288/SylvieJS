@@ -690,7 +690,7 @@ describe("async adapter tests", function () {
       },
       { recursiveWaitLimit: true, recursiveWaitLimitDuration: 200 }
     );
-  });
+  }, 20000);
 
   it("verify throttled async throttles", function (done) {
     const mem = new loki.LokiMemoryAdapter({

@@ -6,9 +6,9 @@ const loki = Loki;
 
 describe("IncrementalIndexedDBAdapter", function () {
   it("initializes Loki properly", function () {
-    const adapter = (new IncrementalIndexedDBAdapter(
+    const adapter = new IncrementalIndexedDBAdapter(
       "tests"
-    ) as unknown) as LokiPersistenceAdapter;
+    ) as unknown as LokiPersistenceAdapter;
     const db = new loki("test.db", {
       adapter: adapter,
     });
@@ -105,7 +105,7 @@ describe("IncrementalIndexedDBAdapter", function () {
   it("handles dirtyIds during save properly", function () {
     const adapter = new IncrementalIndexedDBAdapter("tests");
     const db = new loki("test.db", {
-      adapter: (adapter as unknown) as LokiPersistenceAdapter,
+      adapter: adapter as unknown as LokiPersistenceAdapter,
     });
     const col1 = db.addCollection("test_collection");
     const col2 = db.addCollection("test_collection2");

@@ -154,9 +154,8 @@ export class DynamicView<
       while (fpi--) {
         if (this.filterPipeline[fpi].type === "where") {
           if (fpi !== this.filterPipeline.length - 1) {
-            this.filterPipeline[fpi] = this.filterPipeline[
-              this.filterPipeline.length - 1
-            ];
+            this.filterPipeline[fpi] =
+              this.filterPipeline[this.filterPipeline.length - 1];
           }
           this.filterPipeline.length--;
         }
