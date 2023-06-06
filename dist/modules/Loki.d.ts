@@ -162,8 +162,9 @@ export default class Loki extends LokiEventEmitter {
         lt: (prop1: any, prop2: any, equal: any) => any;
         gt: (prop1: any, prop2: any, equal: any) => any;
     };
+    toJson: (options?: Partial<LokiConfigOptions>) => any;
     constructor(filename?: string, options?: Partial<LokiConfigOptions & LokiConstructorOptions>);
-    getIndexedAdapter: () => any;
+    getIndexedAdapter(): any;
     /**
      * Allows reconfiguring database options
      *
@@ -180,7 +181,7 @@ export default class Loki extends LokiEventEmitter {
      * @param {boolean} initialConfig - (internal) true is passed when loki ctor is invoking
      * @memberof Loki
      */
-    configureOptions: (options: any, initialConfig: any) => void;
+    configureOptions(options: any, initialConfig: any): void;
     /**
      * Copies 'this' database into a new Loki instance. Object references are shared to make lightweight.
      *
@@ -188,9 +189,9 @@ export default class Loki extends LokiEventEmitter {
      * @param {bool} options.removeNonSerializable - nulls properties not safe for serialization.
      * @memberof Loki
      */
-    copy: (options?: {
+    copy(options?: {
         removeNonSerializable?: boolean;
-    }) => Loki;
+    }): Loki;
     /**
      * Adds a collection to the database.
      * @param {string} name - name of collection to add
@@ -210,17 +211,17 @@ export default class Loki extends LokiEventEmitter {
      * @returns {Collection} a reference to the collection which was just added
      * @memberof Loki
      */
-    addCollection: <T extends {
+    addCollection<T extends {
         $loki: number;
-    }>(name: any, options?: Record<string, any>) => any;
-    loadCollection: (collection: any) => void;
+    }>(name: any, options?: Record<string, any>): Collection<T> | any;
+    loadCollection(collection: any): void;
     /**
      * Retrieves reference to a collection by name.
      * @param {string} collectionName - name of collection to look up
      * @returns {Collection} Reference to collection in database by that name, or null if not found
      * @memberof Loki
      */
-    getCollection: (collectionName: any) => Collection<Partial<CollectionDocument>>;
+    getCollection(collectionName: any): Collection<Partial<CollectionDocument>>;
     /**
      * Renames an existing loki collection
      * @param {string} oldName - name of collection to rename
@@ -228,32 +229,32 @@ export default class Loki extends LokiEventEmitter {
      * @returns {Collection} reference to the newly renamed collection
      * @memberof Loki
      */
-    renameCollection: (oldName: any, newName: any) => Collection<Partial<CollectionDocument>>;
+    renameCollection(oldName: any, newName: any): Collection<Partial<CollectionDocument>>;
     /**
      * Returns a list of collections in the database.
      * @returns {object[]} array of objects containing 'name', 'type', and 'count' properties.
      * @memberof Loki
      */
-    listCollections: () => any[];
+    listCollections(): any[];
     /**
      * Removes a collection from the database.
      * @param {string} collectionName - name of collection to remove
      * @memberof Loki
      */
-    removeCollection: (collectionName: any) => void;
-    getName: () => string;
+    removeCollection(collectionName: any): void;
+    getName(): string;
     /**
      * serializeReplacer - used to prevent certain properties from being serialized
      *
      */
-    serializeReplacer: (key: any, value: any) => any;
+    serializeReplacer(key: any, value: any): any;
     /**
      * Serialize database to a string which can be loaded via {@link Loki#loadJSON}
      *
      * @returns {string} Stringified representation of the loki database.
      * @memberof Loki
      */
-    serialize: (options?: Partial<LokiConfigOptions>) => any;
+    serialize(options?: Partial<LokiConfigOptions>): any;
     /**
      * Database level destructured JSON serialization routine to allow alternate serialization methods.
      * Internally, Loki supports destructuring via loki "serializationMethod' option and
@@ -269,7 +270,7 @@ export default class Loki extends LokiEventEmitter {
      * @returns {string|array} A custom, restructured aggregation of independent serializations.
      * @memberof Loki
      */
-    serializeDestructured: (options?: Partial<SerializationOptions>) => any;
+    serializeDestructured(options?: Partial<SerializationOptions>): any;
     /**
      * Collection level utility method to serialize a collection in a 'destructured' format
      *
@@ -281,7 +282,7 @@ export default class Loki extends LokiEventEmitter {
      * @returns {string|array} A custom, restructured aggregation of independent serializations for a single collection.
      * @memberof Loki
      */
-    serializeCollection: (options: any) => string | any[];
+    serializeCollection(options: any): string | any[];
     /**
      * Database level destructured JSON deserialization routine to minimize memory overhead.
      * Internally, Loki supports destructuring via loki "serializationMethod' option and
@@ -298,7 +299,7 @@ export default class Loki extends LokiEventEmitter {
      * @returns {object|array} An object representation of the deserialized database, not yet applied to 'this' db or document array
      * @memberof Loki
      */
-    deserializeDestructured: (destructuredSource: any, options?: Partial<SerializationOptions>) => any;
+    deserializeDestructured(destructuredSource: any, options?: Partial<SerializationOptions>): any;
     /**
      * Collection level utility function to deserializes a destructured collection.
      *
@@ -310,11 +311,11 @@ export default class Loki extends LokiEventEmitter {
      * @returns {array} an array of documents to attach to collection.data.
      * @memberof Loki
      */
-    deserializeCollection: (destructuredSource: any, options?: Partial<{
+    deserializeCollection(destructuredSource: any, options?: Partial<{
         partitioned: boolean;
         delimited: boolean;
         delimiter: string;
-    }>) => any[];
+    }>): any[];
     /**
      * Inflates a loki database from a serialized JSON string
      *
@@ -323,7 +324,7 @@ export default class Loki extends LokiEventEmitter {
      * @param {bool} options.retainDirtyFlags - whether collection dirty flags will be preserved
      * @memberof Loki
      */
-    loadJSON: (serializedDb: any, options?: Partial<ChangeOpsLoadJSONOptions>) => void;
+    loadJSON(serializedDb: any, options?: Partial<ChangeOpsLoadJSONOptions>): void;
     /**
      * Inflates a loki database from a JS object
      *
@@ -332,10 +333,10 @@ export default class Loki extends LokiEventEmitter {
      * @param {bool} options.retainDirtyFlags - whether collection dirty flags will be preserved
      * @memberof Loki
      */
-    loadJSONObject: (dbObject: any, options?: {
+    loadJSONObject(dbObject: any, options?: {
         throttledSaves?: boolean;
         retainDirtyFlags?: boolean;
-    }) => void;
+    }): void;
     /**
      * Emits the close event. In autosave scenarios, if the database is dirty, this will save and disable timer.
      * Does not actually destroy the db.
@@ -343,7 +344,7 @@ export default class Loki extends LokiEventEmitter {
      * @param {function=} callback - (Optional) if supplied will be registered with close event before emitting.
      * @memberof Loki
      */
-    close: (callback: any) => void;
+    close(callback: any): void;
     /**-------------------------+
     | Changes API               |
     +--------------------------*/
@@ -361,24 +362,24 @@ export default class Loki extends LokiEventEmitter {
      * @see private method createChange() in Collection
      * @memberof Loki
      */
-    generateChangesNotification: (arrayOfCollectionNames?: string[] | string) => ChangeOps[];
+    generateChangesNotification(arrayOfCollectionNames?: string[] | string): ChangeOps[];
     /**
      * (Changes API) - stringify changes for network transmission
      * @returns {string} string representation of the changes
      * @memberof Loki
      */
-    serializeChanges: (collectionNamesArray?: any) => string;
+    serializeChanges(collectionNamesArray?: any): string;
     /**
      * (Changes API) - deserialize a serialized changes array
      * @returns {ChangeOps[]} string representation of the changes
      * @memberof Loki
      */
-    deserializeChanges: (collectionString: any) => ChangeOps[];
+    deserializeChanges(collectionString: any): ChangeOps[];
     /**
      * (Changes API) : clears all the changes in all collections.
      * @memberof Loki
      */
-    clearChanges: () => void;
+    clearChanges(): void;
     /**
      * Wait for throttledSaves to complete and invoke your callback when drained or duration is met.
      *
@@ -389,20 +390,20 @@ export default class Loki extends LokiEventEmitter {
      * @param {int} options.recursiveWaitLimitDelay - (default: 2000) cutoff in ms to stop recursively re-draining
      * @memberof Loki
      */
-    throttledSaveDrain: (callback: any, options?: {
+    throttledSaveDrain(callback: any, options?: {
         recursiveWait?: boolean;
         recursiveWaitLimit?: boolean;
         recursiveWaitLimitDelay?: boolean;
         recursiveWaitLimitDuration?: number;
         started?: number;
-    }) => void;
+    }): void;
     /**
      * Internal load logic, decoupled from throttling/contention logic
      *
      * @param {object} options - not currently used (remove or allow overrides?)
      * @param {function=} callback - (Optional) user supplied async callback / error handler
      */
-    loadDatabaseInternal: (options: any, callback?: (_: string | Error) => void) => void;
+    loadDatabaseInternal(options: any, callback?: (_: string | Error) => void): void;
     /**
      * Handles manually loading from file system, local storage, or adapter (such as indexeddb)
      *    This method utilizes loki configuration options (if provided) to determine which
@@ -427,15 +428,15 @@ export default class Loki extends LokiEventEmitter {
      *   }
      * });
      */
-    loadDatabase: (options?: {
+    loadDatabase(options?: {
         recursiveWait?: boolean;
         recursiveWaitLimit?: boolean;
         recursiveWaitLimitDelay?: boolean;
-    }, callback?: (_: string | Error) => void) => void;
+    }, callback?: (_: string | Error) => void): void;
     /**
      * Internal save logic, decoupled from save throttling logic
      */
-    saveDatabaseInternal: (callback: any) => void;
+    saveDatabaseInternal(callback: any): void;
     /**
      * Handles manually saving to file system, local storage, or adapter (such as indexeddb)
      *    This method utilizes loki configuration options (if provided) to determine which
@@ -455,7 +456,7 @@ export default class Loki extends LokiEventEmitter {
      *   }
      * });
      */
-    saveDatabase: (callback?: (_: string | Error) => any) => void;
+    saveDatabase(callback?: (_: string | Error) => any): void;
     /**
      * Handles deleting a database from file system, local
      *    storage, or adapter (indexeddb)
@@ -465,30 +466,30 @@ export default class Loki extends LokiEventEmitter {
      * @param {function=} callback - (Optional) user supplied async callback / error handler
      * @memberof Loki
      */
-    deleteDatabase: (options: (_: string | Error) => void, callback?: (_: string | Error) => void) => void;
+    deleteDatabase(options: (_: string | Error) => void, callback?: (_: string | Error) => void): void;
     /**
      * autosaveDirty - check whether any collections are 'dirty' meaning we need to save (entire) database
      *
      * @returns {boolean} - true if database has changed since last autosave, false if not.
      */
-    autosaveDirty: () => boolean;
+    autosaveDirty(): boolean;
     /**
      * autosaveClearFlags - resets dirty flags on all collections.
      *    Called from saveDatabase() after db is saved.
      *
      */
-    autosaveClearFlags: () => void;
+    autosaveClearFlags(): void;
     /**
      * autosaveEnable - begin a javascript interval to periodically save the database.
      *
      * @param {object} options - not currently used (remove or allow overrides?)
      * @param {function=} callback - (Optional) user supplied async callback
      */
-    autosaveEnable: (options?: {}, callback?: () => any) => void;
+    autosaveEnable(options?: {}, callback?: () => any): void;
     /**
      * autosaveDisable - stop the autosave interval timer.
      *
      */
-    autosaveDisable: () => void;
+    autosaveDisable(): void;
 }
 export {};

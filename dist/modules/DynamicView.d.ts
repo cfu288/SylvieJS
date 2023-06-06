@@ -52,7 +52,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      *
      * @returns function (sortFunction) or array (sortCriteria) or object (sortCriteriaSimple)
      */
-    getSort: () => any;
+    getSort(): any;
     /**
      * rematerialize() - internally used immediately after deserialization (loading)
      *    This will clear out and reapply filterPipeline ops, recreating the view.
@@ -64,7 +64,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @memberof DynamicView
      * @fires DynamicView.rebuild
      */
-    rematerialize: (options: any) => this;
+    rematerialize(options: any): this;
     /**
      * branchResultset() - Makes a copy of the internal resultset for branched queries.
      *    Unlike this dynamic view, the branched resultset will not be 'live' updated,
@@ -94,12 +94,12 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      *
      * var results = dv.branchResultset('viewPaging', { pageStart: 10, pageSize: 10 }).data();
      */
-    branchResultset: (transform: any, parameters: any) => Resultset<any>;
+    branchResultset(transform: any, parameters: any): Resultset<any>;
     /**
      * toJSON() - Override of toJSON to avoid circular references
      *
      */
-    toJSON: () => DynamicView<DT>;
+    toJSON(): DynamicView<DT>;
     /**
      * removeFilters() - Used to clear pipeline and reset dynamic view to initial state.
      *     Existing options should be retained.
@@ -107,7 +107,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @param {boolean=} options.queueSortPhase - (default: false) if true we will async rebuild view (maybe set default to true in future?)
      * @memberof DynamicView
      */
-    removeFilters: (options?: Record<string, any>) => void;
+    removeFilters(options?: Record<string, any>): void;
     /**
      * applySort() - Used to apply a sort to the dynamic view
      * @example
@@ -121,7 +121,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
-    applySort: (comparefun: any) => this;
+    applySort(comparefun: any): this;
     /**
      * applySimpleSort() - Used to specify a property used for view translation.
      * @example
@@ -136,7 +136,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
-    applySimpleSort: (propname: any, options: any) => this;
+    applySimpleSort(propname: any, options: any): this;
     /**
      * applySortCriteria() - Allows sorting a resultset based on multiple columns.
      * @example
@@ -151,25 +151,25 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @returns {DynamicView} Reference to this DynamicView, sorted, for future chain operations.
      * @memberof DynamicView
      */
-    applySortCriteria: (criteria: any) => this;
+    applySortCriteria(criteria: any): this;
     /**
      * startTransaction() - marks the beginning of a transaction.
      *
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      */
-    startTransaction: () => this;
+    startTransaction(): this;
     /**
      * commit() - commits a transaction.
      *
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      */
-    commit: () => this;
+    commit(): this;
     /**
      * rollback() - rolls back a transaction.
      *
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      */
-    rollback: () => this;
+    rollback(): this;
     /**
      * Implementation detail.
      * _indexOfFilterWithId() - Find the index of a filter in the pipeline, by that filter's ID.
@@ -177,20 +177,20 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @param {(string|number)} uid - The unique ID of the filter.
      * @returns {number}: index of the referenced filter in the pipeline; -1 if not found.
      */
-    _indexOfFilterWithId: (uid: any) => number;
+    _indexOfFilterWithId(uid: any): number;
     /**
      * Implementation detail.
      * _addFilter() - Add the filter object to the end of view's filter pipeline and apply the filter to the resultset.
      *
      * @param {object} filter - The filter object. Refer to applyFilter() for extra details.
      */
-    _addFilter: (filter: any) => void;
+    _addFilter(filter: any): void;
     /**
      * reapplyFilters() - Reapply all the filters in the current pipeline.
      *
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      */
-    reapplyFilters: () => this;
+    reapplyFilters(): this;
     /**
      * applyFilter() - Adds or updates a filter in the DynamicView filter pipeline
      *
@@ -199,7 +199,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
-    applyFilter: (filter: any) => this;
+    applyFilter(filter: any): this;
     /**
      * applyFind() - Adds or updates a mongo-style query option in the DynamicView filter pipeline
      *
@@ -208,7 +208,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
-    applyFind: (query: any, uid: any) => this;
+    applyFind(query: any, uid: any): this;
     /**
      * applyWhere() - Adds or updates a javascript filter function in the DynamicView filter pipeline
      *
@@ -217,7 +217,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
-    applyWhere: (fun: any, uid: any) => this;
+    applyWhere(fun: any, uid: any): this;
     /**
      * removeFilter() - Remove the specified filter from the DynamicView filter pipeline
      *
@@ -225,14 +225,14 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
-    removeFilter: (uid: any) => this;
+    removeFilter(uid: any): this;
     /**
      * count() - returns the number of documents representing the current DynamicView contents.
      *
      * @returns {number} The number of documents representing the current DynamicView contents.
      * @memberof DynamicView
      */
-    count: () => number;
+    count(): number;
     /**
      * data() - resolves and pending filtering and sorting, then returns document array as result.
      *
@@ -250,18 +250,18 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * queueRebuildEvent() - When the view is not sorted we may still wish to be notified of rebuild events.
      *     This event will throttle and queue a single rebuild event when batches of updates affect the view.
      */
-    queueRebuildEvent: () => void;
+    queueRebuildEvent(): void;
     /**
      * queueSortPhase : If the view is sorted we will throttle sorting to either :
      *    (1) passive - when the user calls data(), or
      *    (2) active - once they stop updating and yield js thread control
      */
-    queueSortPhase: () => void;
+    queueSortPhase(): void;
     /**
      * performSortPhase() - invoked synchronously or asynchronously to perform final sort phase (if needed)
      *
      */
-    performSortPhase: (options?: Record<string, any>) => void;
+    performSortPhase(options?: Record<string, any>): void;
     /**
      * evaluateDocument() - internal method for (re)evaluating document inclusion.
      *    Called by : collection.insert() and collection.update().
@@ -269,12 +269,12 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @param {int} objIndex - index of document to (re)run through filter pipeline.
      * @param {bool} isNew - true if the document was just added to the collection.
      */
-    evaluateDocument: (objIndex: any, isNew: any) => void;
+    evaluateDocument(objIndex: any, isNew: any): void;
     /**
      * removeDocument() - internal function called on collection.delete()
      * @param {number|number[]} objIndex - index of document to (re)run through filter pipeline.
      */
-    removeDocument: (objIndex: any) => void;
+    removeDocument(objIndex: any): void;
     /**
      * mapReduce() - data transformation via user supplied functions
      *
@@ -283,6 +283,6 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @returns The output of your reduceFunction
      * @memberof DynamicView
      */
-    mapReduce: (mapFunction: any, reduceFunction: any) => any;
+    mapReduce(mapFunction: any, reduceFunction: any): any;
 }
 export {};

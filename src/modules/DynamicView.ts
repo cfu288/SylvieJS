@@ -112,9 +112,9 @@ export class DynamicView<
    *
    * @returns function (sortFunction) or array (sortCriteria) or object (sortCriteriaSimple)
    */
-  getSort = () => {
+  getSort() {
     return this.sortFunction || this.sortCriteria || this.sortCriteriaSimple;
-  };
+  }
 
   /**
    * rematerialize() - internally used immediately after deserialization (loading)
@@ -127,7 +127,7 @@ export class DynamicView<
    * @memberof DynamicView
    * @fires DynamicView.rebuild
    */
-  rematerialize = (options) => {
+  rematerialize(options) {
     let fpl;
     let fpi;
     let idx;
@@ -183,7 +183,7 @@ export class DynamicView<
     this.emit("rebuild", this);
 
     return this;
-  };
+  }
 
   /**
    * branchResultset() - Makes a copy of the internal resultset for branched queries.
@@ -214,7 +214,7 @@ export class DynamicView<
    *
    * var results = dv.branchResultset('viewPaging', { pageStart: 10, pageSize: 10 }).data();
    */
-  branchResultset = (transform, parameters) => {
+  branchResultset(transform, parameters) {
     const rs = this.resultset.branch();
 
     if (typeof transform === "undefined") {
@@ -222,13 +222,13 @@ export class DynamicView<
     }
 
     return rs.transform(transform, parameters);
-  };
+  }
 
   /**
    * toJSON() - Override of toJSON to avoid circular references
    *
    */
-  toJSON = () => {
+  toJSON() {
     const copy = new DynamicView(this.collection, this.name, this.options);
     copy.resultset = this.resultset;
     copy.resultdata = []; // let's not save data (copy) to minimize size
@@ -243,7 +243,7 @@ export class DynamicView<
     copy.collection = null;
 
     return copy;
-  };
+  }
 
   /**
    * removeFilters() - Used to clear pipeline and reset dynamic view to initial state.
@@ -252,7 +252,7 @@ export class DynamicView<
    * @param {boolean=} options.queueSortPhase - (default: false) if true we will async rebuild view (maybe set default to true in future?)
    * @memberof DynamicView
    */
-  removeFilters = (options: Record<string, any> = {}) => {
+  removeFilters(options: Record<string, any> = {}) {
     this.rebuildPending = false;
     this.resultset.reset();
     this.resultdata = [];
@@ -282,7 +282,7 @@ export class DynamicView<
     if (filterChanged) {
       this.emit("filter");
     }
-  };
+  }
 
   /**
    * applySort() - Used to apply a sort to the dynamic view
@@ -297,7 +297,7 @@ export class DynamicView<
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    * @memberof DynamicView
    */
-  applySort = (comparefun) => {
+  applySort(comparefun) {
     this.sortFunction = comparefun;
     this.sortCriteria = null;
     this.sortCriteriaSimple = null;
@@ -306,7 +306,7 @@ export class DynamicView<
     this.emit("sort");
 
     return this;
-  };
+  }
 
   /**
    * applySimpleSort() - Used to specify a property used for view translation.
@@ -322,7 +322,7 @@ export class DynamicView<
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    * @memberof DynamicView
    */
-  applySimpleSort = (propname, options) => {
+  applySimpleSort(propname, options) {
     this.sortCriteriaSimple = {
       propname,
       options: options || false,
@@ -337,7 +337,7 @@ export class DynamicView<
     this.emit("sort");
 
     return this;
-  };
+  }
 
   /**
    * applySortCriteria() - Allows sorting a resultset based on multiple columns.
@@ -353,7 +353,7 @@ export class DynamicView<
    * @returns {DynamicView} Reference to this DynamicView, sorted, for future chain operations.
    * @memberof DynamicView
    */
-  applySortCriteria = (criteria) => {
+  applySortCriteria(criteria) {
     this.sortCriteria = criteria;
     if (!this.collection.disableFreeze) {
       deepFreeze(this.sortCriteria);
@@ -364,36 +364,36 @@ export class DynamicView<
     this.queueSortPhase();
     this.emit("sort");
     return this;
-  };
+  }
 
   /**
    * startTransaction() - marks the beginning of a transaction.
    *
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    */
-  startTransaction = () => {
+  startTransaction() {
     this.cachedresultset = this.resultset.copy();
 
     return this;
-  };
+  }
 
   /**
    * commit() - commits a transaction.
    *
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    */
-  commit = () => {
+  commit() {
     this.cachedresultset = null;
 
     return this;
-  };
+  }
 
   /**
    * rollback() - rolls back a transaction.
    *
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    */
-  rollback = () => {
+  rollback() {
     this.resultset = this.cachedresultset;
 
     if (this.options.persistent) {
@@ -405,7 +405,7 @@ export class DynamicView<
     }
 
     return this;
-  };
+  }
 
   /**
    * Implementation detail.
@@ -414,7 +414,7 @@ export class DynamicView<
    * @param {(string|number)} uid - The unique ID of the filter.
    * @returns {number}: index of the referenced filter in the pipeline; -1 if not found.
    */
-  _indexOfFilterWithId = (uid) => {
+  _indexOfFilterWithId(uid) {
     if (typeof uid === "string" || typeof uid === "number") {
       for (let idx = 0, len = this.filterPipeline.length; idx < len; idx += 1) {
         if (uid === this.filterPipeline[idx].uid) {
@@ -423,7 +423,7 @@ export class DynamicView<
       }
     }
     return -1;
-  };
+  }
 
   /**
    * Implementation detail.
@@ -431,7 +431,7 @@ export class DynamicView<
    *
    * @param {object} filter - The filter object. Refer to applyFilter() for extra details.
    */
-  _addFilter = (filter) => {
+  _addFilter(filter) {
     const wasFrozen = Object.isFrozen(this.filterPipeline);
     if (wasFrozen) {
       this.filterPipeline = this.filterPipeline.slice();
@@ -444,14 +444,14 @@ export class DynamicView<
       Object.freeze(this.filterPipeline);
     }
     this.resultset[filter.type](filter.val);
-  };
+  }
 
   /**
    * reapplyFilters() - Reapply all the filters in the current pipeline.
    *
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    */
-  reapplyFilters = () => {
+  reapplyFilters() {
     this.resultset.reset();
 
     this.cachedresultset = null;
@@ -478,7 +478,7 @@ export class DynamicView<
     }
     this.emit("filter");
     return this;
-  };
+  }
 
   /**
    * applyFilter() - Adds or updates a filter in the DynamicView filter pipeline
@@ -488,7 +488,7 @@ export class DynamicView<
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    * @memberof DynamicView
    */
-  applyFilter = (filter) => {
+  applyFilter(filter) {
     const idx = this._indexOfFilterWithId(filter.uid);
     if (idx >= 0) {
       const wasFrozen = Object.isFrozen(this.filterPipeline);
@@ -519,7 +519,7 @@ export class DynamicView<
 
     this.emit("filter");
     return this;
-  };
+  }
 
   /**
    * applyFind() - Adds or updates a mongo-style query option in the DynamicView filter pipeline
@@ -529,14 +529,14 @@ export class DynamicView<
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    * @memberof DynamicView
    */
-  applyFind = (query, uid) => {
+  applyFind(query, uid) {
     this.applyFilter({
       type: "find",
       val: query,
       uid,
     });
     return this;
-  };
+  }
 
   /**
    * applyWhere() - Adds or updates a javascript filter function in the DynamicView filter pipeline
@@ -546,14 +546,14 @@ export class DynamicView<
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    * @memberof DynamicView
    */
-  applyWhere = (fun, uid) => {
+  applyWhere(fun, uid) {
     this.applyFilter({
       type: "where",
       val: fun,
       uid,
     });
     return this;
-  };
+  }
 
   /**
    * removeFilter() - Remove the specified filter from the DynamicView filter pipeline
@@ -562,7 +562,7 @@ export class DynamicView<
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    * @memberof DynamicView
    */
-  removeFilter = (uid) => {
+  removeFilter(uid) {
     const idx = this._indexOfFilterWithId(uid);
     if (idx < 0) {
       throw new Error(`Dynamic view does not contain a filter with ID: ${uid}`);
@@ -577,7 +577,7 @@ export class DynamicView<
     }
     this.reapplyFilters();
     return this;
-  };
+  }
 
   /**
    * count() - returns the number of documents representing the current DynamicView contents.
@@ -585,7 +585,7 @@ export class DynamicView<
    * @returns {number} The number of documents representing the current DynamicView contents.
    * @memberof DynamicView
    */
-  count = () => {
+  count() {
     // in order to be accurate we will pay the minimum cost (and not alter dv state management)
     // recurring resultset data resolutions should know internally its already up to date.
     // for persistent data this will not update resultdata nor fire rebuild event.
@@ -594,7 +594,7 @@ export class DynamicView<
     }
 
     return this.resultset.count();
-  };
+  }
 
   /**
    * data() - resolves and pending filtering and sorting, then returns document array as result.
@@ -624,7 +624,7 @@ export class DynamicView<
    * queueRebuildEvent() - When the view is not sorted we may still wish to be notified of rebuild events.
    *     This event will throttle and queue a single rebuild event when batches of updates affect the view.
    */
-  queueRebuildEvent = () => {
+  queueRebuildEvent() {
     if (this.rebuildPending) {
       return;
     }
@@ -637,14 +637,14 @@ export class DynamicView<
         self.emit("rebuild", self);
       }
     }, this.options.minRebuildInterval);
-  };
+  }
 
   /**
    * queueSortPhase : If the view is sorted we will throttle sorting to either :
    *    (1) passive - when the user calls data(), or
    *    (2) active - once they stop updating and yield js thread control
    */
-  queueSortPhase = () => {
+  queueSortPhase() {
     // already queued? exit without queuing again
     if (this.sortDirty) {
       return;
@@ -662,13 +662,13 @@ export class DynamicView<
       // potentially notify user that data has changed.
       this.queueRebuildEvent();
     }
-  };
+  }
 
   /**
    * performSortPhase() - invoked synchronously or asynchronously to perform final sort phase (if needed)
    *
    */
-  performSortPhase = (options?: Record<string, any>) => {
+  performSortPhase(options?: Record<string, any>) {
     // async call to this may have been pre-empted by synchronous call to data before async could fire
     if (!this.sortDirty && !this.resultsdirty) {
       return;
@@ -700,7 +700,7 @@ export class DynamicView<
     if (!options.suppressRebuildEvent) {
       this.emit("rebuild", this);
     }
-  };
+  }
 
   /**
    * evaluateDocument() - internal method for (re)evaluating document inclusion.
@@ -709,7 +709,7 @@ export class DynamicView<
    * @param {int} objIndex - index of document to (re)run through filter pipeline.
    * @param {bool} isNew - true if the document was just added to the collection.
    */
-  evaluateDocument = (objIndex, isNew) => {
+  evaluateDocument(objIndex, isNew) {
     // if no filter applied yet, the result 'set' should remain 'everything'
     if (!this.resultset.filterInitialized) {
       if (this.options.persistent) {
@@ -805,13 +805,13 @@ export class DynamicView<
 
       return;
     }
-  };
+  }
 
   /**
    * removeDocument() - internal function called on collection.delete()
    * @param {number|number[]} objIndex - index of document to (re)run through filter pipeline.
    */
-  removeDocument = (objIndex) => {
+  removeDocument(objIndex) {
     let idx;
     let rmidx;
     let rmlen;
@@ -882,7 +882,7 @@ export class DynamicView<
       adjels = objIndex.filter(filt(idx));
       drs.filteredrows[idx] -= adjels.length;
     }
-  };
+  }
 
   /**
    * mapReduce() - data transformation via user supplied functions
@@ -892,7 +892,7 @@ export class DynamicView<
    * @returns The output of your reduceFunction
    * @memberof DynamicView
    */
-  mapReduce = (mapFunction, reduceFunction) => {
+  mapReduce(mapFunction, reduceFunction) {
     return reduceFunction(this.data().map(mapFunction));
-  };
+  }
 }

@@ -11,64 +11,7 @@
  */
 // function LokiEventEmitter() {}
 export class LokiEventEmitter {
-  getIndexedAdapter: () => any;
-  configureOptions: (options: any, initialConfig: any) => void;
-  copy: (options: any) => any;
-  addCollection: (name: any, options: any) => any;
-  loadCollection: (collection: any) => void;
-  getCollection: (collectionName: any) => any;
-  renameCollection: (oldName: any, newName: any) => any;
-  listCollections: () => any[];
-  removeCollection: (collectionName: any) => void;
-  getName: () => any;
-  serializeReplacer: (key: any, value: any) => any;
-  serialize: (options: any) => any;
-  toJson: any;
-  serializeDestructured: (options: any) => any;
-  serializeCollection: (options: any) => string | any[];
-  deserializeDestructured: (destructuredSource: any, options: any) => any;
-  deserializeCollection: (destructuredSource: any, options: any) => any[];
-  loadJSON: (serializedDb: any, options: any) => void;
-  loadJSONObject: (dbObject: any, options: any) => void;
-  close: (callback: any) => void;
-  generateChangesNotification: (arrayOfCollectionNames: any) => any[];
-  serializeChanges: (collectionNamesArray: any) => string;
-  clearChanges: () => void;
-  throttledSaveDrain: (callback: any, options: any) => void;
-  loadDatabase: (options: any, callback: any) => void;
-  saveDatabaseInternal: (callback: any) => void;
-  saveDatabase: (callback: any) => void;
   save: any;
-  deleteDatabase: (options: any, callback: any) => void;
-  autosaveDirty: () => boolean;
-  autosaveClearFlags: () => void;
-  autosaveEnable: (options: any, callback: any) => void;
-  autosaveDisable: () => void;
-  getSort: () => any;
-  rematerialize: (options: any) => any;
-  branchResultset: (transform: any, parameters: any) => any;
-  toJSON: () => any;
-  removeFilters: (options: any) => void;
-  applySort: (comparefun: any) => any;
-  applySimpleSort: (propname: any, options: any) => any;
-  applySortCriteria: (criteria: any) => any;
-  startTransaction: () => any;
-  commit: () => any;
-  rollback: () => any;
-  _indexOfFilterWithId: (uid: any) => number;
-  _addFilter: (filter: any) => void;
-  reapplyFilters: () => any;
-  applyFilter: (filter: any) => any;
-  applyFind: (query: any, uid: any) => any;
-  applyWhere: (fun: any, uid: any) => any;
-  removeFilter: (uid: any) => any;
-  count: () => any;
-  queueRebuildEvent: () => void;
-  queueSortPhase: () => void;
-  performSortPhase: (options: any) => void;
-  evaluateDocument: (objIndex: any, isNew: any) => void;
-  removeDocument: (objIndex: any) => void;
-  mapReduce: (mapFunction: any, reduceFunction: any) => any;
 
   /**
    * on(eventName, listener) - adds a listener to the queue of callbacks associated to an event

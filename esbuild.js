@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const esbuild = require("esbuild");
 const { dtsPlugin } = require("esbuild-plugin-d.ts");
+const {default: umdWrapper} = require("esbuild-plugin-umd-wrapper");
 
 esbuild
   .build({
@@ -17,7 +18,7 @@ esbuild
     minifyWhitespace: true,
     minify: true,
     keepNames: true,
-    format: "iife",
-    plugins: [dtsPlugin()],
+    format: "umd",
+    plugins: [dtsPlugin(), umdWrapper()],
   })
   .catch(() => process.exit(1));
