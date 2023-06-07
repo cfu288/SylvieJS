@@ -84,7 +84,5 @@
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
   },
-  "dependencies": {
-    "jquery": "^3.7.0"
-  }
+  "dependencies": {}
 }

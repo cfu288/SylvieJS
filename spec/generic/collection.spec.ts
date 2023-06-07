@@ -1,5 +1,5 @@
-import { Collection } from "../../src/modules/collection";
 import Sylvie from "../../src/sylviejs";
+import { Collection } from "../../src/modules/collection";
 const loki = Sylvie;
 
 describe("collection", function () {

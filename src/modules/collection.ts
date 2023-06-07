@@ -16,8 +16,8 @@ import { SylvieEventEmitter } from "./sylvie-event-emitter";
 import { ResultSet } from "./result-set";
 import { ExactIndex } from "./index/exact-index";
 import { UniqueIndex } from "./index/unique-index";
-
 import { parseBase10 } from "../utils/parse-base-10";
+
 export type ChainTransform =
   | string
   | {

@@ -2,12 +2,10 @@
 /* eslint-disable no-var */
 "use strict";
 
-import * as jQuery from "jquery";
 import { cloneObjectArray } from "./clone-object-array";
 
 export type CloneMethods =
   | "parse-stringify"
-  | "jquery-extend-deep"
   | "shallow"
   | "shallow-assign"
   | "shallow-recurse-objects";
@@ -23,9 +21,6 @@ export function clone(data: object, method: CloneMethods) {
   switch (cloneMethod) {
     case "parse-stringify":
       cloned = JSON.parse(JSON.stringify(data));
-      break;
-    case "jquery-extend-deep":
-      cloned = jQuery.extend(true, {}, data);
       break;
     case "shallow":
       // more compatible method for older browsers
