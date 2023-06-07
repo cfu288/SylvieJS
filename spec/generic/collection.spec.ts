@@ -1,3 +1,4 @@
+import { Collection } from "../../src/modules/collection";
 import Sylvie from "../../src/sylviejs";
 const loki = Sylvie;
 
@@ -23,7 +24,7 @@ describe("collection", function () {
     expect(collection.getStage("tmp")[testLokiId].$loki).toEqual(0);
   });
   it("subclassing works", function () {
-    class SubclassedCollection extends loki.Collection<any> {
+    class SubclassedCollection extends Collection<any> {
       constructor(args, opts) {
         super(args, opts);
       }

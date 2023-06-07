@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-interface */
 /* eslint-disable @typescript-eslint/no-this-alias */
 /*
   Loki IndexedDb Adapter (need to include this script to use it)
@@ -8,11 +9,19 @@
   adapter.loadDatabase('UserDatabase'); // will log the serialized db to console
   adapter.deleteDatabase('UserDatabase');
 */
-
-import Sylvie from "../modules/sylvie";
+// @ts-nocheck
 import { PersistenceAdapter } from "./persistence-adapter";
 
-interface IndexedAdapterOptions {}
+// @ts-ignore
+const DEBUG = typeof window !== "undefined" && !!window.__loki_idb_debug;
+
+if (DEBUG) {
+  console.log("DEBUG: Running indexeddb-adapter in DEBUG mode");
+}
+
+interface IndexedAdapterOptions {
+  closeAfterSave: boolean;
+}
 /**
  * Loki persistence adapter class for indexedDb.
  *     This class fulfills abstract adapter interface which can be applied to other storage methods.
@@ -31,10 +40,11 @@ interface IndexedAdapterOptions {}
  * @param {object=} options Configuration options for the adapter
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  */
-class IndexedAdapter implements PersistenceAdapter {
+class IndexedDBAdapter implements PersistenceAdapter {
   app: string;
-  options: any;
-  catalog: any;
+  options: Partial<IndexedAdapterOptions>;
+  catalog: SylvieCatalog;
+  mode: string;
   loadKey: (dbname: any, callback: any) => void;
   saveKey: (dbname: any, dbstring: any, callback: any) => void;
   deleteKey: (dbname: any, callback: any) => void;
@@ -53,17 +63,9 @@ class IndexedAdapter implements PersistenceAdapter {
 
     if (!this.checkAvailability()) {
       throw new Error(
-        "indexedDB does not seem to be supported for your environment"
+        "IndexedDB does not seem to be supported for your environment"
       );
     }
-  }
-  mode: string;
-  exportDatabase(
-    dbname: string,
-    dbref: typeof Sylvie,
-    callback: (err: Error) => void
-  ): void {
-    throw new Error("Method not implemented.");
   }
 
   /**
@@ -80,11 +82,9 @@ class IndexedAdapter implements PersistenceAdapter {
    * Used to check if adapter is available
    *
    * @returns {boolean} true if indexeddb is available, false if not.
-   * @memberof LokiIndexedAdapter
    */
   checkAvailability() {
     if (typeof indexedDB !== "undefined" && indexedDB) return true;
-
     return false;
   }
 
@@ -101,20 +101,17 @@ class IndexedAdapter implements PersistenceAdapter {
    *
    * @param {string} dbname - the name of the database to retrieve.
    * @param {function} callback - callback should accept string param containing serialized db string.
-   * @memberof LokiIndexedAdapter
    */
-  loadDatabase(dbname, callback) {
+  loadDatabase(dbname: string, callback: (serialized: string) => void) {
     const appName = this.app;
-    const adapter = this;
+    const adapter: IndexedDBAdapter = this;
 
     // lazy open/create db reference so dont -need- callback in constructor
     if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new LokiCatalog((cat) => {
-        adapter.catalog = cat;
-
+      this.catalog = new SylvieCatalog((catalog) => {
+        adapter.catalog = catalog;
         adapter.loadDatabase(dbname, callback);
       });
-
       return;
     }
 
@@ -149,7 +146,11 @@ class IndexedAdapter implements PersistenceAdapter {
    * @param {function} callback - (Optional) callback passed obj.success with true or false
    * @memberof LokiIndexedAdapter
    */
-  saveDatabase(dbname, dbstring, callback) {
+  saveDatabase(
+    dbname: string,
+    dbstring: string,
+    callback?: (err: Error) => void
+  ) {
     const appName = this.app;
     const adapter = this;
 
@@ -167,7 +168,7 @@ class IndexedAdapter implements PersistenceAdapter {
 
     // lazy open/create db reference so dont -need- callback in constructor
     if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new LokiCatalog((cat) => {
+      this.catalog = new SylvieCatalog(() => {
         adapter.saveDatabase(dbname, dbstring, saveCallback);
       });
 
@@ -198,9 +199,8 @@ class IndexedAdapter implements PersistenceAdapter {
 
     // lazy open/create db reference and pass callback ahead
     if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new LokiCatalog((cat) => {
-        adapter.catalog = cat;
-
+      this.catalog = new SylvieCatalog((catalog) => {
+        adapter.catalog = catalog;
         adapter.deleteDatabase(dbname, callback);
       });
 
@@ -257,7 +257,7 @@ class IndexedAdapter implements PersistenceAdapter {
 
     // lazy open/create db reference so dont -need- callback in constructor
     if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new LokiCatalog((cat) => {
+      this.catalog = new SylvieCatalog((cat) => {
         adapter.catalog = cat;
 
         adapter.getDatabaseList(callback);
@@ -297,7 +297,7 @@ class IndexedAdapter implements PersistenceAdapter {
 
     // lazy open/create db reference
     if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new LokiCatalog((cat) => {
+      this.catalog = new SylvieCatalog((cat) => {
         adapter.catalog = cat;
 
         adapter.getCatalogSummary(callback);
@@ -340,42 +340,44 @@ class IndexedAdapter implements PersistenceAdapter {
 }
 
 // alias
-IndexedAdapter.prototype.loadKey = IndexedAdapter.prototype.loadDatabase;
+IndexedDBAdapter.prototype.loadKey = IndexedDBAdapter.prototype.loadDatabase;
 
 // alias
-IndexedAdapter.prototype.saveKey = IndexedAdapter.prototype.saveDatabase;
+IndexedDBAdapter.prototype.saveKey = IndexedDBAdapter.prototype.saveDatabase;
 
 // alias
-IndexedAdapter.prototype.deleteKey = IndexedAdapter.prototype.deleteDatabase;
+IndexedDBAdapter.prototype.deleteKey =
+  IndexedDBAdapter.prototype.deleteDatabase;
 
 // alias
-IndexedAdapter.prototype.getKeyList = IndexedAdapter.prototype.getDatabaseList;
+IndexedDBAdapter.prototype.getKeyList =
+  IndexedDBAdapter.prototype.getDatabaseList;
 
 /**
  * LokiCatalog - underlying App/Key/Value catalog persistence
  *    This non-interface class implements the actual persistence.
- *    Used by the IndexedAdapter class.
+ *    Used by the IndexedDBAdapter class.
  */
-class LokiCatalog {
-  db: any;
+class SylvieCatalog {
+  db: IDBDatabase;
   constructor(callback) {
     this.db = null;
     this.initializeLokiCatalog(callback);
   }
 
   initializeLokiCatalog(callback) {
-    const openRequest = indexedDB.open("LokiCatalog", 1);
+    const openRequest = indexedDB.open("SylvieCatalog", 1);
     const cat = this;
 
     // If database doesn't exist yet or its version is lower than our version specified above (2nd param in line above)
     openRequest.onupgradeneeded = ({ target }) => {
       const thisDB = (target as any).result;
-      if (thisDB.objectStoreNames.contains("LokiAKV")) {
-        thisDB.deleteObjectStore("LokiAKV");
+      if (thisDB.objectStoreNames.contains("SylvieAKV")) {
+        thisDB.deleteObjectStore("SylvieAKV");
       }
 
-      if (!thisDB.objectStoreNames.contains("LokiAKV")) {
-        const objectStore = thisDB.createObjectStore("LokiAKV", {
+      if (!thisDB.objectStoreNames.contains("SylvieAKV")) {
+        const objectStore = thisDB.createObjectStore("SylvieAKV", {
           keyPath: "id",
           autoIncrement: true,
         });
@@ -401,8 +403,8 @@ class LokiCatalog {
   }
 
   getAppKey(app, key, callback) {
-    const transaction = this.db.transaction(["LokiAKV"], "readonly");
-    const store = transaction.objectStore("LokiAKV");
+    const transaction = this.db.transaction(["SylvieAKV"], "readonly");
+    const store = transaction.objectStore("SylvieAKV");
     const index = store.index("appkey");
     const appkey = `${app},${key}`;
     const request = index.get(appkey);
@@ -410,7 +412,7 @@ class LokiCatalog {
     request.onsuccess = (
       (usercallback) =>
       ({ target }) => {
-        let lres = target.result;
+        let lres = (target as any).result;
 
         if (lres === null || typeof lres === "undefined") {
           lres = {
@@ -437,25 +439,25 @@ class LokiCatalog {
   }
 
   getAppKeyById(id, callback, data) {
-    const transaction = this.db.transaction(["LokiAKV"], "readonly");
-    const store = transaction.objectStore("LokiAKV");
+    const transaction = this.db.transaction(["SylvieAKV"], "readonly");
+    const store = transaction.objectStore("SylvieAKV");
     const request = store.get(id);
 
     request.onsuccess = (
       (data, usercallback) =>
       ({ target }) => {
         if (typeof usercallback === "function") {
-          usercallback(target.result, data);
+          usercallback((target as any).result, data);
         } else {
-          console.log(target.result);
+          console.log((target as any).result);
         }
       }
     )(data, callback);
   }
 
   setAppKey(app, key, val, callback) {
-    const transaction = this.db.transaction(["LokiAKV"], "readwrite");
-    const store = transaction.objectStore("LokiAKV");
+    const transaction = this.db.transaction(["SylvieAKV"], "readwrite");
+    const store = transaction.objectStore("SylvieAKV");
     const index = store.index("appkey");
     const appkey = `${app},${key}`;
     const request = index.get(appkey);
@@ -463,7 +465,7 @@ class LokiCatalog {
     // first try to retrieve an existing object by that key
     // need to do this because to update an object you need to have id in object, otherwise it will append id with new autocounter and clash the unique index appkey
     request.onsuccess = ({ target }) => {
-      let res = target.result;
+      let res = (target as any).result;
 
       if (res === null || res === undefined) {
         res = {
@@ -482,7 +484,7 @@ class LokiCatalog {
         if (typeof usercallback === "function") {
           usercallback({ success: false });
         } else {
-          console.error("LokiCatalog.setAppKey (set) onerror");
+          console.error("SylvieCatalog.setAppKey (set) onerror");
           console.error(request.error);
         }
       })(callback);
@@ -498,15 +500,15 @@ class LokiCatalog {
       if (typeof usercallback === "function") {
         usercallback({ success: false });
       } else {
-        console.error("LokiCatalog.setAppKey (get) onerror");
+        console.error("SylvieCatalog.setAppKey (get) onerror");
         console.error(request.error);
       }
     })(callback);
   }
 
-  deleteAppKey(id, callback) {
-    const transaction = this.db.transaction(["LokiAKV"], "readwrite");
-    const store = transaction.objectStore("LokiAKV");
+  deleteAppKey(id, callback: (result: { success: boolean }) => void) {
+    const transaction = this.db.transaction(["SylvieAKV"], "readwrite");
+    const store = transaction.objectStore("SylvieAKV");
     const request = store.delete(id);
 
     request.onsuccess = ((usercallback) => (evt) => {
@@ -517,15 +519,15 @@ class LokiCatalog {
       if (typeof usercallback === "function") {
         usercallback({ success: false });
       } else {
-        console.error("LokiCatalog.deleteAppKey raised onerror");
+        console.error("SylvieCatalog.deleteAppKey raised onerror");
         console.error(request.error);
       }
     })(callback);
   }
 
   getAppKeys(app, callback) {
-    const transaction = this.db.transaction(["LokiAKV"], "readonly");
-    const store = transaction.objectStore("LokiAKV");
+    const transaction = this.db.transaction(["SylvieAKV"], "readonly");
+    const store = transaction.objectStore("SylvieAKV");
     const index = store.index("app");
 
     // We want cursor to all values matching our (single) app param
@@ -562,7 +564,7 @@ class LokiCatalog {
       if (typeof usercallback === "function") {
         usercallback(null);
       } else {
-        console.error("LokiCatalog.getAppKeys raised onerror");
+        console.error("SylvieCatalog.getAppKeys raised onerror");
         console.error(e);
       }
     })(callback);
@@ -570,8 +572,8 @@ class LokiCatalog {
 
   // Hide 'cursoring' and return array of { id: id, key: key }
   getAllKeys(callback) {
-    const transaction = this.db.transaction(["LokiAKV"], "readonly");
-    const store = transaction.objectStore("LokiAKV");
+    const transaction = this.db.transaction(["SylvieAKV"], "readonly");
+    const store = transaction.objectStore("SylvieAKV");
     const cursor = store.openCursor();
 
     const localdata = [];
@@ -603,5 +605,5 @@ class LokiCatalog {
 }
 
 if (typeof window !== "undefined") {
-  Object.assign(window, { IndexedAdapter: IndexedAdapter });
+  Object.assign(window, { IndexedAdapter: IndexedDBAdapter });
 }

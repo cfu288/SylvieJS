@@ -3,8 +3,8 @@ import { SuiteOptions } from "jest-bench/dist/suite";
 // import LokiOriginal from "./releases/lokijs-original";
 // const loki_original = LokiOriginal;
 
-import Loki from "../src/lokijs";
-const loki = Loki;
+import Sylvie from "../src/sylviejs";
+const loki = Sylvie;
 
 let db, samplecoll, uniquecoll;
 const testCollectionSize = 50000;

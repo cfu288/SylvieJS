@@ -13,7 +13,7 @@ export interface PersistenceAdapter {
     dbnameOrOptions: any,
     callback: (err?: Error | null, data?: any) => void
   ): void;
-  exportDatabase(
+  exportDatabase?(
     dbname: string,
     dbref: typeof Sylvie,
     callback: (err: Error | null) => void

@@ -6,6 +6,7 @@ esbuild
     entryPoints: [
       "src/sylviejs.ts",
       "src/storage-adapter/incremental-indexeddb-adapter.ts",
+      "src/storage-adapter/indexeddb-adapter.ts",
     ],
     outdir: "dist",
     bundle: true,

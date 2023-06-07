@@ -8,6 +8,6 @@ export interface PersistenceAdapter {
     mode: string | undefined;
     loadDatabase(dbname: string, callback: (value: any) => void): void;
     deleteDatabase(dbnameOrOptions: any, callback: (err?: Error | null, data?: any) => void): void;
-    exportDatabase(dbname: string, dbref: typeof Sylvie, callback: (err: Error | null) => void): void;
+    exportDatabase?(dbname: string, dbref: typeof Sylvie, callback: (err: Error | null) => void): void;
     saveDatabase(dbname: string, dbstring: any, callback: (err?: Error | null) => void): void;
 }

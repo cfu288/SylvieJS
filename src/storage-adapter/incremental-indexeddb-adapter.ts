@@ -563,15 +563,22 @@ export class IncrementalIndexedDBAdapter implements PersistenceAdapter {
       let megachunksReceived = 0;
 
       function processMegachunk({ target }, megachunkIndex, keyRange) {
-        // var debugMsg = 'processing chunk ' + megachunkIndex + ' (' + keyRange.lower + ' -- ' + keyRange.upper + ')'
-        // DEBUG && console.time(debugMsg);
+        const debugMsg =
+          "processing chunk " +
+          megachunkIndex +
+          " (" +
+          keyRange.lower +
+          " -- " +
+          keyRange.upper +
+          ")";
+        DEBUG && console.time(debugMsg);
         const megachunk = target.result;
         megachunk.forEach((chunk, i) => {
           parseChunk(chunk, deserializeChunk, lazyCollections);
           allChunks.push(chunk);
           megachunk[i] = null; // gc
         });
-        // DEBUG && console.timeEnd(debugMsg);
+        DEBUG && console.timeEnd(debugMsg);
 
         megachunksReceived += 1;
         if (megachunksReceived === megachunkCount) {

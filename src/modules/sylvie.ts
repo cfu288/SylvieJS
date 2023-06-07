@@ -299,7 +299,7 @@ export default class Sylvie extends SylvieEventEmitter {
     let adapter;
 
     if (typeof require === "function") {
-      adapter = require("../storage-adapter/indexed-adapter.js");
+      adapter = require("../storage-adapter/indexeddb-adapter.js");
     }
 
     return adapter;
