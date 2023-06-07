@@ -3,7 +3,7 @@
 // /* eslint-disable no-var */
 "use strict";
 
-import { BSonSort, binarySearch } from "../../utils/binarySearch";
+import { BSonSort, binarySearch } from "../../utils/binary-search";
 
 export class SortedIndex {
   field: string;

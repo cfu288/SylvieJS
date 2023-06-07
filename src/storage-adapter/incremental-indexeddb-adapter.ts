@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { PersistenceAdapter } from "./modules/storage-adapter/PersistenceAdapter";
+import { PersistenceAdapter } from "./persistence-adapter";
 
 /* jshint -W030 */
 const DEBUG =

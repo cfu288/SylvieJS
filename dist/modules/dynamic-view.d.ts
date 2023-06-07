@@ -1,6 +1,6 @@
-import { Collection, CollectionDocument } from "./Collection";
-import { SylvieEventEmitter } from "./SylvieEventEmitter";
-import { ResultSet } from "./ResultSet";
+import { Collection, CollectionDocument } from "./collection";
+import { ResultSet } from "./result-set";
+import { SylvieEventEmitter } from "./sylvie-event-emitter";
 /**
  * DynamicView class is a versatile 'live' view class which can have filters and sorts applied.
  *    Collection.addDynamicView(name) instantiates this DynamicView object and notifies it

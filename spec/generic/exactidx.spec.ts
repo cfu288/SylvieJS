@@ -1,5 +1,5 @@
 import Sylvie from "../../src/sylviejs";
-import { ExactIndex } from "../../src/modules/index/ExactIndex";
+import { ExactIndex } from "../../src/modules/index/exact-index";
 
 describe("exact index", function () {
   it("can set a value to a key and get that value as an single object array", function () {

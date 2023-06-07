@@ -12,7 +12,7 @@
  * @param {Collection} collection - The collection which this Resultset will query against.
  */
 import { CloneMethods } from "../utils/clone";
-import { ChainTransform, Collection, CollectionDocument } from "./Collection";
+import { ChainTransform, Collection, CollectionDocument } from "./collection";
 export declare class ResultSet<RST extends Partial<CollectionDocument>> {
     options: Record<string, any>;
     collection: Collection<RST>;

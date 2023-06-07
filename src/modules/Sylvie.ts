@@ -3,23 +3,23 @@
 /* eslint-disable no-var */
 "use strict";
 
-import { FsAdapter } from "./storage-adapter/FsAdapter";
-import { Collection, CollectionDocument } from "./Collection";
+import { FsAdapter } from "../storage-adapter/fs-adapter";
+import { Collection, CollectionDocument } from "./collection";
 import { deepFreeze, freeze, unFreeze } from "../utils/icebox";
 import { Utils } from "../utils/index";
-import { SylvieEventEmitter } from "./SylvieEventEmitter";
+import { SylvieEventEmitter } from "./sylvie-event-emitter";
 import { LokiOps } from "../utils/ops";
 import { aeqHelper, ltHelper, gtHelper, Comparators } from "../utils/sort";
-import { DynamicView } from "./DynamicView";
-import { KeyValueStore } from "./KeyValueStore";
-import { ResultSet } from "./ResultSet";
-import { LocalStorageAdapter } from "./storage-adapter/LocalStorageAdapter";
-import { MemoryAdapter } from "./storage-adapter/MemoryAdapter";
+import { DynamicView } from "./dynamic-view";
+import { KeyValueStore } from "./key-value-store";
+import { ResultSet } from "./result-set";
+import { LocalStorageAdapter } from "../storage-adapter/local-storage-adapter";
+import { MemoryAdapter } from "../storage-adapter/memory-adapter";
 import {
   PartitioningAdapter,
   PartitioningAdapterOptions,
-} from "./storage-adapter/PartitioningAdapter";
-import { PersistenceAdapter } from "./storage-adapter/PersistenceAdapter";
+} from "../storage-adapter/partitioning-adapter";
+import { PersistenceAdapter } from "../storage-adapter/persistence-adapter";
 
 export type ChangeOpsLoadJSONUsersOptions = {
   inflate:
@@ -299,7 +299,7 @@ export default class Sylvie extends SylvieEventEmitter {
     let adapter;
 
     if (typeof require === "function") {
-      adapter = require("../indexed-adapter.js");
+      adapter = require("../storage-adapter/indexed-adapter.js");
     }
 
     return adapter;

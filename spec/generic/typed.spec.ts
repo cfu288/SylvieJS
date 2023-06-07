@@ -1,5 +1,5 @@
 import Sylvie from "../../src/sylviejs";
-import { ChangeOpsLoadJSONOptionsMeta } from "../../src/modules/Sylvie";
+import { ChangeOpsLoadJSONOptionsMeta } from "../../src/modules/sylvie";
 const loki = Sylvie;
 
 describe("typed", function () {

@@ -1,5 +1,5 @@
 import Sylvie from "../../src/sylviejs";
-import { PersistenceAdapter } from "../../src/modules/storage-adapter/PersistenceAdapter";
+import { PersistenceAdapter } from "../../src/storage-adapter/persistence-adapter";
 const loki = Sylvie;
 
 describe("dirtyIds", function () {

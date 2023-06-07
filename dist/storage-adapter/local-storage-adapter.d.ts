@@ -1,5 +1,5 @@
-import Sylvie from "../Sylvie";
-import { PersistenceAdapter } from "./PersistenceAdapter";
+import Sylvie from "../modules/sylvie";
+import { PersistenceAdapter } from "./persistence-adapter";
 /**
  * A loki persistence adapter which persists to web browser's local storage object
  * @constructor LokiLocalStorageAdapter

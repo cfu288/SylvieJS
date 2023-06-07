@@ -1,12 +1,12 @@
-import { FsAdapter } from "./storage-adapter/FsAdapter";
-import { Collection, CollectionDocument } from "./Collection";
-import { SylvieEventEmitter } from "./SylvieEventEmitter";
-import { DynamicView } from "./DynamicView";
-import { ResultSet } from "./ResultSet";
-import { LocalStorageAdapter } from "./storage-adapter/LocalStorageAdapter";
-import { MemoryAdapter } from "./storage-adapter/MemoryAdapter";
-import { PartitioningAdapterOptions } from "./storage-adapter/PartitioningAdapter";
-import { PersistenceAdapter } from "./storage-adapter/PersistenceAdapter";
+import { FsAdapter } from "../storage-adapter/fs-adapter";
+import { Collection, CollectionDocument } from "./collection";
+import { SylvieEventEmitter } from "./sylvie-event-emitter";
+import { DynamicView } from "./dynamic-view";
+import { ResultSet } from "./result-set";
+import { LocalStorageAdapter } from "../storage-adapter/local-storage-adapter";
+import { MemoryAdapter } from "../storage-adapter/memory-adapter";
+import { PartitioningAdapterOptions } from "../storage-adapter/partitioning-adapter";
+import { PersistenceAdapter } from "../storage-adapter/persistence-adapter";
 export type ChangeOpsLoadJSONUsersOptions = {
     inflate: ((src: any) => ChangeOpsLoadJSONOptionsMeta) | ((src: any, dest: ChangeOpsLoadJSONOptionsMeta) => void);
     proto: (n: any) => void;

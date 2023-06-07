@@ -1,5 +1,5 @@
-import { SortedIndex } from "../../src/modules/index/SortedIndex";
-import { BSonSort, binarySearch } from "../../src/utils/binarySearch";
+import { SortedIndex } from "../../src/modules/index/sorted-index";
+import { BSonSort, binarySearch } from "../../src/utils/binary-search";
 describe("binary search", function () {
   it("can find a value in an array", function () {
     const arr = [1, 2, 3, 4, 5];

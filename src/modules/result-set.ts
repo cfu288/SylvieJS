@@ -14,13 +14,14 @@
  * @param {Collection} collection - The collection which this Resultset will query against.
  */
 
-import { hasOwnProperty, precompileQuery } from "../sylviejs";
+import { hasOwnProperty } from "../sylviejs";
+import { precompileQuery } from "../utils/precompile-query";
 import { CloneMethods, clone } from "../utils/clone";
 import { dotSubScan } from "../utils/dotSubScan";
 import { Utils } from "../utils/index";
 import { indexedOps, LokiOps } from "../utils/ops";
 import { sortHelper, compoundeval } from "../utils/sort";
-import { ChainTransform, Collection, CollectionDocument } from "./Collection";
+import { ChainTransform, Collection, CollectionDocument } from "./collection";
 
 export class ResultSet<RST extends Partial<CollectionDocument>> {
   options: Record<string, any>;

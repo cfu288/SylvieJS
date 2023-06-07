@@ -3,7 +3,7 @@
 "use strict";
 
 import * as jQuery from "jquery";
-import { cloneObjectArray } from "./cloneObjectArray";
+import { cloneObjectArray } from "./clone-object-array";
 
 export type CloneMethods =
   | "parse-stringify"

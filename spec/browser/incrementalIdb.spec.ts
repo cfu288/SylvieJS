@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import Sylvie from "../../src/sylviejs";
-import { Collection } from "../../src/modules/Collection";
-import { PersistenceAdapter } from "../../src/modules/storage-adapter/PersistenceAdapter";
-import { IncrementalIndexedDBAdapter } from "../../src/incremental-indexeddb-adapter";
+import { Collection } from "../../src/modules/collection";
+import { PersistenceAdapter } from "../../src/storage-adapter/persistence-adapter";
+import { IncrementalIndexedDBAdapter } from "../../src/storage-adapter/incremental-indexeddb-adapter";
 const loki = Sylvie;
 
 describe("IncrementalIndexedDBAdapter", function () {

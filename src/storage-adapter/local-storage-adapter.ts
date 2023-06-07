@@ -1,8 +1,8 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable no-var */
-import { localStorageAvailable } from "../../utils/localStorageAvailable";
-import Sylvie from "../Sylvie";
-import { PersistenceAdapter } from "./PersistenceAdapter";
+import { localStorageAvailable } from "../utils/localStorageAvailable";
+import Sylvie from "../modules/sylvie";
+import { PersistenceAdapter } from "./persistence-adapter";
 
 /**
  * A loki persistence adapter which persists to web browser's local storage object

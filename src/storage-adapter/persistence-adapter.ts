@@ -1,4 +1,4 @@
-import Sylvie from "../Sylvie";
+import Sylvie from "../modules/sylvie";
 
 /** there are two build in persistence adapters for internal use
  * fs             for use in Nodejs type environments

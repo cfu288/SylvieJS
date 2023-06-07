@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable no-var */
-import { BSonSort, binarySearch } from "../utils/binarySearch";
+import { BSonSort, binarySearch } from "../utils/binary-search";
 
 export function KeyValueStore() {}
 

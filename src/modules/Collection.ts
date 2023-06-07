@@ -2,20 +2,22 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable no-var */
 "use strict";
-import { deepProperty, hasOwnProperty, parseBase10 } from "../sylviejs";
+import { hasOwnProperty } from "../sylviejs";
+import { deepProperty } from "../utils/deep-property";
 import { CloneMethods, clone } from "../utils/clone";
 import { deepFreeze, freeze, unFreeze } from "../utils/icebox";
 import { Utils } from "../utils/index";
 import { average, isDeepProperty, standardDeviation, sub } from "../utils/math";
 import { LokiOps } from "../utils/ops";
 import { Comparators } from "../utils/sort";
-import { DynamicView } from "./DynamicView";
-import { ChangeOps } from "./Sylvie";
-import { SylvieEventEmitter } from "./SylvieEventEmitter";
-import { ResultSet } from "./ResultSet";
-import { ExactIndex } from "./index/ExactIndex";
-import { UniqueIndex } from "./index/UniqueIndex";
+import { DynamicView } from "./dynamic-view";
+import { ChangeOps } from "./sylvie";
+import { SylvieEventEmitter } from "./sylvie-event-emitter";
+import { ResultSet } from "./result-set";
+import { ExactIndex } from "./index/exact-index";
+import { UniqueIndex } from "./index/unique-index";
 
+import { parseBase10 } from "../utils/parse-base-10";
 export type ChainTransform =
   | string
   | {

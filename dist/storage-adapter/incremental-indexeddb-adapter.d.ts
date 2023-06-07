@@ -1,4 +1,4 @@
-import { PersistenceAdapter } from "./modules/storage-adapter/PersistenceAdapter";
+import { PersistenceAdapter } from "./persistence-adapter";
 /**
  * An improved Loki persistence adapter for IndexedDB (not compatible with LokiIndexedAdapter)
  *     Unlike LokiIndexedAdapter, the database is saved not as one big JSON blob, but split into

@@ -19,8 +19,8 @@
  * @constructor LokiMemoryAdapter
  */
 
-import Sylvie from "../Sylvie";
-import { PersistenceAdapter } from "./PersistenceAdapter";
+import Sylvie from "../modules/sylvie";
+import { PersistenceAdapter } from "./persistence-adapter";
 
 interface MemoryAdapterOptions {
   asyncResponses: boolean;

@@ -9,10 +9,10 @@
   adapter.deleteDatabase('UserDatabase');
 */
 
-import Sylvie from "./modules/Sylvie";
-import { PersistenceAdapter } from "./modules/storage-adapter/PersistenceAdapter";
+import Sylvie from "../modules/sylvie";
+import { PersistenceAdapter } from "./persistence-adapter";
 
-interface LokiIndexedAdapterOptions {}
+interface IndexedAdapterOptions {}
 /**
  * Loki persistence adapter class for indexedDb.
  *     This class fulfills abstract adapter interface which can be applied to other storage methods.
@@ -31,7 +31,7 @@ interface LokiIndexedAdapterOptions {}
  * @param {object=} options Configuration options for the adapter
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  */
-class LokiIndexedAdapter implements PersistenceAdapter {
+class IndexedAdapter implements PersistenceAdapter {
   app: string;
   options: any;
   catalog: any;
@@ -40,7 +40,7 @@ class LokiIndexedAdapter implements PersistenceAdapter {
   deleteKey: (dbname: any, callback: any) => void;
   getKeyList: (callback: any) => void;
 
-  constructor(appname: string, options?: Partial<LokiIndexedAdapterOptions>) {
+  constructor(appname: string, options?: Partial<IndexedAdapterOptions>) {
     this.app = "loki";
     this.options = options || {};
 
@@ -340,20 +340,16 @@ class LokiIndexedAdapter implements PersistenceAdapter {
 }
 
 // alias
-LokiIndexedAdapter.prototype.loadKey =
-  LokiIndexedAdapter.prototype.loadDatabase;
+IndexedAdapter.prototype.loadKey = IndexedAdapter.prototype.loadDatabase;
 
 // alias
-LokiIndexedAdapter.prototype.saveKey =
-  LokiIndexedAdapter.prototype.saveDatabase;
+IndexedAdapter.prototype.saveKey = IndexedAdapter.prototype.saveDatabase;
 
 // alias
-LokiIndexedAdapter.prototype.deleteKey =
-  LokiIndexedAdapter.prototype.deleteDatabase;
+IndexedAdapter.prototype.deleteKey = IndexedAdapter.prototype.deleteDatabase;
 
 // alias
-LokiIndexedAdapter.prototype.getKeyList =
-  LokiIndexedAdapter.prototype.getDatabaseList;
+IndexedAdapter.prototype.getKeyList = IndexedAdapter.prototype.getDatabaseList;
 
 /**
  * LokiCatalog - underlying App/Key/Value catalog persistence
@@ -607,5 +603,5 @@ class LokiCatalog {
 }
 
 if (typeof window !== "undefined") {
-  Object.assign(window, { LokiIndexedAdapter });
+  Object.assign(window, { IndexedAdapter: IndexedAdapter });
 }

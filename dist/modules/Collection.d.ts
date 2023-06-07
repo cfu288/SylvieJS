@@ -1,10 +1,10 @@
 import { CloneMethods } from "../utils/clone";
-import { DynamicView } from "./DynamicView";
-import { ChangeOps } from "./Sylvie";
-import { SylvieEventEmitter } from "./SylvieEventEmitter";
-import { ResultSet } from "./ResultSet";
-import { ExactIndex } from "./index/ExactIndex";
-import { UniqueIndex } from "./index/UniqueIndex";
+import { DynamicView } from "./dynamic-view";
+import { ChangeOps } from "./sylvie";
+import { SylvieEventEmitter } from "./sylvie-event-emitter";
+import { ResultSet } from "./result-set";
+import { ExactIndex } from "./index/exact-index";
+import { UniqueIndex } from "./index/unique-index";
 export type ChainTransform = string | {
     type: string;
     value?: any;

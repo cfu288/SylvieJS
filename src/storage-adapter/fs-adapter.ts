@@ -6,8 +6,8 @@
  * @constructor LokiFsAdapter
  */
 
-import Sylvie from "../Sylvie";
-import { PersistenceAdapter } from "./PersistenceAdapter";
+import Sylvie from "../modules/sylvie";
+import { PersistenceAdapter } from "./persistence-adapter";
 
 export class FsAdapter implements PersistenceAdapter {
   fs: any;
