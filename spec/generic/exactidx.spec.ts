@@ -1,4 +1,4 @@
-import Loki from "../../src/lokijs";
+import Sylvie from "../../src/sylviejs";
 import { ExactIndex } from "../../src/modules/index/ExactIndex";
 
 describe("exact index", function () {

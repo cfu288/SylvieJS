@@ -1,6 +1,6 @@
 import { Collection, CollectionDocument } from "./Collection";
-import { LokiEventEmitter } from "./LokiEventEmitter";
-import { Resultset } from "./Resultset";
+import { SylvieEventEmitter } from "./SylvieEventEmitter";
+import { ResultSet } from "./ResultSet";
 /**
  * DynamicView class is a versatile 'live' view class which can have filters and sorts applied.
  *    Collection.addDynamicView(name) instantiates this DynamicView object and notifies it
@@ -13,7 +13,7 @@ import { Resultset } from "./Resultset";
  * var results = mydv.data();
  *
  * @constructor DynamicView
- * @implements LokiEventEmitter
+ * @implements SylvieEventEmitter
  * @param {Collection} collection - A reference to the collection to work against
  * @param {string} name - The name of this dynamic view
  * @param {object=} options - (Optional) Pass in object with 'persistent' and/or 'sortPriority' options.
@@ -27,12 +27,12 @@ interface DynamicViewOptions {
     sortPriority: "passive" | "active";
     minRebuildInterval: number;
 }
-export declare class DynamicView<DT extends Partial<CollectionDocument>> extends LokiEventEmitter {
+export declare class DynamicView<DT extends Partial<CollectionDocument>> extends SylvieEventEmitter {
     collection: Collection<DT>;
     name: string;
     rebuildPending: boolean;
     options: Partial<DynamicViewOptions>;
-    resultset: Resultset<DT>;
+    resultset: ResultSet<DT>;
     resultdata: any[];
     resultsdirty: boolean;
     cachedresultset: any;
@@ -72,7 +72,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      *
      * @param {(string|array=)} transform - Optional name of collection transform, or an array of transform steps
      * @param {object=} parameters - optional parameters (if optional transform requires them)
-     * @returns {Resultset} A copy of the internal resultset for branched queries.
+     * @returns {ResultSet} A copy of the internal resultset for branched queries.
      * @memberof DynamicView
      * @example
      * var db = new loki('test');
@@ -94,7 +94,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      *
      * var results = dv.branchResultset('viewPaging', { pageStart: 10, pageSize: 10 }).data();
      */
-    branchResultset(transform: any, parameters: any): Resultset<any>;
+    branchResultset(transform: any, parameters: any): ResultSet<any>;
     /**
      * toJSON() - Override of toJSON to avoid circular references
      *

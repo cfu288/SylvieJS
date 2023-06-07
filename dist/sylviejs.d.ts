@@ -1,4 +1,4 @@
-import Loki from "./modules/Loki";
+import Sylvie from "./modules/Sylvie";
 export declare const hasOwnProperty: (v: PropertyKey) => boolean;
 export declare function precompileQuery(operator: any, value: any): any;
 /**
@@ -6,4 +6,4 @@ export declare function precompileQuery(operator: any, value: any): any;
  */
 export declare function parseBase10(num: any): number;
 export declare function deepProperty(obj: any, property: any, isDeep: any): any;
-export default Loki;
+export default Sylvie;

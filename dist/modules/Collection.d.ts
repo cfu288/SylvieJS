@@ -1,8 +1,8 @@
 import { CloneMethods } from "../utils/clone";
 import { DynamicView } from "./DynamicView";
-import { ChangeOps } from "./Loki";
-import { LokiEventEmitter } from "./LokiEventEmitter";
-import { Resultset } from "./Resultset";
+import { ChangeOps } from "./Sylvie";
+import { SylvieEventEmitter } from "./SylvieEventEmitter";
+import { ResultSet } from "./ResultSet";
 import { ExactIndex } from "./index/ExactIndex";
 import { UniqueIndex } from "./index/UniqueIndex";
 export type ChainTransform = string | {
@@ -43,7 +43,7 @@ export interface CollectionDocumentMeta {
 /**
  * Collection class that handles documents of same type
  * @constructor Collection
- * @implements LokiEventEmitter
+ * @implements SylvieEventEmitter
  * @param {string} name - collection name
  * @param {(array|object)=} options - (optional) array of property names to be indicized OR a configuration object
  * @param {array=} [options.unique=[]] - array of property names to define unique constraints for
@@ -63,7 +63,7 @@ export interface CollectionDocumentMeta {
  * @param {int=} options.ttlInterval - time interval for clearing out 'aged' documents; not set by default.
  * @see {@link Loki#addCollection} for normal creation of collections
  */
-export declare class Collection<ColT extends Partial<CollectionDocument>> extends LokiEventEmitter {
+export declare class Collection<ColT extends Partial<CollectionDocument>> extends SylvieEventEmitter {
     data: ColT[];
     isIncremental: boolean;
     name: string;
@@ -504,10 +504,10 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      *
      * @param {string|array=} transform - named transform or array of transform steps
      * @param {object=} parameters - Object containing properties representing parameters to substitute
-     * @returns {Resultset} (this) resultset, or data array if any map or join functions where called
+     * @returns {ResultSet} (this) resultset, or data array if any map or join functions where called
      * @memberof Collection
      */
-    chain(transform?: ChainTransform, parameters?: unknown): Resultset<ColT>;
+    chain(transform?: ChainTransform, parameters?: unknown): ResultSet<ColT>;
     /**
      * Find method, api is similar to mongodb.
      * for more complex queries use [chain()]{@link Collection#chain} or [where()]{@link Collection#where}.
@@ -556,7 +556,7 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
     /**
      * Join two collections on specified properties
      *
-     * @param {array|Resultset|Collection} joinData - array of documents to 'join' to this collection
+     * @param {array|ResultSet|Collection} joinData - array of documents to 'join' to this collection
      * @param {string} leftJoinProp - property name in collection
      * @param {string} rightJoinProp - property name in joinData
      * @param {function=} mapFun - (Optional) map function to use
@@ -564,10 +564,10 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      * @param {bool} dataOptions.removeMeta - allows removing meta before calling mapFun
      * @param {boolean} dataOptions.forceClones - forcing the return of cloned objects to your map object
      * @param {string} dataOptions.forceCloneMethod - Allows overriding the default or collection specified cloning method.
-     * @returns {Resultset} Result of the mapping operation
+     * @returns {ResultSet} Result of the mapping operation
      * @memberof Collection
      */
-    eqJoin(joinData: any, leftJoinProp: any, rightJoinProp: any, mapFun: any, dataOptions: any): Resultset<ColT>;
+    eqJoin(joinData: any, leftJoinProp: any, rightJoinProp: any, mapFun: any, dataOptions: any): ResultSet<ColT>;
     /**
      * (Staging API) create a stage and/or retrieve it
      * @memberof Collection

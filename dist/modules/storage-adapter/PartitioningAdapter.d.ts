@@ -1,4 +1,4 @@
-export interface LokiPartitioningAdapterOptions {
+export interface PartitioningAdapterOptions {
     paging: boolean;
     pageSize: number;
     delimiter: string;
@@ -20,4 +20,4 @@ export interface LokiPartitioningAdapterOptions {
  * @param {string} options.delimiter - allows you to override the default delimeter
  * @constructor LokiPartitioningAdapter
  */
-export declare function LokiPartitioningAdapter(adapter: any, options?: Partial<LokiPartitioningAdapterOptions>): void;
+export declare function PartitioningAdapter(adapter: any, options?: Partial<PartitioningAdapterOptions>): void;

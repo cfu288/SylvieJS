@@ -52,9 +52,9 @@ Currently maintinaed by cfu288. Originally made by [@techfort](http://twitter.co
 
 ## Installation
 
-For browser environments you simply need the lokijs.js file contained in `dist/`
+For browser environments you simply need the sylviejs.js file contained in `dist/`
 
-For node and nativescript environments you can install through `npm install lokijs`.
+For node and nativescript environments you can install through `npm install sylviejs`.
 
 ## License
 

@@ -1,5 +1,5 @@
-import Loki from "../../src/lokijs";
-const loki = Loki;
+import Sylvie from "../../src/sylviejs";
+const loki = Sylvie;
 
 describe("kv", function () {
   it("works", function () {

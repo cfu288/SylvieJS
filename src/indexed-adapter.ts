@@ -9,8 +9,8 @@
   adapter.deleteDatabase('UserDatabase');
 */
 
-import Loki from "./modules/Loki";
-import { LokiPersistenceAdapter } from "./modules/loki-storage-adapter/LokiPersistenceAdapter";
+import Sylvie from "./modules/Sylvie";
+import { PersistenceAdapter } from "./modules/storage-adapter/PersistenceAdapter";
 
 interface LokiIndexedAdapterOptions {}
 /**
@@ -31,7 +31,7 @@ interface LokiIndexedAdapterOptions {}
  * @param {object=} options Configuration options for the adapter
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  */
-class LokiIndexedAdapter implements LokiPersistenceAdapter {
+class LokiIndexedAdapter implements PersistenceAdapter {
   app: string;
   options: any;
   catalog: any;
@@ -60,7 +60,7 @@ class LokiIndexedAdapter implements LokiPersistenceAdapter {
   mode: string;
   exportDatabase(
     dbname: string,
-    dbref: typeof Loki,
+    dbref: typeof Sylvie,
     callback: (err: Error) => void
   ): void {
     throw new Error("Method not implemented.");

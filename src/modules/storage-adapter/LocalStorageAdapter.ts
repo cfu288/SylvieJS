@@ -1,19 +1,19 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable no-var */
 import { localStorageAvailable } from "../../utils/localStorageAvailable";
-import Loki from "../Loki";
-import { LokiPersistenceAdapter } from "./LokiPersistenceAdapter";
+import Sylvie from "../Sylvie";
+import { PersistenceAdapter } from "./PersistenceAdapter";
 
 /**
  * A loki persistence adapter which persists to web browser's local storage object
  * @constructor LokiLocalStorageAdapter
  */
 
-export class LokiLocalStorageAdapter implements LokiPersistenceAdapter {
+export class LocalStorageAdapter implements PersistenceAdapter {
   mode: string;
   exportDatabase(
     dbname: string,
-    dbref: typeof Loki,
+    dbref: typeof Sylvie,
     callback: (err: Error) => void
   ): void {
     throw new Error("Method not implemented.");

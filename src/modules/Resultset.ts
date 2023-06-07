@@ -14,7 +14,7 @@
  * @param {Collection} collection - The collection which this Resultset will query against.
  */
 
-import { hasOwnProperty, precompileQuery } from "../lokijs";
+import { hasOwnProperty, precompileQuery } from "../sylviejs";
 import { CloneMethods, clone } from "../utils/clone";
 import { dotSubScan } from "../utils/dotSubScan";
 import { Utils } from "../utils/index";
@@ -22,7 +22,7 @@ import { indexedOps, LokiOps } from "../utils/ops";
 import { sortHelper, compoundeval } from "../utils/sort";
 import { ChainTransform, Collection, CollectionDocument } from "./Collection";
 
-export class Resultset<RST extends Partial<CollectionDocument>> {
+export class ResultSet<RST extends Partial<CollectionDocument>> {
   options: Record<string, any>;
   collection: Collection<RST>;
   filteredrows: number[];
@@ -43,9 +43,9 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
   /**
    * reset() - Reset the resultset to its initial state.
    *
-   * @returns {Resultset} Reference to this resultset, for future chain operations.
+   * @returns {ResultSet} Reference to this resultset, for future chain operations.
    */
-  reset(): Resultset<RST> {
+  reset(): ResultSet<RST> {
     if (this.filteredrows.length > 0) {
       this.filteredrows = [];
     }
@@ -68,18 +68,18 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    *    A resultset copy() is made to avoid altering original resultset.
    *
    * @param {int} qty - The number of documents to return.
-   * @returns {Resultset} Returns a copy of the resultset, limited by qty, for subsequent chain ops.
+   * @returns {ResultSet} Returns a copy of the resultset, limited by qty, for subsequent chain ops.
    * @memberof Resultset
    * // find the two oldest users
    * var result = users.chain().simplesort("age", true).limit(2).data();
    */
-  limit(qty: number): Resultset<RST> {
+  limit(qty: number): ResultSet<RST> {
     // if this has no filters applied, we need to populate filteredrows first
     if (!this.filterInitialized && this.filteredrows.length === 0) {
       this.filteredrows = this.collection.prepareFullDocIndex();
     }
 
-    const rscopy = new Resultset(this.collection);
+    const rscopy = new ResultSet(this.collection);
     rscopy.filteredrows = this.filteredrows.slice(0, qty);
     rscopy.filterInitialized = true;
     return rscopy;
@@ -89,18 +89,18 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    * Used for skipping 'pos' number of documents in the resultset.
    *
    * @param {int} pos - Number of documents to skip; all preceding documents are filtered out.
-   * @returns {Resultset} Returns a copy of the resultset, containing docs starting at 'pos' for subsequent chain ops.
+   * @returns {ResultSet} Returns a copy of the resultset, containing docs starting at 'pos' for subsequent chain ops.
    * @memberof Resultset
    * // find everyone but the two oldest users
    * var result = users.chain().simplesort("age", true).offset(2).data();
    */
-  offset(pos: number): Resultset<RST> {
+  offset(pos: number): ResultSet<RST> {
     // if this has no filters applied, we need to populate filteredrows first
     if (!this.filterInitialized && this.filteredrows.length === 0) {
       this.filteredrows = this.collection.prepareFullDocIndex();
     }
 
-    const rscopy = new Resultset(this.collection);
+    const rscopy = new ResultSet(this.collection);
     rscopy.filteredrows = this.filteredrows.slice(pos);
     rscopy.filterInitialized = true;
     return rscopy;
@@ -109,11 +109,11 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
   /**
    * copy() - To support reuse of resultset in branched query situations.
    *
-   * @returns {Resultset} Returns a copy of the resultset (set) but the underlying document references will be the same.
+   * @returns {ResultSet} Returns a copy of the resultset (set) but the underlying document references will be the same.
    * @memberof Resultset
    */
-  copy(): Resultset<RST> {
-    const result = new Resultset(this.collection);
+  copy(): ResultSet<RST> {
+    const result = new ResultSet(this.collection);
 
     if (this.filteredrows.length > 0) {
       result.filteredrows = this.filteredrows.slice();
@@ -128,7 +128,7 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    *
    * @param transform {(string|array)} - name of collection transform or raw transform array
    * @param parameters {object=} - (Optional) object property hash of parameters, if the transform requires them.
-   * @returns {Resultset} either (this) resultset or a clone of of this resultset (depending on steps)
+   * @returns {ResultSet} either (this) resultset or a clone of of this resultset (depending on steps)
    * @memberof Resultset
    * @example
    * users.addTransform('CountryFilter', [
@@ -149,10 +149,10 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
   transform(
     transform: ChainTransform,
     parameters?: Record<string, any>
-  ): Resultset<RST> {
+  ): ResultSet<RST> {
     let idx;
     let step;
-    let rs: Resultset<RST> = this;
+    let rs: ResultSet<RST> = this;
 
     // if transform is name, then do lookup first
     if (typeof transform === "string") {
@@ -238,7 +238,7 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    *    });
    *
    * @param {function} comparefun - A javascript compare function used for sorting.
-   * @returns {Resultset} Reference to this resultset, sorted, for future chain operations.
+   * @returns {ResultSet} Reference to this resultset, sorted, for future chain operations.
    * @memberof Resultset
    */
   sort(comparefun) {
@@ -267,7 +267,7 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    * @param {boolean} [options.disableIndexIntersect=false] - whether we should explicity not use array intersection.
    * @param {boolean} [options.forceIndexIntersect=false] - force array intersection (if binary index exists).
    * @param {boolean} [options.useJavascriptSorting=false] - whether results are sorted via basic javascript sort.
-   * @returns {Resultset} Reference to this resultset, sorted, for future chain operations.
+   * @returns {ResultSet} Reference to this resultset, sorted, for future chain operations.
    * @memberof Resultset
    * @example
    * var results = users.chain().simplesort('age').data();
@@ -401,7 +401,7 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    * rs.compoundsort(['age', ['name', true]]);
    *
    * @param {array} properties - array of property names or subarray of [propertyname, isdesc] used evaluate sort order
-   * @returns {Resultset} Reference to this resultset, sorted, for future chain operations.
+   * @returns {ResultSet} Reference to this resultset, sorted, for future chain operations.
    * @memberof Resultset
    */
   compoundsort(properties) {
@@ -450,7 +450,7 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    *    Each evaluation can utilize a binary index to prevent multiple linear array scans.
    *
    * @param {array} expressionArray - array of expressions
-   * @returns {Resultset} this resultset for further chain ops.
+   * @returns {ResultSet} this resultset for further chain ops.
    */
   findOr(expressionArray) {
     let fr = null;
@@ -490,7 +490,7 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    *    Only the first filter can utilize a binary index.
    *
    * @param {array} expressionArray - array of expressions
-   * @returns {Resultset} this resultset for further chain ops.
+   * @returns {ResultSet} this resultset for further chain ops.
    */
   findAnd(expressionArray) {
     // we have already implementing method chaining in this (our Resultset class)
@@ -509,12 +509,12 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    *
    * @param {object} query - A mongo-style query object used for filtering current results.
    * @param {boolean=} firstOnly - (Optional) Used by collection.findOne()
-   * @returns {Resultset} this resultset for further chain ops.
+   * @returns {ResultSet} this resultset for further chain ops.
    * @memberof Resultset
    * @example
    * var over30 = users.chain().find({ age: { $gte: 30 } }).data();
    */
-  find(query: object, firstOnly?: boolean): Resultset<RST> {
+  find(query: object, firstOnly?: boolean): ResultSet<RST> {
     if (this.collection.data.length === 0) {
       this.filteredrows = [];
       this.filterInitialized = true;
@@ -784,7 +784,7 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    * where() - Used for filtering via a javascript filter function.
    *
    * @param {function} fun - A javascript function used for filtering current results by.
-   * @returns {Resultset} this resultset for further chain ops.
+   * @returns {ResultSet} this resultset for further chain ops.
    * @memberof Resultset
    * @example
    * var over30 = users.chain().where(function(obj) { return obj.age >= 30; }.data();
@@ -864,7 +864,7 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    * Used to run an update operation on all documents currently in the resultset.
    *
    * @param {function} updateFunction - User supplied updateFunction(obj) will be executed for each document object.
-   * @returns {Resultset} this resultset for further chain ops.
+   * @returns {ResultSet} this resultset for further chain ops.
    * @memberof Resultset
    * @example
    * users.chain().find({ country: 'de' }).update(function(user) {
@@ -910,13 +910,13 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
   /**
    * Removes all document objects which are currently in resultset from collection (as well as resultset)
    *
-   * @returns {Resultset} this (empty) resultset for further chain ops.
+   * @returns {ResultSet} this (empty) resultset for further chain ops.
    * @memberof Resultset
    * @example
    * // remove users inactive since 1/1/2001
    * users.chain().find({ lastActive: { $lte: new Date("1/1/2001").getTime() } }).remove();
    */
-  remove(): Resultset<RST> {
+  remove(): ResultSet<RST> {
     // if this has no filters applied, we need to populate filteredrows first
     if (!this.filterInitialized && this.filteredrows.length === 0) {
       this.filteredrows = this.collection.prepareFullDocIndex();
@@ -957,7 +957,7 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
   /**
    * eqJoin() - Left joining two sets of data. Join keys can be defined or calculated properties
    * eqJoin expects the right join key values to be unique.  Otherwise left data will be joined on the last joinData object with that key
-   * @param {Array|Resultset|Collection} joinData - Data array to join to.
+   * @param {Array|ResultSet|Collection} joinData - Data array to join to.
    * @param {(string|function)} leftJoinKey - Property name in this result set to join on or a function to produce a value to join on
    * @param {(string|function)} rightJoinKey - Property name in the joinData to join on or a function to produce a value to join on
    * @param {function=} mapFun - (Optional) A function that receives each matching pair and maps them into output objects - function(left,right){return joinedObject}
@@ -965,7 +965,7 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    * @param {bool} dataOptions.removeMeta - allows removing meta before calling mapFun
    * @param {boolean} dataOptions.forceClones - forcing the return of cloned objects to your map object
    * @param {string} dataOptions.forceCloneMethod - Allows overriding the default or collection specified cloning method.
-   * @returns {Resultset} A resultset with data in the format [{left: leftObj, right: rightObj}]
+   * @returns {ResultSet} A resultset with data in the format [{left: leftObj, right: rightObj}]
    * @memberof Resultset
    * @example
    * var db = new loki('sandbox.db');
@@ -1003,12 +1003,12 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    * console.log(orderSummary);
    */
   eqJoin(
-    joinData: Resultset<RST> | Collection<RST>,
+    joinData: ResultSet<RST> | Collection<RST>,
     leftJoinKey: string | ((...args: any[]) => string),
     rightJoinKey: string | ((...args: any[]) => string),
     mapFun: ((...args: any[]) => any) | undefined,
     dataOptions: object | undefined
-  ): Resultset<RST> {
+  ): ResultSet<RST> {
     let leftData = [];
     let rightData = [];
     let key;
@@ -1024,8 +1024,8 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
     //get the right data
     if (joinData instanceof Collection) {
       rightData = joinData.chain().data(dataOptions);
-    } else if (joinData instanceof Resultset) {
-      const x = new Resultset(new Collection<RST>(""));
+    } else if (joinData instanceof ResultSet) {
+      const x = new ResultSet(new Collection<RST>(""));
       const res = joinData.data(dataOptions);
       x.rightData = joinData.data(dataOptions);
     } else if (Array.isArray(joinData)) {
@@ -1189,9 +1189,9 @@ export class Resultset<RST extends Partial<CollectionDocument>> {
    * Alias of copy()
    * @memberof Resultset
    */
-  branch = Resultset.prototype.copy;
-  $or = Resultset.prototype.findOr;
-  $and = Resultset.prototype.findAnd;
+  branch = ResultSet.prototype.copy;
+  $or = ResultSet.prototype.findOr;
+  $and = ResultSet.prototype.findAnd;
 }
 
 interface ResultSetDataOptions {

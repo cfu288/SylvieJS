@@ -2,7 +2,7 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable no-var */
 "use strict";
-import { deepProperty, hasOwnProperty, parseBase10 } from "../lokijs";
+import { deepProperty, hasOwnProperty, parseBase10 } from "../sylviejs";
 import { CloneMethods, clone } from "../utils/clone";
 import { deepFreeze, freeze, unFreeze } from "../utils/icebox";
 import { Utils } from "../utils/index";
@@ -10,9 +10,9 @@ import { average, isDeepProperty, standardDeviation, sub } from "../utils/math";
 import { LokiOps } from "../utils/ops";
 import { Comparators } from "../utils/sort";
 import { DynamicView } from "./DynamicView";
-import { ChangeOps } from "./Loki";
-import { LokiEventEmitter } from "./LokiEventEmitter";
-import { Resultset } from "./Resultset";
+import { ChangeOps } from "./Sylvie";
+import { SylvieEventEmitter } from "./SylvieEventEmitter";
+import { ResultSet } from "./ResultSet";
 import { ExactIndex } from "./index/ExactIndex";
 import { UniqueIndex } from "./index/UniqueIndex";
 
@@ -61,7 +61,7 @@ export interface CollectionDocumentMeta {
 /**
  * Collection class that handles documents of same type
  * @constructor Collection
- * @implements LokiEventEmitter
+ * @implements SylvieEventEmitter
  * @param {string} name - collection name
  * @param {(array|object)=} options - (optional) array of property names to be indicized OR a configuration object
  * @param {array=} [options.unique=[]] - array of property names to define unique constraints for
@@ -84,7 +84,7 @@ export interface CollectionDocumentMeta {
 
 export class Collection<
   ColT extends Partial<CollectionDocument>
-> extends LokiEventEmitter {
+> extends SylvieEventEmitter {
   data: ColT[];
   isIncremental: boolean;
   name: string;
@@ -608,7 +608,7 @@ export class Collection<
     const age = this.ttl.age;
     return function ttlDaemon() {
       const now = Date.now();
-      const toRemove = (collection.chain() as Resultset<ColT>).where(
+      const toRemove = (collection.chain() as ResultSet<ColT>).where(
         function daemonFilter(member: CollectionDocument) {
           const timestamp = member.meta.updated || member.meta.created;
           const diff = now - timestamp;
@@ -998,7 +998,7 @@ export class Collection<
       return this.data.length;
     }
 
-    return (this.chain() as Resultset<ColT>).find(query).filteredrows.length;
+    return (this.chain() as ResultSet<ColT>).find(query).filteredrows.length;
   };
 
   /**
@@ -1087,7 +1087,7 @@ export class Collection<
     if (typeof filterObject === "function") {
       this.updateWhere(filterObject, updateFunction);
     } else {
-      (this.chain() as Resultset<ColT>)
+      (this.chain() as ResultSet<ColT>)
         .find(filterObject)
         .update(updateFunction);
     }
@@ -1100,7 +1100,7 @@ export class Collection<
    * @memberof Collection
    */
   findAndRemove(filterObject?: Record<string, any>) {
-    (this.chain() as Resultset<ColT>).find(filterObject).remove();
+    (this.chain() as ResultSet<ColT>).find(filterObject).remove();
   }
 
   /**
@@ -1527,7 +1527,7 @@ export class Collection<
       list = this.data.filter(query);
       this.remove(list);
     } else {
-      (this.chain() as Resultset<ColT>).find(query).remove();
+      (this.chain() as ResultSet<ColT>).find(query).remove();
     }
   }
 
@@ -2416,7 +2416,7 @@ export class Collection<
    */
   findOne(query = {}) {
     // Instantiate Resultset and exec find op passing firstOnly = true param
-    const result = (this.chain() as Resultset<ColT>).find(query, true).data();
+    const result = (this.chain() as ResultSet<ColT>).find(query, true).data();
 
     if (Array.isArray(result) && result.length === 0) {
       return null;
@@ -2435,11 +2435,11 @@ export class Collection<
    *
    * @param {string|array=} transform - named transform or array of transform steps
    * @param {object=} parameters - Object containing properties representing parameters to substitute
-   * @returns {Resultset} (this) resultset, or data array if any map or join functions where called
+   * @returns {ResultSet} (this) resultset, or data array if any map or join functions where called
    * @memberof Collection
    */
-  chain(transform?: ChainTransform, parameters?: unknown): Resultset<ColT> {
-    const rs = new Resultset<ColT>(this);
+  chain(transform?: ChainTransform, parameters?: unknown): ResultSet<ColT> {
+    const rs = new ResultSet<ColT>(this);
 
     if (typeof transform === "undefined") {
       return rs;
@@ -2457,7 +2457,7 @@ export class Collection<
    * @memberof Collection
    */
   find(query?: Record<string, object>) {
-    return (this.chain() as Resultset<ColT>).find(query).data();
+    return (this.chain() as ResultSet<ColT>).find(query).data();
   }
 
   /**
@@ -2552,7 +2552,7 @@ export class Collection<
    * @memberof Collection
    */
   where(fun) {
-    return (this.chain() as Resultset<ColT>).where(fun).data();
+    return (this.chain() as ResultSet<ColT>).where(fun).data();
   }
 
   /**
@@ -2570,7 +2570,7 @@ export class Collection<
   /**
    * Join two collections on specified properties
    *
-   * @param {array|Resultset|Collection} joinData - array of documents to 'join' to this collection
+   * @param {array|ResultSet|Collection} joinData - array of documents to 'join' to this collection
    * @param {string} leftJoinProp - property name in collection
    * @param {string} rightJoinProp - property name in joinData
    * @param {function=} mapFun - (Optional) map function to use
@@ -2578,12 +2578,12 @@ export class Collection<
    * @param {bool} dataOptions.removeMeta - allows removing meta before calling mapFun
    * @param {boolean} dataOptions.forceClones - forcing the return of cloned objects to your map object
    * @param {string} dataOptions.forceCloneMethod - Allows overriding the default or collection specified cloning method.
-   * @returns {Resultset} Result of the mapping operation
+   * @returns {ResultSet} Result of the mapping operation
    * @memberof Collection
    */
   eqJoin(joinData, leftJoinProp, rightJoinProp, mapFun, dataOptions) {
     // logic in Resultset class
-    return new Resultset(this).eqJoin(
+    return new ResultSet(this).eqJoin(
       joinData,
       leftJoinProp,
       rightJoinProp,

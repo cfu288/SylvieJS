@@ -4,8 +4,8 @@ import { dtsPlugin } from "esbuild-plugin-d.ts";
 esbuild
   .build({
     entryPoints: [
-      "src/lokijs.ts",
-      "src/loki-indexed-adapter.ts",
+      "src/sylviejs.ts",
+      "src/indexed-adapter.ts",
       "src/incremental-indexeddb-adapter.ts",
     ],
     outdir: "dist",

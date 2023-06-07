@@ -1,5 +1,5 @@
-import Loki from "../../src/lokijs";
-const loki = Loki;
+import Sylvie from "../../src/sylviejs";
+const loki = Sylvie;
 
 describe("testing unique index serialization", function () {
   let db, users;
@@ -515,7 +515,7 @@ describe("testing adapter functionality", function () {
       callback
     ) {
       expect(typeof dbname).toEqual("string");
-      expect(dbref.constructor.name).toEqual("Loki");
+      expect(dbref.constructor.name).toEqual("Sylvie");
       expect(typeof callback).toEqual("function");
 
       expect(dbref.persistenceAdapter).toEqual(null);

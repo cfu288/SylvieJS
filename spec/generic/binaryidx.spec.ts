@@ -1,5 +1,5 @@
-import Loki from "../../src/lokijs";
-const loki = Loki;
+import Sylvie from "../../src/sylviejs";
+const loki = Sylvie;
 
 let testRecords = [
   { name: "mjolnir", owner: "thor", maker: "dwarves" },

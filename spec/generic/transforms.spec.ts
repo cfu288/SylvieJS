@@ -1,6 +1,6 @@
-import Loki from "../../src/lokijs";
+import Sylvie from "../../src/sylviejs";
 import { ChainTransform } from "../../src/modules/Collection";
-const loki = Loki;
+const loki = Sylvie;
 
 describe("transforms", function () {
   let db, items;

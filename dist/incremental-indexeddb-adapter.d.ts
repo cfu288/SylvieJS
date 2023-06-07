@@ -1,4 +1,4 @@
-declare const DEBUG: boolean;
+import { PersistenceAdapter } from "./modules/storage-adapter/PersistenceAdapter";
 /**
  * An improved Loki persistence adapter for IndexedDB (not compatible with LokiIndexedAdapter)
  *     Unlike LokiIndexedAdapter, the database is saved not as one big JSON blob, but split into
@@ -34,7 +34,7 @@ declare const DEBUG: boolean;
  * @param {array} options.lazyCollections Names of collections that should be deserialized lazily
  *     Only use this for collections that aren't used at launch
  */
-declare class IncrementalIndexedDBAdapter {
+export declare class IncrementalIndexedDBAdapter implements PersistenceAdapter {
     constructor(options: any);
     _getChunk(collection: any, chunkId: any): any;
     /**
@@ -91,18 +91,3 @@ declare class IncrementalIndexedDBAdapter {
      */
     deleteDatabase(dbname: any, callback: any): void;
 }
-declare function getMaxChunkIds(allKeys: any): {};
-declare function lokiChunkVersionId(chunk: any): any;
-declare function chunksToMap(chunks: any): {
-    loki: any;
-    chunkMap: {};
-};
-declare function populateLoki({ collections }: {
-    collections: any;
-}, chunkMap: any, deserializeChunk: any, lazyCollections: any): void;
-declare function classifyChunk(chunk: any): void;
-declare function parseChunk(chunk: any, deserializeChunk: any, lazyCollections: any): void;
-declare function randomVersionId(): string;
-declare function sortChunksInPlace(chunks: any): void;
-declare function createKeyRanges(keys: any, count: any): any[];
-declare function idbReq(request: any, onsuccess: any, onerror: any): any;

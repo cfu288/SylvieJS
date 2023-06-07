@@ -5,7 +5,7 @@
  *
  * @constructor LokiEventEmitter
  */
-export declare class LokiEventEmitter {
+export declare class SylvieEventEmitter {
     save: any;
     /**
      * on(eventName, listener) - adds a listener to the queue of callbacks associated to an event
@@ -23,7 +23,7 @@ export declare class LokiEventEmitter {
      * @returns {int} the index of the callback in the array of listeners for a particular event
      * @memberof LokiEventEmitter
      */
-    addListener: LokiEventEmitter["on"];
+    addListener: SylvieEventEmitter["on"];
     /**
      * emit(eventName, data) - emits a particular event
      * with the option of passing optional parameters which are going to be processed by the callback

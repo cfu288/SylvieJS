@@ -6,10 +6,10 @@
  * @constructor LokiFsAdapter
  */
 
-import Loki from "../Loki";
-import { LokiPersistenceAdapter } from "./LokiPersistenceAdapter";
+import Sylvie from "../Sylvie";
+import { PersistenceAdapter } from "./PersistenceAdapter";
 
-export class LokiFsAdapter implements LokiPersistenceAdapter {
+export class FsAdapter implements PersistenceAdapter {
   fs: any;
   constructor() {
     try {
@@ -21,7 +21,7 @@ export class LokiFsAdapter implements LokiPersistenceAdapter {
   mode: string;
   exportDatabase(
     dbname: string,
-    dbref: typeof Loki,
+    dbref: typeof Sylvie,
     callback: (err: Error) => void
   ): void {
     throw new Error("Method not implemented.");

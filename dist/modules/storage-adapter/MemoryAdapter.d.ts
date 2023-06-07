@@ -12,18 +12,18 @@
  * @param {int} [options.asyncTimeout=50] - timeout in ms to queue callbacks
  * @constructor LokiMemoryAdapter
  */
-import Loki from "../Loki";
-import { LokiPersistenceAdapter } from "./LokiPersistenceAdapter";
-interface LokiMemoryAdapterOptions {
+import Sylvie from "../Sylvie";
+import { PersistenceAdapter } from "./PersistenceAdapter";
+interface MemoryAdapterOptions {
     asyncResponses: boolean;
     asyncTimeout: number;
 }
-export declare class LokiMemoryAdapter implements LokiPersistenceAdapter {
+export declare class MemoryAdapter implements PersistenceAdapter {
     hashStore: Record<string, any>;
-    options: Partial<LokiMemoryAdapterOptions>;
-    constructor(options?: Partial<LokiMemoryAdapterOptions>);
+    options: Partial<MemoryAdapterOptions>;
+    constructor(options?: Partial<MemoryAdapterOptions>);
     mode: string;
-    exportDatabase(dbname: string, dbref: typeof Loki, callback: (err: Error) => void): void;
+    exportDatabase(dbname: string, dbref: typeof Sylvie, callback: (err: Error) => void): void;
     /**
      * Loads a serialized database from its in-memory store.
      * (Loki persistence adapter interface function)

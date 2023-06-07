@@ -3,7 +3,7 @@
 
 "use strict";
 
-import Loki from "./modules/Loki";
+import Sylvie from "./modules/Sylvie";
 
 export const hasOwnProperty = Object.prototype.hasOwnProperty;
 
@@ -49,7 +49,7 @@ export function deepProperty(obj, property, isDeep) {
 }
 
 if (typeof window !== "undefined") {
-  Object.assign(window, { loki: Loki, Loki });
+  Object.assign(window, { loki: Sylvie, Sylvie: Sylvie });
 }
 
-export default Loki;
+export default Sylvie;

@@ -1,4 +1,4 @@
-import Loki from "../Loki";
+import Sylvie from "../Sylvie";
 
 /** there are two build in persistence adapters for internal use
  * fs             for use in Nodejs type environments
@@ -6,7 +6,7 @@ import Loki from "../Loki";
  * defined as helper classes here so its easy and clean to use
  */
 
-export interface LokiPersistenceAdapter {
+export interface PersistenceAdapter {
   mode: string | undefined;
   loadDatabase(dbname: string, callback: (value: any) => void): void;
   deleteDatabase(
@@ -15,7 +15,7 @@ export interface LokiPersistenceAdapter {
   ): void;
   exportDatabase(
     dbname: string,
-    dbref: typeof Loki,
+    dbref: typeof Sylvie,
     callback: (err: Error | null) => void
   ): void;
   saveDatabase(

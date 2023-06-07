@@ -4,8 +4,8 @@
 "use strict";
 import { deepFreeze, freeze } from "../utils/icebox";
 import { Collection, CollectionDocument } from "./Collection";
-import { LokiEventEmitter } from "./LokiEventEmitter";
-import { Resultset } from "./Resultset";
+import { SylvieEventEmitter } from "./SylvieEventEmitter";
+import { ResultSet } from "./ResultSet";
 
 /**
  * DynamicView class is a versatile 'live' view class which can have filters and sorts applied.
@@ -19,7 +19,7 @@ import { Resultset } from "./Resultset";
  * var results = mydv.data();
  *
  * @constructor DynamicView
- * @implements LokiEventEmitter
+ * @implements SylvieEventEmitter
  * @param {Collection} collection - A reference to the collection to work against
  * @param {string} name - The name of this dynamic view
  * @param {object=} options - (Optional) Pass in object with 'persistent' and/or 'sortPriority' options.
@@ -37,12 +37,12 @@ interface DynamicViewOptions {
 
 export class DynamicView<
   DT extends Partial<CollectionDocument>
-> extends LokiEventEmitter {
+> extends SylvieEventEmitter {
   collection: Collection<DT>;
   name: string;
   rebuildPending: boolean;
   options: Partial<DynamicViewOptions>;
-  resultset: Resultset<DT>;
+  resultset: ResultSet<DT>;
   resultdata: any[];
   resultsdirty: boolean;
   cachedresultset: any;
@@ -79,7 +79,7 @@ export class DynamicView<
       this.options.minRebuildInterval = 1;
     }
 
-    this.resultset = new Resultset(collection);
+    this.resultset = new ResultSet(collection);
     this.resultdata = [];
     this.resultsdirty = false;
 
@@ -136,7 +136,7 @@ export class DynamicView<
 
     this.resultdata = [];
     this.resultsdirty = true;
-    this.resultset = new Resultset(this.collection);
+    this.resultset = new ResultSet(this.collection);
 
     if (this.sortFunction || this.sortCriteria || this.sortCriteriaSimple) {
       this.sortDirty = true;
@@ -191,7 +191,7 @@ export class DynamicView<
    *
    * @param {(string|array=)} transform - Optional name of collection transform, or an array of transform steps
    * @param {object=} parameters - optional parameters (if optional transform requires them)
-   * @returns {Resultset} A copy of the internal resultset for branched queries.
+   * @returns {ResultSet} A copy of the internal resultset for branched queries.
    * @memberof DynamicView
    * @example
    * var db = new loki('test');
@@ -729,7 +729,7 @@ export class DynamicView<
 
     // creating a 1-element resultset to run filter chain ops on to see if that doc passes filters;
     // mostly efficient algorithm, slight stack overhead price (this function is called on inserts and updates)
-    const evalResultset = new Resultset(this.collection);
+    const evalResultset = new ResultSet(this.collection);
     evalResultset.filteredrows = [objIndex];
     evalResultset.filterInitialized = true;
     let filter;

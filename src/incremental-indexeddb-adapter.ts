@@ -1,4 +1,7 @@
 // @ts-nocheck
+
+import { PersistenceAdapter } from "./modules/storage-adapter/PersistenceAdapter";
+
 /* jshint -W030 */
 const DEBUG =
   typeof window !== "undefined" && !!window.__loki_incremental_idb_debug;
@@ -38,7 +41,7 @@ const DEBUG =
  * @param {array} options.lazyCollections Names of collections that should be deserialized lazily
  *     Only use this for collections that aren't used at launch
  */
-class IncrementalIndexedDBAdapter {
+export class IncrementalIndexedDBAdapter implements PersistenceAdapter {
   constructor(options) {
     this.mode = "incremental";
     this.options = options || {};

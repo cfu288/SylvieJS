@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script type="text/javascript" src="../../dist/lokijs.js"></script>
-    {{/*
-    <script type="text/javascript" src="../../dist/lokijs-original.js"></script>
-    */}}
+    <script type="module" src="../../dist/sylviejs.js"></script>
     <script type="text/javascript" src="./benchmark_web.js"></script>
   </head>
   <body>
-    <h2>Loki browser benchmark</h2>
+    <h2>Sylvie browser benchmark</h2>
 
     <p>
       Practical browser benchmark to guage performance across various browser
@@ -34,10 +31,12 @@
         document.getElementById("waitMessage").style.display = "";
 
         setTimeout(function () {
-          startBenchmark(document.getElementById("output"));
+          startBenchmark(document.getElementById("output"), Sylvie);
         }, 100);
       }
-      start();
+      window.onload = () => {
+        start();
+      };
     </script>
   </body>
 </html>

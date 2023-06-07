@@ -1,7 +1,7 @@
 "use strict";
-import Loki from "../../src/lokijs";
-import { ChangeOpsLoadJSONOptionsMeta } from "../../src/modules/Loki";
-const loki = Loki;
+import Sylvie from "../../src/sylviejs";
+import { ChangeOpsLoadJSONOptionsMeta } from "../../src/modules/Sylvie";
+const loki = Sylvie;
 
 describe("immutable", function () {
   function deepFreeze(obj) {

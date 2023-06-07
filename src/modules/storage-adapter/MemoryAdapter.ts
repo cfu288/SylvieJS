@@ -19,17 +19,17 @@
  * @constructor LokiMemoryAdapter
  */
 
-import Loki from "../Loki";
-import { LokiPersistenceAdapter } from "./LokiPersistenceAdapter";
+import Sylvie from "../Sylvie";
+import { PersistenceAdapter } from "./PersistenceAdapter";
 
-interface LokiMemoryAdapterOptions {
+interface MemoryAdapterOptions {
   asyncResponses: boolean;
   asyncTimeout: number;
 }
-export class LokiMemoryAdapter implements LokiPersistenceAdapter {
+export class MemoryAdapter implements PersistenceAdapter {
   hashStore: Record<string, any>;
-  options: Partial<LokiMemoryAdapterOptions>;
-  constructor(options?: Partial<LokiMemoryAdapterOptions>) {
+  options: Partial<MemoryAdapterOptions>;
+  constructor(options?: Partial<MemoryAdapterOptions>) {
     this.hashStore = {};
     this.options = options || {};
 
@@ -44,7 +44,7 @@ export class LokiMemoryAdapter implements LokiPersistenceAdapter {
   mode: string;
   exportDatabase(
     dbname: string,
-    dbref: typeof Loki,
+    dbref: typeof Sylvie,
     callback: (err: Error) => void
   ): void {
     throw new Error("Method not implemented.");

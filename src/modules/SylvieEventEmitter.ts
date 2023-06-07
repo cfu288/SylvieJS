@@ -10,7 +10,7 @@
  * @constructor LokiEventEmitter
  */
 // function LokiEventEmitter() {}
-export class LokiEventEmitter {
+export class SylvieEventEmitter {
   save: any;
 
   /**
@@ -50,7 +50,7 @@ export class LokiEventEmitter {
    * @returns {int} the index of the callback in the array of listeners for a particular event
    * @memberof LokiEventEmitter
    */
-  addListener: LokiEventEmitter["on"] = this.on;
+  addListener: SylvieEventEmitter["on"] = this.on;
 
   /**
    * emit(eventName, data) - emits a particular event

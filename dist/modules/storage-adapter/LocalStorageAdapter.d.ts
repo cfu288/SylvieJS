@@ -1,12 +1,12 @@
-import Loki from "../Loki";
-import { LokiPersistenceAdapter } from "./LokiPersistenceAdapter";
+import Sylvie from "../Sylvie";
+import { PersistenceAdapter } from "./PersistenceAdapter";
 /**
  * A loki persistence adapter which persists to web browser's local storage object
  * @constructor LokiLocalStorageAdapter
  */
-export declare class LokiLocalStorageAdapter implements LokiPersistenceAdapter {
+export declare class LocalStorageAdapter implements PersistenceAdapter {
     mode: string;
-    exportDatabase(dbname: string, dbref: typeof Loki, callback: (err: Error) => void): void;
+    exportDatabase(dbname: string, dbref: typeof Sylvie, callback: (err: Error) => void): void;
     /**
      * loadDatabase() - Load data from localstorage
      * @param {string} dbname - the name of the database to load

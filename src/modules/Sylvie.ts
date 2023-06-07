@@ -3,23 +3,23 @@
 /* eslint-disable no-var */
 "use strict";
 
-import { LokiFsAdapter } from "./loki-storage-adapter/LokiFsAdapter";
+import { FsAdapter } from "./storage-adapter/FsAdapter";
 import { Collection, CollectionDocument } from "./Collection";
 import { deepFreeze, freeze, unFreeze } from "../utils/icebox";
 import { Utils } from "../utils/index";
-import { LokiEventEmitter } from "./LokiEventEmitter";
+import { SylvieEventEmitter } from "./SylvieEventEmitter";
 import { LokiOps } from "../utils/ops";
 import { aeqHelper, ltHelper, gtHelper, Comparators } from "../utils/sort";
 import { DynamicView } from "./DynamicView";
 import { KeyValueStore } from "./KeyValueStore";
-import { Resultset } from "./Resultset";
-import { LokiLocalStorageAdapter } from "./loki-storage-adapter/LokiLocalStorageAdapter";
-import { LokiMemoryAdapter } from "./loki-storage-adapter/LokiMemoryAdapter";
+import { ResultSet } from "./ResultSet";
+import { LocalStorageAdapter } from "./storage-adapter/LocalStorageAdapter";
+import { MemoryAdapter } from "./storage-adapter/MemoryAdapter";
 import {
-  LokiPartitioningAdapter,
-  LokiPartitioningAdapterOptions,
-} from "./loki-storage-adapter/LokiPartitioningAdapter";
-import { LokiPersistenceAdapter } from "./loki-storage-adapter/LokiPersistenceAdapter";
+  PartitioningAdapter,
+  PartitioningAdapterOptions,
+} from "./storage-adapter/PartitioningAdapter";
+import { PersistenceAdapter } from "./storage-adapter/PersistenceAdapter";
 
 export type ChangeOpsLoadJSONUsersOptions = {
   inflate:
@@ -69,13 +69,13 @@ interface SerializationOptions {
   delimiter: string;
 }
 
-interface LokiConstructorOptions {
+interface ConstructorOptions {
   verbose: boolean;
   env: "NATIVESCRIPT" | "NODEJS" | "CORDOVA" | "BROWSER" | "NA";
 }
 
-interface LokiConfigOptions {
-  adapter: LokiPersistenceAdapter | null;
+interface ConfigOptions {
+  adapter: PersistenceAdapter | null;
   autoload: boolean;
   autoloadCallback: (err: any) => void;
   autosave: boolean;
@@ -90,7 +90,7 @@ interface LokiConfigOptions {
 /**
    * Loki: The main database class
    * @constructor Loki
-   * @implements LokiEventEmitter
+   * @implements SylvieEventEmitter
    * @param {string} filename - name of the file to be saved to
    * @param {object=} options - (Optional) config options object
    * @param {string} options.env - override environment detection as 'NODEJS', 'BROWSER', 'CORDOVA'
@@ -105,7 +105,7 @@ interface LokiConfigOptions {
    * @param {boolean} [options.throttledSaves=true] - debounces multiple calls to to saveDatabase reducing number of disk I/O operations
                                               and guaranteeing proper serialization of the calls.
    */
-export default class Loki extends LokiEventEmitter {
+export default class Sylvie extends SylvieEventEmitter {
   filename: string;
   collections: Collection<Partial<CollectionDocument>>[];
   databaseVersion: number;
@@ -114,7 +114,7 @@ export default class Loki extends LokiEventEmitter {
   autosaveInterval: number;
   autosaveHandle: any;
   throttledSaves: boolean;
-  options?: Partial<LokiConfigOptions & LokiConstructorOptions>;
+  options?: Partial<ConfigOptions & ConstructorOptions>;
   persistenceMethod: any;
   persistenceAdapter: any;
   throttledSavePending: boolean;
@@ -167,18 +167,18 @@ export default class Loki extends LokiEventEmitter {
   };
   static Collection: typeof Collection;
   static DynamicView: typeof DynamicView;
-  static Resultset: typeof Resultset;
+  static Resultset: typeof ResultSet;
   static KeyValueStore: () => void;
-  static LokiMemoryAdapter: typeof LokiMemoryAdapter;
+  static LokiMemoryAdapter: typeof MemoryAdapter;
   static LokiPartitioningAdapter: (
     adapter: any,
-    options?: Partial<LokiPartitioningAdapterOptions>
+    options?: Partial<PartitioningAdapterOptions>
   ) => void;
-  static LokiLocalStorageAdapter: typeof LokiLocalStorageAdapter;
-  static LokiFsAdapter: typeof LokiFsAdapter;
+  static LokiLocalStorageAdapter: typeof LocalStorageAdapter;
+  static LokiFsAdapter: typeof FsAdapter;
   static persistenceAdapters: {
-    fs: typeof LokiFsAdapter;
-    localStorage: typeof LokiLocalStorageAdapter;
+    fs: typeof FsAdapter;
+    localStorage: typeof LocalStorageAdapter;
   };
   static aeq: (prop1: any, prop2: any) => boolean;
   static lt: (prop1: any, prop2: any, equal: any) => any;
@@ -188,11 +188,11 @@ export default class Loki extends LokiEventEmitter {
     lt: (prop1: any, prop2: any, equal: any) => any;
     gt: (prop1: any, prop2: any, equal: any) => any;
   };
-  toJson: (options?: Partial<LokiConfigOptions>) => any;
+  toJson: (options?: Partial<ConfigOptions>) => any;
 
   constructor(
     filename?: string,
-    options?: Partial<LokiConfigOptions & LokiConstructorOptions>
+    options?: Partial<ConfigOptions & ConstructorOptions>
   ) {
     super();
     this.filename = filename || "loki.db";
@@ -299,7 +299,7 @@ export default class Loki extends LokiEventEmitter {
     let adapter;
 
     if (typeof require === "function") {
-      adapter = require("../loki-indexed-adapter.js");
+      adapter = require("../indexed-adapter.js");
     }
 
     return adapter;
@@ -330,9 +330,9 @@ export default class Loki extends LokiEventEmitter {
     };
 
     const persistenceMethods = {
-      fs: LokiFsAdapter,
-      localStorage: LokiLocalStorageAdapter,
-      memory: LokiMemoryAdapter,
+      fs: FsAdapter,
+      localStorage: LocalStorageAdapter,
+      memory: MemoryAdapter,
     };
 
     this.options = {};
@@ -430,9 +430,9 @@ export default class Loki extends LokiEventEmitter {
    * @param {bool} options.removeNonSerializable - nulls properties not safe for serialization.
    * @memberof Loki
    */
-  copy(options?: { removeNonSerializable?: boolean }): Loki {
+  copy(options?: { removeNonSerializable?: boolean }): Sylvie {
     // in case running in an environment without accurate environment detection, pass 'NA'
-    const databaseCopy = new Loki(this.filename, { env: "NA" });
+    const databaseCopy = new Sylvie(this.filename, { env: "NA" });
     let clen;
     let idx;
 
@@ -632,12 +632,12 @@ export default class Loki extends LokiEventEmitter {
   }
 
   /**
-   * Serialize database to a string which can be loaded via {@link Loki#loadJSON}
+   * Serialize database to a string which can be loaded via {@link Sylvie#loadJSON}
    *
    * @returns {string} Stringified representation of the loki database.
    * @memberof Loki
    */
-  serialize(options: Partial<LokiConfigOptions> = {}) {
+  serialize(options: Partial<ConfigOptions> = {}) {
     if (!options.hasOwnProperty("serializationMethod")) {
       options.serializationMethod = this.options.serializationMethod;
     }
@@ -705,7 +705,7 @@ export default class Loki extends LokiEventEmitter {
     }
 
     // not just an individual collection, so we will need to serialize db container via shallow copy
-    dbcopy = new Loki(this.filename);
+    dbcopy = new Sylvie(this.filename);
     dbcopy.loadJSONObject(this);
 
     for (idx = 0; idx < dbcopy.collections.length; idx++) {
@@ -1812,28 +1812,28 @@ export default class Loki extends LokiEventEmitter {
 }
 
 // alias of serialize
-Loki.prototype.toJson = Loki.prototype.serialize;
+Sylvie.prototype.toJson = Sylvie.prototype.serialize;
 
 // alias
-Loki.prototype.save = Loki.prototype.saveDatabase;
+Sylvie.prototype.save = Sylvie.prototype.saveDatabase;
 
-Loki.deepFreeze = deepFreeze;
-Loki.freeze = freeze;
-Loki.unFreeze = unFreeze;
-Loki.LokiOps = LokiOps;
-Loki.Collection = Collection;
-Loki.DynamicView = DynamicView;
-Loki.Resultset = Resultset;
-Loki.KeyValueStore = KeyValueStore;
-Loki.LokiMemoryAdapter = LokiMemoryAdapter;
-Loki.LokiPartitioningAdapter = LokiPartitioningAdapter;
-Loki.LokiLocalStorageAdapter = LokiLocalStorageAdapter;
-Loki.LokiFsAdapter = LokiFsAdapter;
-Loki.persistenceAdapters = {
-  fs: LokiFsAdapter,
-  localStorage: LokiLocalStorageAdapter,
+Sylvie.deepFreeze = deepFreeze;
+Sylvie.freeze = freeze;
+Sylvie.unFreeze = unFreeze;
+Sylvie.LokiOps = LokiOps;
+Sylvie.Collection = Collection;
+Sylvie.DynamicView = DynamicView;
+Sylvie.Resultset = ResultSet;
+Sylvie.KeyValueStore = KeyValueStore;
+Sylvie.LokiMemoryAdapter = MemoryAdapter;
+Sylvie.LokiPartitioningAdapter = PartitioningAdapter;
+Sylvie.LokiLocalStorageAdapter = LocalStorageAdapter;
+Sylvie.LokiFsAdapter = FsAdapter;
+Sylvie.persistenceAdapters = {
+  fs: FsAdapter,
+  localStorage: LocalStorageAdapter,
 };
-Loki.aeq = aeqHelper;
-Loki.lt = ltHelper;
-Loki.gt = gtHelper;
-Loki.Comparators = Comparators;
+Sylvie.aeq = aeqHelper;
+Sylvie.lt = ltHelper;
+Sylvie.gt = gtHelper;
+Sylvie.Comparators = Comparators;

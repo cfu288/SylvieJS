@@ -3,9 +3,9 @@
 /* eslint-disable no-var */
 "use strict";
 
-import Loki from "../Loki";
+import Sylvie from "../Sylvie";
 
-export interface LokiPartitioningAdapterOptions {
+export interface PartitioningAdapterOptions {
   paging: boolean;
   pageSize: number;
   delimiter: string;
@@ -27,9 +27,9 @@ export interface LokiPartitioningAdapterOptions {
  * @param {string} options.delimiter - allows you to override the default delimeter
  * @constructor LokiPartitioningAdapter
  */
-export function LokiPartitioningAdapter(
+export function PartitioningAdapter(
   adapter,
-  options?: Partial<LokiPartitioningAdapterOptions>
+  options?: Partial<PartitioningAdapterOptions>
 ) {
   this.mode = "reference";
   this.adapter = null;
@@ -76,10 +76,10 @@ export function LokiPartitioningAdapter(
  * @param {function} callback - adapter callback to return load result to caller
  * @memberof LokiPartitioningAdapter
  */
-LokiPartitioningAdapter.prototype.loadDatabase = function (dbname, callback) {
+PartitioningAdapter.prototype.loadDatabase = function (dbname, callback) {
   var self = this;
   this.dbname = dbname;
-  this.dbref = new Loki(dbname);
+  this.dbref = new Sylvie(dbname);
 
   // load the db container (without data)
   this.adapter.loadDatabase(dbname, function (result) {
@@ -126,7 +126,7 @@ LokiPartitioningAdapter.prototype.loadDatabase = function (dbname, callback) {
  * @param {int} partition - ordinal collection position to load next
  * @param {function} callback - adapter callback to return load result to caller
  */
-LokiPartitioningAdapter.prototype.loadNextPartition = function (
+PartitioningAdapter.prototype.loadNextPartition = function (
   partition,
   callback
 ) {
@@ -159,7 +159,7 @@ LokiPartitioningAdapter.prototype.loadNextPartition = function (
  *
  * @param {function} callback - adapter callback to return load result to caller
  */
-LokiPartitioningAdapter.prototype.loadNextPage = function (callback) {
+PartitioningAdapter.prototype.loadNextPage = function (callback) {
   // calculate name for next saved page in sequence
   var keyname =
     this.dbname +
@@ -222,7 +222,7 @@ LokiPartitioningAdapter.prototype.loadNextPage = function (callback) {
  *
  * @memberof LokiPartitioningAdapter
  */
-LokiPartitioningAdapter.prototype.exportDatabase = function (
+PartitioningAdapter.prototype.exportDatabase = function (
   dbname,
   dbref,
   callback
@@ -251,7 +251,7 @@ LokiPartitioningAdapter.prototype.exportDatabase = function (
  *
  * @param {function} callback - adapter callback to return load result to caller
  */
-LokiPartitioningAdapter.prototype.saveNextPartition = function (callback) {
+PartitioningAdapter.prototype.saveNextPartition = function (callback) {
   var self = this;
   var partition = this.dirtyPartitions.shift();
   var keyname = this.dbname + (partition === -1 ? "" : "." + partition);
@@ -301,7 +301,7 @@ LokiPartitioningAdapter.prototype.saveNextPartition = function (callback) {
  *
  * @param {function} callback - adapter callback to return load result to caller
  */
-LokiPartitioningAdapter.prototype.saveNextPage = function (
+PartitioningAdapter.prototype.saveNextPage = function (
   callback: (err?: Error) => void
 ): void {
   var self = this;

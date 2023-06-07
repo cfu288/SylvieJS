@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import Loki from "../../src/lokijs";
+import Sylvie from "../../src/sylviejs";
 import { Collection } from "../../src/modules/Collection";
-import { LokiPersistenceAdapter } from "../../src/modules/loki-storage-adapter/LokiPersistenceAdapter";
-const loki = Loki;
+import { PersistenceAdapter } from "../../src/modules/storage-adapter/PersistenceAdapter";
+import { IncrementalIndexedDBAdapter } from "../../src/incremental-indexeddb-adapter";
+const loki = Sylvie;
 
 describe("IncrementalIndexedDBAdapter", function () {
   it("initializes Loki properly", function () {
     const adapter = new IncrementalIndexedDBAdapter(
       "tests"
-    ) as unknown as LokiPersistenceAdapter;
+    ) as unknown as PersistenceAdapter;
     const db = new loki("test.db", {
       adapter: adapter,
     });
@@ -105,7 +106,7 @@ describe("IncrementalIndexedDBAdapter", function () {
   it("handles dirtyIds during save properly", function () {
     const adapter = new IncrementalIndexedDBAdapter("tests");
     const db = new loki("test.db", {
-      adapter: adapter as unknown as LokiPersistenceAdapter,
+      adapter: adapter as unknown as PersistenceAdapter,
     });
     const col1 = db.addCollection("test_collection");
     const col2 = db.addCollection("test_collection2");
