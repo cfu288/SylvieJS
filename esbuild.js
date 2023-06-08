@@ -7,6 +7,7 @@ esbuild
       "src/sylviejs.ts",
       "src/storage-adapter/incremental-indexeddb-adapter.ts",
       "src/storage-adapter/indexeddb-adapter.ts",
+      "src/storage-adapter/fs-adapter.ts",
     ],
     outdir: "dist",
     bundle: true,
