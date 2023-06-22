@@ -1,4 +1,3 @@
-
 /*
   Loki (node) fs structured Adapter (need to require this script to instance and use it).
 
@@ -13,35 +12,33 @@
 */
 
 (function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD
-        define([], factory);
-    } else if (typeof exports === 'object') {
-        // Node, CommonJS-like
-        module.exports = factory();
-    } else {
-        // Browser globals (root is window)
-        root.LokiFsStructuredAdapter = factory();
-    }
-}(this, function () {
-  return (function() {
-
-    const fs = require('fs');
-    const readline = require('readline');
-    const stream = require('stream');
+  if (typeof define === "function" && define.amd) {
+    // AMD
+    define([], factory);
+  } else if (typeof exports === "object") {
+    // Node, CommonJS-like
+    module.exports = factory();
+  } else {
+    // Browser globals (root is window)
+    root.LokiFsStructuredAdapter = factory();
+  }
+})(this, function () {
+  return (function () {
+    const fs = require("fs");
+    const readline = require("readline");
+    const stream = require("stream");
 
     /**
      * Loki structured (node) filesystem adapter class.
-     *     This class fulfills the loki 'reference' abstract adapter interface which can be applied to other storage methods. 
+     *     This class fulfills the loki 'reference' abstract adapter interface which can be applied to other storage methods.
      *
      * @constructor LokiFsStructuredAdapter
      *
      */
-    function LokiFsStructuredAdapter()
-    {
-        this.mode = "reference";
-        this.dbref = null;
-        this.dirtyPartitions = [];
+    function LokiFsStructuredAdapter() {
+      this.mode = "reference";
+      this.dbref = null;
+      this.dirtyPartitions = [];
     }
 
     /**
@@ -53,7 +50,9 @@
      * @returns {string|array} A custom, restructured aggregation of independent serializations.
      * @memberof LokiFsStructuredAdapter
      */
-    LokiFsStructuredAdapter.prototype.generateDestructured = function*(options) {
+    LokiFsStructuredAdapter.prototype.generateDestructured = function* (
+      options
+    ) {
       var idx, sidx;
       var dbcopy;
 
@@ -67,13 +66,13 @@
       if (options.partition === -1) {
         // instantiate lightweight clone and remove its collection data
         dbcopy = this.dbref.copy();
-        
-        for(idx=0; idx < dbcopy.collections.length; idx++) {
+
+        for (idx = 0; idx < dbcopy.collections.length; idx++) {
           dbcopy.collections[idx].data = [];
         }
 
         yield dbcopy.serialize({
-          serializationMethod: "normal"
+          serializationMethod: "normal",
         });
 
         return;
@@ -81,14 +80,15 @@
 
       // 'partitioned' along with 'partition' of 0 or greater is a request for single collection serialization
       if (options.partition >= 0) {
-        var doccount,
-          docidx;
+        var doccount, docidx;
 
         // dbref collections have all data so work against that
         doccount = this.dbref.collections[options.partition].data.length;
 
-        for(docidx=0; docidx<doccount; docidx++) {
-          yield JSON.stringify(this.dbref.collections[options.partition].data[docidx]);
+        for (docidx = 0; docidx < doccount; docidx++) {
+          yield JSON.stringify(
+            this.dbref.collections[options.partition].data[docidx]
+          );
         }
       }
     };
@@ -100,12 +100,14 @@
      * @param {function} callback - callback should accept string param containing db object reference.
      * @memberof LokiFsStructuredAdapter
      */
-    LokiFsStructuredAdapter.prototype.loadDatabase = function(dbname, callback)
-    {
+    LokiFsStructuredAdapter.prototype.loadDatabase = function (
+      dbname,
+      callback
+    ) {
       var instream,
         outstream,
         rl,
-        self=this;
+        self = this;
 
       this.dbref = null;
 
@@ -118,14 +120,12 @@
             // file does not exist, so callback with null
             callback(null);
             return;
-          }
-          else {
+          } else {
             // some other file system error.
             callback(fileErr);
             return;
           }
-        }
-        else if (!stats.isFile()) {
+        } else if (!stats.isFile()) {
           // something exists at this path but it isn't a file.
           callback(new Error(dbname + " is not a valid file."));
           return;
@@ -136,10 +136,10 @@
         rl = readline.createInterface(instream, outstream);
 
         // first, load db container component
-        rl.on('line', function(line) {
+        rl.on("line", function (line) {
           // it should single JSON object (a one line file)
-          if (self.dbref === null && line !== "") {              
-            try {                
+          if (self.dbref === null && line !== "") {
+            try {
               self.dbref = JSON.parse(line);
             } catch (e) {
               jsonErr = e;
@@ -148,13 +148,12 @@
         });
 
         // when that is done, examine its collection array to sequence loading each
-        rl.on('close', function() {
+        rl.on("close", function () {
           if (jsonErr) {
             // a json error was encountered reading the container file.
             callback(jsonErr);
-          } 
-          else if (self.dbref.collections.length > 0) {
-            self.loadNextCollection(dbname, 0, function() {
+          } else if (self.dbref.collections.length > 0) {
+            self.loadNextCollection(dbname, 0, function () {
               callback(self.dbref);
             });
           }
@@ -163,7 +162,7 @@
     };
 
     /**
-     * Recursive function to chain loading of each collection one at a time. 
+     * Recursive function to chain loading of each collection one at a time.
      * If at some point i can determine how to make async driven generator, this may be converted to generator.
      *
      * @param {string} dbname - the name to give the serialized database within the catalog.
@@ -171,25 +170,29 @@
      * @param {function} callback - callback to pass to next invocation or to call when done
      * @memberof LokiFsStructuredAdapter
      */
-    LokiFsStructuredAdapter.prototype.loadNextCollection = function(dbname, collectionIndex, callback) {
+    LokiFsStructuredAdapter.prototype.loadNextCollection = function (
+      dbname,
+      collectionIndex,
+      callback
+    ) {
       var instream = fs.createReadStream(dbname + "." + collectionIndex);
       var outstream = new stream();
       var rl = readline.createInterface(instream, outstream);
-      var self=this,
+      var self = this,
         obj;
 
-      rl.on('line', function (line) {
+      rl.on("line", function (line) {
         if (line !== "") {
           try {
             obj = JSON.parse(line);
-          } catch(e) {
+          } catch (e) {
             callback(e);
           }
           self.dbref.collections[collectionIndex].data.push(obj);
         }
       });
 
-      rl.on('close', function (line) {
+      rl.on("close", function (line) {
         instream = null;
         outstream = null;
         rl = null;
@@ -211,15 +214,15 @@
      *
      * @memberof LokiFsStructuredAdapter
      */
-    LokiFsStructuredAdapter.prototype.getPartition = function*() {
+    LokiFsStructuredAdapter.prototype.getPartition = function* () {
       var idx,
         clen = this.dbref.collections.length;
 
       // since database container (partition -1) doesn't have dirty flag at db level, always save
       yield -1;
-      
+
       // yield list of dirty partitions for iterateration
-      for(idx=0; idx<clen; idx++) {
+      for (idx = 0; idx < clen; idx++) {
         if (this.dbref.collections[idx].dirty) {
           yield idx;
         }
@@ -234,8 +237,11 @@
      * @param {function} callback - callback passed obj.success with true or false
      * @memberof LokiFsStructuredAdapter
      */
-    LokiFsStructuredAdapter.prototype.exportDatabase = function(dbname, dbref, callback)
-    {
+    LokiFsStructuredAdapter.prototype.exportDatabase = function (
+      dbname,
+      dbref,
+      callback
+    ) {
       var idx;
 
       this.dbref = dbref;
@@ -243,16 +249,19 @@
       // create (dirty) partition generator/iterator
       var pi = this.getPartition();
 
-      this.saveNextPartition(dbname, pi, function() {
+      this.saveNextPartition(dbname, pi, function () {
         callback(null);
       });
-      
     };
 
     /**
      * Utility method for queueing one save at a time
      */
-    LokiFsStructuredAdapter.prototype.saveNextPartition = function(dbname, pi, callback) {
+    LokiFsStructuredAdapter.prototype.saveNextPartition = function (
+      dbname,
+      pi,
+      callback
+    ) {
       var li;
       var filename;
       var self = this;
@@ -265,25 +274,24 @@
 
       // db container (partition -1) uses just dbname for filename,
       // otherwise append collection array index to filename
-      filename = dbname + ((pinext.value === -1)?"":("." + pinext.value));
+      filename = dbname + (pinext.value === -1 ? "" : "." + pinext.value);
 
       var wstream = fs.createWriteStream(filename);
       //wstream.on('finish', function() {
-      wstream.on('close', function() {
+      wstream.on("close", function () {
         self.saveNextPartition(dbname, pi, callback);
       });
 
       li = this.generateDestructured({ partition: pinext.value });
 
       // iterate each of the lines generated by generateDestructured()
-      for(var outline of li) {
+      for (var outline of li) {
         wstream.write(outline + "\n");
       }
 
       wstream.end();
     };
-    
-    return LokiFsStructuredAdapter;
 
-  }());
-}));
+    return LokiFsStructuredAdapter;
+  })();
+});

@@ -1,9 +1,9 @@
 /**
- * @file lokiCryptedFileAdapter.js 
+ * @file lokiCryptedFileAdapter.js
  * @author Hans Klunder <Hans.Klunder@bigfoot.com>
  */
- 
- /*
+
+/*
  * The default Loki File adapter uses plain text JSON files. This adapter crypts the database string and wraps the result
  * in a JSON including enough info to be able to decrypt it (except for the 'secret' of course !)
  *
@@ -13,20 +13,19 @@
  * not using the krypt module to avoid third party dependencies
  */
 
-
 /**
  * require libs
- * @ignore 
-*/
-var fs = require('fs');
-var cryptoLib = require('crypto');
-var isError = require('util').isError;
+ * @ignore
+ */
+var fs = require("fs");
+var cryptoLib = require("crypto");
+var isError = require("util").isError;
 
 /*
  * sensible defaults
  */
-var CIPHER = 'aes-256-cbc',
-  KEY_DERIVATION = 'pbkdf2',
+var CIPHER = "aes-256-cbc",
+  KEY_DERIVATION = "pbkdf2",
   KEY_LENGTH = 256,
   ITERATIONS = 64000;
 
@@ -38,34 +37,37 @@ var CIPHER = 'aes-256-cbc',
  */
 function encrypt(input, secret) {
   if (!secret) {
-    return new Error('A \'secret\' is required to encrypt');
+    return new Error("A 'secret' is required to encrypt");
   }
-
 
   var salt = cryptoLib.randomBytes(KEY_LENGTH / 8),
     iv = cryptoLib.randomBytes(16);
 
   try {
-
-    var key = cryptoLib.pbkdf2Sync(secret, salt, ITERATIONS, KEY_LENGTH / 8, 'sha1'),
+    var key = cryptoLib.pbkdf2Sync(
+        secret,
+        salt,
+        ITERATIONS,
+        KEY_LENGTH / 8,
+        "sha1"
+      ),
       cipher = cryptoLib.createCipheriv(CIPHER, key, iv);
 
-    var encryptedValue = cipher.update(input, 'utf8', 'base64');
-    encryptedValue += cipher.final('base64');
+    var encryptedValue = cipher.update(input, "utf8", "base64");
+    encryptedValue += cipher.final("base64");
 
     var result = {
       cipher: CIPHER,
       keyDerivation: KEY_DERIVATION,
       keyLength: KEY_LENGTH,
       iterations: ITERATIONS,
-      iv: iv.toString('base64'),
-      salt: salt.toString('base64'),
-      value: encryptedValue
+      iv: iv.toString("base64"),
+      salt: salt.toString("base64"),
+      value: encryptedValue,
     };
     return result;
-
   } catch (err) {
-    return new Error('Unable to encrypt value due to: ' + err);
+    return new Error("Unable to encrypt value due to: " + err);
   }
 }
 
@@ -78,42 +80,48 @@ function encrypt(input, secret) {
 function decrypt(input, secret) {
   // Ensure we have something to decrypt
   if (!input) {
-    return new Error('You must provide a value to decrypt');
+    return new Error("You must provide a value to decrypt");
   }
   // Ensure we have the secret used to encrypt this value
   if (!secret) {
-    return new Error('A \'secret\' is required to decrypt');
+    return new Error("A 'secret' is required to decrypt");
   }
 
   // turn string into an object
   try {
-      input = JSON.parse(input);
+    input = JSON.parse(input);
   } catch (err) {
-      return new Error('Unable to parse string input as JSON');
+    return new Error("Unable to parse string input as JSON");
   }
 
   // Ensure our input is a valid object with 'iv', 'salt', and 'value'
   if (!input.iv || !input.salt || !input.value) {
-    return new Error('Input must be a valid object with \'iv\', \'salt\', and \'value\' properties');
+    return new Error(
+      "Input must be a valid object with 'iv', 'salt', and 'value' properties"
+    );
   }
 
-  var salt = new Buffer(input.salt, 'base64'),
-    iv = new Buffer(input.iv, 'base64'),
+  var salt = new Buffer(input.salt, "base64"),
+    iv = new Buffer(input.iv, "base64"),
     keyLength = input.keyLength,
-   iterations = input.iterations;
+    iterations = input.iterations;
 
   try {
-
-    var key = cryptoLib.pbkdf2Sync(secret, salt, iterations, keyLength / 8, 'sha1'),
+    var key = cryptoLib.pbkdf2Sync(
+        secret,
+        salt,
+        iterations,
+        keyLength / 8,
+        "sha1"
+      ),
       decipher = cryptoLib.createDecipheriv(CIPHER, key, iv);
 
-    var decryptedValue = decipher.update(input.value, 'base64', 'utf8');
-    decryptedValue += decipher.final('utf8');
+    var decryptedValue = decipher.update(input.value, "base64", "utf8");
+    decryptedValue += decipher.final("utf8");
 
     return decryptedValue;
-
   } catch (err) {
-    return new Error('Unable to decrypt value due to: ' + err);
+    return new Error("Unable to decrypt value due to: " + err);
   }
 }
 
@@ -147,11 +155,14 @@ lokiCryptedFileAdapter.prototype.setSecret = function setSecret(secret) {
  * @param {string} dbname - the name of the database to retrieve.
  * @param {function} callback - callback should accept string param containing serialized db string.
  */
-lokiCryptedFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback) {
+lokiCryptedFileAdapter.prototype.loadDatabase = function loadDatabase(
+  dbname,
+  callback
+) {
   var secret = this.secret;
   var cFun = callback || console.log;
-  
-  fs.readFile(dbname,'utf8',function(err,data){
+
+  fs.readFile(dbname, "utf8", function (err, data) {
     var decrypted = err || decrypt(data, secret);
     cFun(decrypted);
   });
@@ -180,15 +191,17 @@ lokiCryptedFileAdapter.prototype.loadDatabase = function loadDatabase(dbname, ca
  * @param {string} dbstring - the serialized db string to save.
  * @param {function} callback - (Optional) callback passed obj.success with true or false
  */
-lokiCryptedFileAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring, callback) {
-  var cFun = callback || function (){};
+lokiCryptedFileAdapter.prototype.saveDatabase = function saveDatabase(
+  dbname,
+  dbstring,
+  callback
+) {
+  var cFun = callback || function () {};
   var encrypted = encrypt(dbstring, this.secret);
-  if (! isError(encrypted)){
-    fs.writeFile(dbname,
-      JSON.stringify(encrypted, null, '  '),
-      'utf8',cFun);
-  }
-  else { // Error !
+  if (!isError(encrypted)) {
+    fs.writeFile(dbname, JSON.stringify(encrypted, null, "  "), "utf8", cFun);
+  } else {
+    // Error !
     cFun(encrypted);
   }
 };

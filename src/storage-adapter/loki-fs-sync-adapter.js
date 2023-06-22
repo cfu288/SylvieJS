@@ -8,26 +8,26 @@
 */
 
 (function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD
-        define([], factory);
-    } else if (typeof exports === 'object') {
-        // Node, CommonJS-like
-        module.exports = factory();
-    } else {
-        // Browser globals (root is window)
-        root.LokiFsSyncAdapter = factory();
-    }
-}(this, function () {
-  return (function() {
-    'use strict';
+  if (typeof define === "function" && define.amd) {
+    // AMD
+    define([], factory);
+  } else if (typeof exports === "object") {
+    // Node, CommonJS-like
+    module.exports = factory();
+  } else {
+    // Browser globals (root is window)
+    root.LokiFsSyncAdapter = factory();
+  }
+})(this, function () {
+  return (function () {
+    "use strict";
 
     /**
      * A loki persistence adapter which persists using node fs module
      * @constructor LokiFsSyncAdapter
      */
     function LokiFsSyncAdapter() {
-      this.fs = require('fs');
+      this.fs = require("fs");
     }
 
     /**
@@ -36,7 +36,10 @@
      * @param {function} callback - the callback to handle the result
      * @memberof LokiFsSyncAdapter
      */
-    LokiFsSyncAdapter.prototype.loadDatabase = function loadDatabase(dbname, callback) {
+    LokiFsSyncAdapter.prototype.loadDatabase = function loadDatabase(
+      dbname,
+      callback
+    ) {
       var self = this;
       var contents;
 
@@ -44,23 +47,21 @@
         var stats = this.fs.statSync(dbname);
         if (stats.isFile()) {
           contents = self.fs.readFileSync(dbname, {
-            encoding: 'utf8'
+            encoding: "utf8",
           });
-          
+
           callback(contents);
-        }
-        else {
+        } else {
           callback(null);
         }
-      }
-      catch (err) {
+      } catch (err) {
         // first autoload when file doesn't exist yet
         // should not throw error but leave default
         // blank database.
         if (err.code === "ENOENT") {
           callback(null);
         }
-        
+
         callback(err);
       }
     };
@@ -72,12 +73,15 @@
      * @param {function} callback - the callback to handle the result
      * @memberof LokiFsSyncAdapter
      */
-    LokiFsSyncAdapter.prototype.saveDatabase = function saveDatabase(dbname, dbstring, callback) {
+    LokiFsSyncAdapter.prototype.saveDatabase = function saveDatabase(
+      dbname,
+      dbstring,
+      callback
+    ) {
       try {
         this.fs.writeFileSync(dbname, dbstring);
         callback();
-      }
-      catch (err) {
+      } catch (err) {
         callback(err);
       }
     };
@@ -89,17 +93,18 @@
      * @param {function} callback - the callback to handle the result
      * @memberof LokiFsSyncAdapter
      */
-    LokiFsSyncAdapter.prototype.deleteDatabase = function deleteDatabase(dbname, callback) {
+    LokiFsSyncAdapter.prototype.deleteDatabase = function deleteDatabase(
+      dbname,
+      callback
+    ) {
       try {
         this.fs.unlinkSync(dbname);
         callback();
-      }
-      catch (err) {
+      } catch (err) {
         callback(err);
       }
     };
 
     return LokiFsSyncAdapter;
-
-  }());
-}));
+  })();
+});

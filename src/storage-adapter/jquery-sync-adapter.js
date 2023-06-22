@@ -8,24 +8,23 @@
 /*jslint browser: true, node: true, plusplus: true, indent: 2 */
 
 (function (root, factory) {
-  if (typeof define === 'function' && define.amd) {
+  if (typeof define === "function" && define.amd) {
     // AMD
     define([], factory);
-  } else if (typeof exports === 'object') {
+  } else if (typeof exports === "object") {
     // CommonJS
     module.exports = factory();
   } else {
     // Browser globals
     root.lokiJquerySyncAdapter = factory();
   }
-}(this, function () {
-
+})(this, function () {
   return (function (options) {
-    'use strict';
+    "use strict";
 
     function JquerySyncAdapterError(message) {
       this.name = "JquerySyncAdapterError";
-      this.message = (message || "");
+      this.message = message || "";
     }
 
     JquerySyncAdapterError.prototype = Error.prototype;
@@ -40,53 +39,60 @@
 
     function JquerySyncAdapter(options) {
       this.options = options;
-      
+
       if (!options) {
-        throw new JquerySyncAdapterError('No options configured in JquerySyncAdapter');
+        throw new JquerySyncAdapterError(
+          "No options configured in JquerySyncAdapter"
+        );
       }
 
       if (!options.ajaxLib) {
-        throw new JquerySyncAdapterError('No ajaxLib property specified in options');
+        throw new JquerySyncAdapterError(
+          "No ajaxLib property specified in options"
+        );
       }
 
       if (!options.save || !options.load) {
-        throw new JquerySyncAdapterError('Please specify load and save properties in options');
+        throw new JquerySyncAdapterError(
+          "Please specify load and save properties in options"
+        );
       }
       if (!options.save.url || !options.load.url) {
-        throw new JquerySyncAdapterError('load and save objects must have url property');
+        throw new JquerySyncAdapterError(
+          "load and save objects must have url property"
+        );
       }
     }
 
     JquerySyncAdapter.prototype.saveDatabase = function (name, data, callback) {
       this.options.ajaxLib.ajax({
-        type: this.options.save.type || 'POST',
+        type: this.options.save.type || "POST",
         url: this.options.save.url,
         data: data,
         success: callback,
         failure: function () {
           throw new JquerySyncAdapterError("Remote sync failed");
         },
-        dataType: this.options.save.dataType || 'json'
+        dataType: this.options.save.dataType || "json",
       });
     };
 
     JquerySyncAdapter.prototype.loadDatabase = function (name, callback) {
       this.options.ajaxLib.ajax({
-        type: this.options.load.type || 'GET',
+        type: this.options.load.type || "GET",
         url: this.options.load.url,
         data: {
           // or whatever parameter to fetch the db from a server
-          name: name
+          name: name,
         },
         success: callback,
         failure: function () {
           throw new JquerySyncAdapterError("Remote load failed");
         },
-        dataType: this.options.load.dataType || 'json'
+        dataType: this.options.load.dataType || "json",
       });
     };
 
     return JquerySyncAdapter;
-
-  }());
-}));
+  })();
+});

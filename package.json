@@ -31,7 +31,7 @@
     "pretest": "npm run build:only",
     "test": "npm run test:node && npm run test:browser",
     "build": "node esbuild.js",
-    "build:only": "node esbuild.js",
+    "build:only": "node esbuild.dev.js",
     "prebuild": "npm run format && npm run typecheck",
     "prepublish": "npm run build",
     "clean": "rimraf dist/* coverage/* benchmark/benchmark_incrementalidb/dist/* benchmark/benchmark_web/dist/*",
