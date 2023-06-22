@@ -255,7 +255,7 @@ async function decryptData(encryptedData, password) {
   }
 }
 
-interface IndexedAdapterOptions {
+interface CryptedIndexedAdapterOptions {
   closeAfterSave: boolean;
   secret: string;
 }
@@ -277,9 +277,9 @@ interface IndexedAdapterOptions {
  * @param {object=} options Configuration options for the adapter
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  */
-class IndexedDBAdapter implements PersistenceAdapter {
+export class CryptedIndexedDBAdapter implements PersistenceAdapter {
   app: string;
-  options: Partial<IndexedAdapterOptions>;
+  options: Partial<CryptedIndexedAdapterOptions>;
   catalog: SylvieCatalog;
   mode: string;
   loadKey: (dbname: any, callback: any) => void;
@@ -288,7 +288,10 @@ class IndexedDBAdapter implements PersistenceAdapter {
   getKeyList: (callback: any) => void;
   #secret: string;
 
-  constructor(appname: string, options?: Partial<IndexedAdapterOptions>) {
+  constructor(
+    appname: string,
+    options?: Partial<CryptedIndexedAdapterOptions>
+  ) {
     DEBUG && console.log("Initialized crypted-indexeddb-adapter");
     this.app = "loki";
     this.options = options || {};
@@ -352,7 +355,7 @@ class IndexedDBAdapter implements PersistenceAdapter {
   loadDatabase(dbname: string, callback: (serialized: string) => void) {
     DEBUG && console.debug("loading database");
     const appName = this.app;
-    const adapter: IndexedDBAdapter = this;
+    const adapter: CryptedIndexedDBAdapter = this;
     const secret = this.#secret;
 
     // lazy open/create db reference so dont -need- callback in constructor
@@ -615,18 +618,20 @@ class IndexedDBAdapter implements PersistenceAdapter {
 }
 
 // alias
-IndexedDBAdapter.prototype.loadKey = IndexedDBAdapter.prototype.loadDatabase;
+CryptedIndexedDBAdapter.prototype.loadKey =
+  CryptedIndexedDBAdapter.prototype.loadDatabase;
 
 // alias
-IndexedDBAdapter.prototype.saveKey = IndexedDBAdapter.prototype.saveDatabase;
+CryptedIndexedDBAdapter.prototype.saveKey =
+  CryptedIndexedDBAdapter.prototype.saveDatabase;
 
 // alias
-IndexedDBAdapter.prototype.deleteKey =
-  IndexedDBAdapter.prototype.deleteDatabase;
+CryptedIndexedDBAdapter.prototype.deleteKey =
+  CryptedIndexedDBAdapter.prototype.deleteDatabase;
 
 // alias
-IndexedDBAdapter.prototype.getKeyList =
-  IndexedDBAdapter.prototype.getDatabaseList;
+CryptedIndexedDBAdapter.prototype.getKeyList =
+  CryptedIndexedDBAdapter.prototype.getDatabaseList;
 
 /**
  * LokiCatalog - underlying App/Key/Value catalog persistence
@@ -882,5 +887,5 @@ class SylvieCatalog {
 }
 
 if (typeof window !== "undefined") {
-  Object.assign(window, { IndexedDBAdapter: IndexedDBAdapter });
+  Object.assign(window, { IndexedDBAdapter: CryptedIndexedDBAdapter });
 }
