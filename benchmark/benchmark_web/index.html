@@ -80,7 +80,7 @@
           source.saveDatabase((saveError) => {
             const saveTime = new Date() - beforeSave;
             expectToBe(saveError, undefined);
-            let adapter = new IndexedDBAdapter(undefined, {
+            let adapter = new CryptedIndexedDBAdapter(undefined, {
               secret: "pass",
             });
             let copy = new loki("incremental_idb_tester", { adapter: adapter });
@@ -117,7 +117,7 @@
         indexedDB.deleteDatabase("incremental_idb_tester");
 
         let idbOverwriteCount = 0;
-        let adapter = new IndexedDBAdapter(undefined, {
+        let adapter = new CryptedIndexedDBAdapter(undefined, {
           secret: "pass",
           onDidOverwrite: () => {
             idbOverwriteCount += 1;
@@ -227,7 +227,7 @@
         {
           let idb2OverwriteCount = 0;
           let db2 = new loki("incremental_idb_tester", {
-            adapter: new IndexedDBAdapter(undefined, {
+            adapter: new CryptedIndexedDBAdapter(undefined, {
               secret: "pass",
               onDidOverwrite: () => {
                 idb2OverwriteCount += 1;
@@ -306,7 +306,7 @@
 
         {
           let db2 = new loki("incremental_idb_tester", {
-            adapter: new IndexedDBAdapter(undefined, {
+            adapter: new CryptedIndexedDBAdapter(undefined, {
               secret: "pass",
               lazyCollections: ["test_collection"],
             }),

@@ -274,8 +274,9 @@ interface CryptedIndexedAdapterOptions {
  * @constructor LokiIndexedAdapter
  *
  * @param {string} appname - (Optional) Application name context can be used to distinguish subdomains, 'loki' by default
- * @param {object=} options Configuration options for the adapter
+ * @param {CryptedIndexedAdapterOptions} options Configuration options for the adapter
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
+ * @param {boolean} options.secret The password to encrypt with.
  */
 export class CryptedIndexedDBAdapter implements PersistenceAdapter {
   app: string;
