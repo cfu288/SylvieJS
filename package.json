@@ -1,9 +1,9 @@
 {
-  "name": "lokijs",
+  "name": "sylviejs",
   "version": "1.5.12",
   "description": "SylvieJS: Fast document oriented javascript in-memory database",
   "homepage": "https://techfort.github.io/LokiJS/",
-  "main": "src/lokijs.js",
+  "main": "src/sylviejs.js",
   "directories": {
     "example": "examples"
   },
@@ -18,7 +18,7 @@
     "mmdb",
     "json",
     "nosql",
-    "lokijs",
+    "sylviejs",
     "in-memory",
     "indexeddb"
   ],
