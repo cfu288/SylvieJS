@@ -260,7 +260,7 @@ interface CryptedIndexedAdapterOptions {
   secret: string;
 }
 /**
- * Loki persistence adapter class for indexedDb.
+ * Loki/Sylvie persistence adapter class for indexedDb.
  *     This class fulfills abstract adapter interface which can be applied to other storage methods.
  *     Utilizes the included LokiCatalog app/key/value database for actual database persistence.
  *     Indexeddb is highly async, but this adapter has been made 'console-friendly' as well.
@@ -269,7 +269,9 @@ interface CryptedIndexedAdapterOptions {
  *     allow separate contexts for separate apps within a domain.
  *
  * @example
- * var idbAdapter = new LokiIndexedAdapter('finance');
+ * var idbAdapter = new CryptedIndexedDBAdapter('finance', {
+ *  secret: "pass"
+ * });
  *
  * @constructor LokiIndexedAdapter
  *
