@@ -1,44 +1,52 @@
 {
-  "name": "lokijs",
+  "name": "sylviejs",
   "version": "1.5.12",
-  "description": "Fast document oriented javascript in-memory database",
+  "description": "SylvieJS: Fast document oriented javascript in-memory database",
   "homepage": "https://techfort.github.io/LokiJS/",
-  "main": "src/lokijs.js",
+  "main": "src/sylviejs.js",
   "directories": {
     "example": "examples"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/techfort/LokiJS.git"
+    "url": "https://github.com/cfu288/SylvieJS"
   },
+  "type": "module",
   "keywords": [
     "javascript",
     "document-oriented",
     "mmdb",
     "json",
     "nosql",
-    "lokijs",
+    "sylviejs",
     "in-memory",
     "indexeddb"
   ],
   "scripts": {
-    "lint": "jshint src",
-    "test:browser": "karma start karma.conf.js --single-run",
-    "test:node": "istanbul cover --dir coverage/nodejs node_modules/jasmine/bin/jasmine.js",
-    "pretest": "npm run lint",
-    "test": "npm run test:browser && npm run test:node",
-    "build:lokijs": "uglifyjs src/lokijs.js > build/lokijs.min.js",
-    "build:indexedAdapter": "uglifyjs src/loki-indexed-adapter.js > build/loki-indexed-adapter.min.js",
-    "build": "npm run build:lokijs && npm run build:indexedAdapter",
-    "postbuild": "karma start karma.build.conf.js --single-run",
+    "lint": "eslint . --ext .ts || exit 0",
+    "format": "prettier src/**/*.ts spec/**/*.ts -w",
+    "typecheck": "tsc --noEmit",
+    "test:browser": "web-test-runner spec/**/*.ts --node-resolve --playwright --browsers chromium firefox webkit",
+    "test:node": "jest --config jest.config.ts spec/*.ts --silent=false",
+    "pretest": "npm run build:only",
+    "test": "npm run test:node && npm run test:browser",
+    "build": "node esbuild.js",
+    "build:only": "node esbuild.dev.js",
+    "prebuild": "npm run format && npm run typecheck",
     "prepublish": "npm run build",
-    "clean": "rimraf build/* coverage/* node_modules",
+    "clean": "rimraf dist/* coverage/* benchmark/benchmark_incrementalidb/dist/* benchmark/benchmark_web/dist/*",
     "pour:beer": "echo New npm version published, one beer for you !",
     "jsdoc": "./node_modules/.bin/jsdoc -c jsdoc-conf.json",
-    "benchmark": "node benchmark/benchmark"
+    "benchmark": "jest --projects jest-bench.config.ts && mv benchmarks/result.txt benchmark/result.txt && rm -rf benchmarks/",
+    "benchmark:incrementalidb": "npm run clean && npm run build:only && mkdir -p benchmark/benchmark_incrementalidb/dist/ && cp dist/storage-adapter/incremental-indexeddb-adapter.js benchmark/benchmark_incrementalidb/dist && cp -r dist/ benchmark/benchmark_incrementalidb/dist && serve benchmark/benchmark_incrementalidb",
+    "benchmark:web": "npm run clean && npm run build:only && mkdir -p benchmark/benchmark_web/dist/ && cp -r dist/ benchmark/benchmark_web/dist && serve benchmark/benchmark_web"
   },
-  "author": "Joe Minichino <joe.minichino@gmail.com>",
+  "author": "Christopher Fu <invent288cfu@gmail.com>",
   "contributors": [
+    {
+      "name": "Joe Minichino",
+      "email": "joe.minichino@gmail.com"
+    },
     {
       "name": "Dave",
       "email": "github@obeliskos.com"
@@ -48,21 +56,33 @@
   "bugs": {
     "url": "https://github.com/techfort/LokiJS/issues"
   },
-  "dependencies": {},
   "devDependencies": {
-    "istanbul": "^0.4.4",
-    "jasmine": "^2.4.1",
+    "@types/jasmine": "^4.3.2",
+    "@types/jest": "^29.5.1",
+    "@types/jquery": "^3.5.16",
+    "@types/node": "^20.2.5",
+    "@typescript-eslint/eslint-plugin": "^5.59.7",
+    "@typescript-eslint/parser": "^5.59.7",
+    "@web/dev-server-esbuild": "^0.4.1",
+    "@web/test-runner": "^0.16.1",
+    "@web/test-runner-playwright": "^0.10.0",
+    "chalk": "^5.2.0",
+    "esbuild": "0.17.19",
+    "esbuild-plugin-d.ts": "^1.1.0",
+    "esbuild-plugin-umd-wrapper": "^1.0.7",
+    "eslint": "^8.41.0",
+    "jest": "^29.5.0",
+    "jest-bench": "^29.4.1",
+    "jest-browser-globals": "^25.1.0-beta",
     "jsdoc": "^3.5.5",
-    "jshint": "^2.9.2",
-    "karma": "^1.1.2",
-    "karma-cli": "^1.0.1",
-    "karma-coverage": "^1.1.1",
-    "karma-jasmine": "^1.0.2",
-    "karma-phantomjs-launcher": "^1.0.1",
-    "mocha": "^2.5.3",
-    "phantomjs": "^1.9.20",
+    "prettier": "^2.8.8",
+    "puppeteer": "^20.4.0",
     "rimraf": "^2.5.4",
+    "serve": "^14.2.0",
     "should": "^4.6.5",
-    "uglify-js": "^2.7.0"
-  }
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {}
 }

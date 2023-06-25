@@ -8,7 +8,7 @@
  *   rather than flag for full rebuild.
  *
  * This approach would definitely improve performance when insert/find ops are interlaced 1:1.
- * 
+ *
  * We should also wish to guage penalty of overhead when items are inserted consecutively, but
  *   not in batch array.
  *
@@ -16,10 +16,9 @@
  *
  * Refactorings of index rebuild strategies also need to be coordinated with extensive unit testing.
  */
- 
 
-var loki = require('../src/lokijs.js'),
-  db = new loki('binary index perf'),
+import loki from "../dist/sylviejs.js";
+var db = new loki("binary index perf"),
   samplecoll = null,
   uniquecoll = null,
   arraySize = 5000, // default, we usually override when calling init functions
@@ -29,7 +28,8 @@ var loki = require('../src/lokijs.js'),
 
 function genRandomVal() {
   var text = "";
-  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var possible =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   for (var i = 0; i < 20; i++)
     text += possible.charAt(Math.floor(Math.random() * possible.length));
@@ -39,22 +39,22 @@ function genRandomVal() {
 
 // in addition to the loki id we will create a key of our own
 // (customId) which is number from 1- totalIterations
-// we will later perform find() queries against customId with and 
+// we will later perform find() queries against customId with and
 // without an index
 
 function createDatabaseUnindexed() {
-  db = new loki('binary index perf');
+  db = new loki("binary index perf");
 
-  samplecoll = db.addCollection('samplecoll'); 
+  samplecoll = db.addCollection("samplecoll");
 }
 
 function createDatabaseIndexed(adaptive) {
-  db = new loki('binary index perf');
+  db = new loki("binary index perf");
 
-  samplecoll = db.addCollection('samplecoll', {
-      adaptiveBinaryIndices: (adaptive === true),
-      indices: ['customId']
-  }); 
+  samplecoll = db.addCollection("samplecoll", {
+    adaptiveBinaryIndices: adaptive === true,
+    indices: ["customId"],
+  });
 }
 
 // scenario for many individual, consecutive inserts
@@ -78,7 +78,7 @@ function initializeDatabase(silent, docCount) {
       customId: idx,
       val: v1,
       val2: v2,
-      val3: "more data 1234567890"
+      val3: "more data 1234567890",
     });
     end = process.hrtime(start);
     totalTimes.push(end);
@@ -92,17 +92,25 @@ function initializeDatabase(silent, docCount) {
     totalMS += totalTimes[idx][0] * 1e3 + totalTimes[idx][1] / 1e6;
   }
 
-  // let's include final find which will probably punish lazy indexes more 
+  // let's include final find which will probably punish lazy indexes more
   start = process.hrtime();
-  samplecoll.find({customIdx: 50});
+  samplecoll.find({ customIdx: 50 });
   end = process.hrtime(start);
   totalTimes.push(end);
 
   //var totalMS = end[0] * 1e3 + end[1]/1e6;
   totalMS = totalMS.toFixed(2);
-  var rate = arraySize * 1000 / totalMS;
+  var rate = (arraySize * 1000) / totalMS;
   rate = rate.toFixed(2);
-  console.log("load (individual inserts) : " + totalMS + "ms (" + rate + ") ops/s (" + arraySize + " documents)");
+  console.log(
+    "load (individual inserts) : " +
+      totalMS +
+      "ms (" +
+      rate +
+      ") ops/s (" +
+      arraySize +
+      " documents)"
+  );
 }
 
 // silent : if true we wont log timing info to console
@@ -112,7 +120,7 @@ function initializeDatabaseBatch(silent, docCount) {
   var totalTimes = [];
   var totalMS = 0.0;
   var batch = [];
-  
+
   if (typeof docCount === "undefined") {
     docCount = 5000;
   }
@@ -127,7 +135,7 @@ function initializeDatabaseBatch(silent, docCount) {
       customId: idx,
       val: v1,
       val2: v2,
-      val3: "more data 1234567890"
+      val3: "more data 1234567890",
     });
   }
 
@@ -146,9 +154,17 @@ function initializeDatabaseBatch(silent, docCount) {
 
   //var totalMS = end[0] * 1e3 + end[1]/1e6;
   totalMS = totalMS.toFixed(2);
-  var rate = arraySize* 1000 / totalMS;
+  var rate = (arraySize * 1000) / totalMS;
   rate = rate.toFixed(2);
-  console.log("load (batch insert) : " + totalMS + "ms (" + rate + ") ops/s (" + arraySize + " documents)");
+  console.log(
+    "load (batch insert) : " +
+      totalMS +
+      "ms (" +
+      rate +
+      ") ops/s (" +
+      arraySize +
+      " documents)"
+  );
 }
 
 function perfFind(multiplier) {
@@ -157,7 +173,7 @@ function perfFind(multiplier) {
   var totalMS = 0;
 
   var loopIterations = arraySize;
-  if (typeof (multiplier) != "undefined") {
+  if (typeof multiplier != "undefined") {
     loopIterations = loopIterations * multiplier;
   }
 
@@ -166,7 +182,7 @@ function perfFind(multiplier) {
 
     start = process.hrtime();
     var results = samplecoll.find({
-      'customId': customidx
+      customId: customidx,
     });
     end = process.hrtime(start);
     totalTimes.push(end);
@@ -177,9 +193,17 @@ function perfFind(multiplier) {
   }
 
   totalMS = totalMS.toFixed(2);
-  var rate = loopIterations * 1000 / totalMS;
+  var rate = (loopIterations * 1000) / totalMS;
   rate = rate.toFixed(2);
-  console.log("contiguous coll.find() : " + totalMS + "ms (" + rate + " ops/s) " + loopIterations + " iterations");
+  console.log(
+    "contiguous coll.find() : " +
+      totalMS +
+      "ms (" +
+      rate +
+      " ops/s) " +
+      loopIterations +
+      " iterations"
+  );
 }
 
 //  Find Interlaced Inserts ->  insert 5000, for 5000 more iterations insert same test obj after
@@ -189,7 +213,7 @@ function perfFindInterlacedInserts(multiplier) {
   var totalMS = 0;
 
   var loopIterations = arraySize;
-  if (typeof (multiplier) != "undefined") {
+  if (typeof multiplier != "undefined") {
     loopIterations = loopIterations * multiplier;
   }
 
@@ -198,19 +222,18 @@ function perfFindInterlacedInserts(multiplier) {
 
     start = process.hrtime();
     var results = samplecoll.find({
-      'customId': customidx
+      customId: customidx,
     });
     // insert junk record, now (outside timing routine) to force index rebuild
     var obj = samplecoll.insert({
-        customId: 999,
-        val: 999,
-        val2: 999,
-        val3: "more data 1234567890"
-    });  
-    
+      customId: 999,
+      val: 999,
+      val2: 999,
+      val3: "more data 1234567890",
+    });
+
     end = process.hrtime(start);
     totalTimes.push(end);
-    
   }
 
   for (var idx = 0; idx < totalTimes.length; idx++) {
@@ -218,10 +241,17 @@ function perfFindInterlacedInserts(multiplier) {
   }
 
   totalMS = totalMS.toFixed(2);
-  var rate = loopIterations * 1000 / totalMS;
+  var rate = (loopIterations * 1000) / totalMS;
   rate = rate.toFixed(2);
-  console.log("interlaced inserts + coll.find() : " + totalMS + "ms (" + rate + " ops/s) " + loopIterations + " iterations");
-  
+  console.log(
+    "interlaced inserts + coll.find() : " +
+      totalMS +
+      "ms (" +
+      rate +
+      " ops/s) " +
+      loopIterations +
+      " iterations"
+  );
 }
 
 //  Find Interlaced Removes -> use linear customid for() loop find() and delete that obj when found
@@ -235,11 +265,11 @@ function perfFindInterlacedRemoves() {
 
     start = process.hrtime();
     var result = samplecoll.findOne({
-      'customId': idx
+      customId: idx,
     });
     // remove document now (outside timing routine) to force index rebuild
-    samplecoll.remove(result); 
-    
+    samplecoll.remove(result);
+
     end = process.hrtime(start);
     totalTimes.push(end);
   }
@@ -249,9 +279,17 @@ function perfFindInterlacedRemoves() {
   }
 
   totalMS = totalMS.toFixed(2);
-  var rate = arraySize * 1000 / totalMS;
+  var rate = (arraySize * 1000) / totalMS;
   rate = rate.toFixed(2);
-  console.log("interlaced removes + coll.find() : " + totalMS + "ms (" + rate + " ops/s) " + arraySize + " iterations");
+  console.log(
+    "interlaced removes + coll.find() : " +
+      totalMS +
+      "ms (" +
+      rate +
+      " ops/s) " +
+      arraySize +
+      " iterations"
+  );
 }
 
 //  Find Interlaced Updates -> same as now except mix up customId val (increment by 10000?)
@@ -265,11 +303,11 @@ function perfFindInterlacesUpdates() {
 
     start = process.hrtime();
     var results = samplecoll.find({
-      'customId': idx
+      customId: idx,
     });
     // just call update on document to force index rebuild
     samplecoll.update(results[0]);
-    
+
     end = process.hrtime(start);
     totalTimes.push(end);
   }
@@ -279,9 +317,17 @@ function perfFindInterlacesUpdates() {
   }
 
   totalMS = totalMS.toFixed(2);
-  var rate = arraySize * 1000 / totalMS;
+  var rate = (arraySize * 1000) / totalMS;
   rate = rate.toFixed(2);
-  console.log("interlaced updates + coll.find() : " + totalMS + "ms (" + rate + " ops/s) " + arraySize + " iterations");
+  console.log(
+    "interlaced updates + coll.find() : " +
+      totalMS +
+      "ms (" +
+      rate +
+      " ops/s) " +
+      arraySize +
+      " iterations"
+  );
 }
 
 console.log("");
@@ -313,11 +359,11 @@ console.log("Perf: Unindexed finds ------------------------");
 
 createDatabaseUnindexed();
 initializeDatabase(true, 10000);
-perfFind(); 
+perfFind();
 
 createDatabaseUnindexed();
 initializeDatabase(true, 10000);
-perfFindInterlacedInserts(); 
+perfFindInterlacedInserts();
 
 createDatabaseUnindexed();
 initializeDatabase(true, 10000);
@@ -332,11 +378,11 @@ console.log("Perf: Indexed finds (Nightmare Lazy Index Thrashing Test) ------");
 
 createDatabaseIndexed(false);
 initializeDatabase(true, 80000);
-perfFind(); 
+perfFind();
 
 createDatabaseIndexed(false);
 initializeDatabase(true, 3000);
-perfFindInterlacedInserts(1); 
+perfFindInterlacedInserts(1);
 
 createDatabaseIndexed(false);
 initializeDatabase(true, 3000);
@@ -347,15 +393,17 @@ initializeDatabase(true, 3000);
 perfFindInterlacesUpdates();
 
 console.log("");
-console.log("Perf: Indexed finds (Nightmare Adaptive Index Thrashing Test) ---");
+console.log(
+  "Perf: Indexed finds (Nightmare Adaptive Index Thrashing Test) ---"
+);
 
 createDatabaseIndexed(true);
 initializeDatabase(true, 80000);
-perfFind(); 
+perfFind();
 
 createDatabaseIndexed(true);
 initializeDatabase(true, 10000);
-perfFindInterlacedInserts(1); 
+perfFindInterlacedInserts(1);
 
 createDatabaseIndexed(true);
 initializeDatabase(true, 10000);

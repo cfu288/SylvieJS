@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      window.__loki_idb_debug = true;
+    </script>
+    <script type="module" src="../../dist/sylviejs.js"></script>
+    <script
+      type="module"
+      src="../../dist/storage-adapter/indexeddb-adapter.js"
+    ></script>
+    <script></script>
+    <script type="text/javascript" src="./benchmark_web.js"></script>
+  </head>
+  <body>
+    <h2>Sylvie browser benchmark</h2>
+    <p>
+      Practical browser benchmark to guage performance across various browser
+      environments. Chrome is by far the fastest browser environment for loki.
+    </p>
+    <p>
+      <b>
+        Close console (if visible) and press start. Results will display in page
+        when done.
+      </b>
+    </p>
+    <br />
+    <p id="waitMessage" style="display: none">
+      <i>This may take a minute please wait...</i>
+    </p>
+    <br />
+    <div id="output"></div>
+    <script>
+      function start() {
+        document.getElementById("waitMessage").style.display = "";
+
+        setTimeout(function () {
+          startBenchmark(document.getElementById("output"), Sylvie);
+        }, 100);
+      }
+      window.onload = () => {
+        start();
+      };
+    </script>
+  </body>
+</html>
