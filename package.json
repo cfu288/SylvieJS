@@ -1,6 +1,6 @@
 {
   "name": "sylviejs",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "SylvieJS: Fast document oriented javascript in-memory database",
   "homepage": "https://techfort.github.io/LokiJS/",
   "main": "src/sylviejs.js",
