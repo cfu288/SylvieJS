@@ -54,7 +54,7 @@ Currently maintained by cfu288. Originally made by [@techfort](http://twitter.co
 
 For browser environments you simply need the sylviejs.js file contained in `dist/`
 
-COMING SOON: For node and nativescript environments you can install through `npm install sylviejs`.
+For node environments you can install through `npm install cfu288/SylvieJS`.
 
 ## License
 
