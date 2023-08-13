@@ -42,7 +42,16 @@ const DEBUG =
  *     Only use this for collections that aren't used at launch
  */
 export class IncrementalIndexedDBAdapter implements PersistenceAdapter {
-  constructor(options) {
+  mode = "incremental";
+  constructor(options?: {
+    onversionchange?: (versionChangeEvent: IDBVersionChangeEvent) => void;
+    onFetchStart?: () => void;
+    onDidOverwrite?: () => void;
+    serializeChunk?: (collectionName: string, chunk: any[]) => string;
+    deserializeChunk?: (collectionName: string, chunk: string) => any[];
+    megachunkCount?: number;
+    lazyCollections?: string[];
+  }) {
     this.mode = "incremental";
     this.options = options || {};
     this.chunkSize = 100;
