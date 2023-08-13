@@ -91,7 +91,7 @@ describe("dynamicviews", function () {
 
       items.findAndRemove({ b: { $lt: 7 } });
 
-      const results = dv.data();
+      const results = dv.data() as any[];
       expect(results.length).toEqual(2);
       expect(results[0].b).toEqual(7);
       expect(results[1].b).toEqual(8);
@@ -122,7 +122,7 @@ describe("dynamicviews", function () {
 
       items.findAndRemove({ b: { $lt: 7 } });
 
-      const results = dv.data();
+      const results = dv.data() as any[];
       expect(results.length).toEqual(2);
       expect(results[0].b).toEqual(7);
       expect(results[1].b).toEqual(8);

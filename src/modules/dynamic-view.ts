@@ -44,18 +44,22 @@ export class DynamicView<
   resultdata: unknown[];
   resultsdirty: boolean;
   cachedresultset: ResultSet<DT>;
-  filterPipeline: { type: string; val: unknown; uid: unknown }[];
+  filterPipeline: {
+    type: string;
+    val: unknown;
+    uid: string | number | undefined;
+  }[];
   sortFunction: (a: any, b: any) => number;
   sortCriteria: string[];
   sortCriteriaSimple: {
     propname: string;
     options:
-      | {
+      | Partial<{
           desc: boolean;
           disableIndexIntersect: boolean;
           forceIndexIntersect: boolean;
           useJavascriptSorting: boolean;
-        }
+        }>
       | boolean;
   };
   sortDirty: boolean;
@@ -221,7 +225,7 @@ export class DynamicView<
    *
    * var results = dv.branchResultset('viewPaging', { pageStart: 10, pageSize: 10 }).data();
    */
-  branchResultset(transform, parameters) {
+  branchResultset(transform?: string | [], parameters?: Record<string, any>) {
     const rs = this.resultset.branch();
 
     if (typeof transform === "undefined") {
@@ -331,12 +335,12 @@ export class DynamicView<
    */
   applySimpleSort(
     propname,
-    options?: {
+    options?: Partial<{
       desc: boolean;
       disableIndexIntersect: boolean;
       forceIndexIntersect: boolean;
       useJavascriptSorting: boolean;
-    }
+    }>
   ) {
     this.sortCriteriaSimple = {
       propname,
@@ -544,7 +548,7 @@ export class DynamicView<
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    * @memberof DynamicView
    */
-  applyFind(query, uid) {
+  applyFind(query, uid?: string | number) {
     this.applyFilter({
       type: "find",
       val: query,

@@ -582,7 +582,7 @@ describe("immutable", function () {
 
         items.findAndRemove({ b: { $lt: 7 } });
 
-        const results = dv.data();
+        const results = dv.data() as any[];
         expect(results.length).toEqual(2);
         expect(results[0].b).toEqual(7);
         expect(results[1].b).toEqual(8);
@@ -625,7 +625,7 @@ describe("immutable", function () {
 
         items.findAndRemove({ b: { $lt: 7 } });
 
-        const results = dv.data();
+        const results = dv.data() as any[];
         expect(results.length).toEqual(2);
         expect(results[0].b).toEqual(7);
         expect(results[1].b).toEqual(8);
@@ -661,7 +661,7 @@ describe("immutable", function () {
 
         items.findAndRemove({ b: { $lt: 7 } });
 
-        const results = dv.data();
+        const results = dv.data() as any[];
         expect(results.length).toEqual(2);
         expect(results[0].b).toEqual(7);
         expect(results[1].b).toEqual(8);
@@ -699,6 +699,7 @@ describe("immutable", function () {
         expect(isFrozen(dv.filterPipeline)).toBe(true);
 
         const obj = dv.toJSON();
+        // @ts-ignore
         expect(obj.collection).toEqual(null);
       });
     });
@@ -761,11 +762,11 @@ describe("immutable", function () {
         coll.removeDynamicView("dv3");
         expect(coll.DynamicViews.length).toEqual(4);
 
-        expect(coll.getDynamicView("dv1").name).toEqual("dv1");
-        expect(coll.getDynamicView("dv2").name).toEqual("dv2");
+        expect(coll.getDynamicView("dv1")?.name).toEqual("dv1");
+        expect(coll.getDynamicView("dv2")?.name).toEqual("dv2");
         expect(coll.getDynamicView("dv3")).toEqual(null);
-        expect(coll.getDynamicView("dv4").name).toEqual("dv4");
-        expect(coll.getDynamicView("dv5").name).toEqual("dv5");
+        expect(coll.getDynamicView("dv4")?.name).toEqual("dv4");
+        expect(coll.getDynamicView("dv5")?.name).toEqual("dv5");
       });
     });
 
@@ -797,7 +798,7 @@ describe("immutable", function () {
         ]);
 
         // test whether results are valid
-        let results = dv.data();
+        let results = dv.data() as any[];
         expect(results.length).toBe(5);
         for (idx = 0; idx < results.length - 1; idx++) {
           expect(loki.LokiOps.$lte(results[idx]["b"], results[idx + 1]["b"]));

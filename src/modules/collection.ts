@@ -97,7 +97,7 @@ export class Collection<
   data: ColT[];
   isIncremental: boolean;
   name: string;
-  idIndex: number[];
+  idIndex: number[] | null;
   binaryIndices: BinaryIndex;
   constraints: {
     unique: Record<string, UniqueIndex>;
@@ -107,9 +107,9 @@ export class Collection<
   transforms: Record<string, (Record<string, any> & { type: string })[]>;
   objType: string;
   dirty: boolean;
-  cachedIndex: number[];
-  cachedBinaryIndex: BinaryIndex;
-  cachedData: ColT[];
+  cachedIndex: number[] | null;
+  cachedBinaryIndex: BinaryIndex | null;
+  cachedData: ColT[] | null;
   adaptiveBinaryIndices: boolean;
   transactional: boolean;
   cloneObjects: boolean;
@@ -144,7 +144,11 @@ export class Collection<
   /**
    * a collection of objects recording the changes applied through a commmitStage
    */
-  commitLog = [];
+  commitLog: {
+    timestamp: number;
+    message: string;
+    data: string;
+  }[] = [];
   no_op: () => void;
   constructor(name: string, options?: Partial<CollectionOptions>) {
     super();
@@ -204,35 +208,37 @@ export class Collection<
     // if set to true we will optimally keep indices 'fresh' during insert/update/remove ops (never dirty/never needs rebuild)
     // if you frequently intersperse insert/update/remove ops between find ops this will likely be significantly faster option.
     this.adaptiveBinaryIndices = Object.hasOwn(options, "adaptiveBinaryIndices")
-      ? options.adaptiveBinaryIndices
+      ? options.adaptiveBinaryIndices!
       : true;
 
     // is collection transactional
     this.transactional = Object.hasOwn(options, "transactional")
-      ? options.transactional
+      ? options.transactional!
       : false;
 
     // options to clone objects when inserting them
-    this.cloneObjects = Object.hasOwn(options, "clone") ? options.clone : false;
+    this.cloneObjects = Object.hasOwn(options, "clone")
+      ? options.clone!
+      : false;
 
     // default clone method (if enabled) is parse-stringify
     this.cloneMethod = Object.hasOwn(options, "cloneMethod")
-      ? options.cloneMethod
+      ? options.cloneMethod!
       : "parse-stringify";
 
     // option to make event listeners async, default is sync
     this.asyncListeners = Object.hasOwn(options, "asyncListeners")
-      ? options.asyncListeners
+      ? options.asyncListeners!
       : false;
 
     // if set to true we will not maintain a meta property for a document
     this.disableMeta = Object.hasOwn(options, "disableMeta")
-      ? options.disableMeta
+      ? options.disableMeta!
       : false;
 
     // disable track changes
     this.disableChangesApi = Object.hasOwn(options, "disableChangesApi")
-      ? options.disableChangesApi
+      ? options.disableChangesApi!
       : true;
 
     // disable delta update object style on changes
@@ -240,7 +246,7 @@ export class Collection<
       options,
       "disableDeltaChangesApi"
     )
-      ? options.disableDeltaChangesApi
+      ? options.disableDeltaChangesApi!
       : true;
 
     if (this.disableChangesApi) {
@@ -249,19 +255,19 @@ export class Collection<
 
     // option to observe objects and update them automatically, ignored if Object.observe is not supported
     this.autoupdate = Object.hasOwn(options, "autoupdate")
-      ? options.autoupdate
+      ? options.autoupdate!
       : false;
 
     // by default, if you insert a document into a collection with binary indices, if those indexed properties contain
     // a DateTime we will convert to epoch time format so that (across serializations) its value position will be the
     // same 'after' serialization as it was 'before'.
     this.serializableIndices = Object.hasOwn(options, "serializableIndices")
-      ? options.serializableIndices
+      ? options.serializableIndices!
       : true;
 
     // option to deep freeze all documents
     this.disableFreeze = Object.hasOwn(options, "disableFreeze")
-      ? options.disableFreeze
+      ? options.disableFreeze!
       : true;
 
     //option to activate a cleaner daemon - clears "aged" documents at set intervals.
