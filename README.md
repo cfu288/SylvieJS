@@ -48,7 +48,7 @@ This fork is undergoing a rework and has not been released on npm yet.
 
 As SylvieJS is written in JavaScript it can be run on any environment supporting JavaScript such as browsers, node.js/node-webkit, nativescript mobile framework and hybrid mobile apps (such as phonegap/cordova).
 
-Currently maintinaed by cfu288. Originally made by [@techfort](http://twitter.com/tech_fort), with the precious help of Dave Easterday.
+Currently maintained by cfu288. Originally made by [@techfort](http://twitter.com/tech_fort), with the precious help of Dave Easterday.
 
 ## Installation
 
