@@ -93,8 +93,6 @@ export class SylvieEventEmitter {
     eventName: string | string[],
     listener: (...args: any[]) => any
   ): void {
-    var self = this;
-
     if (Array.isArray(eventName)) {
       eventName.forEach((currentEventName) => {
         this.removeListener(currentEventName, listener);

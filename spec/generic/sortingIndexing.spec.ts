@@ -324,7 +324,7 @@ describe("sorting and indexing", function () {
       let results = rss
         .chain()
         .find({ b: 1 })
-        .simplesort("a", { forceIndexIntercept: true })
+        .simplesort("a", { forceIndexIntersect: true })
         .data();
       const len = results.length;
       expect(len).toBe(6);
@@ -339,7 +339,7 @@ describe("sorting and indexing", function () {
       results = rss
         .chain()
         .find({ b: 1 })
-        .simplesort("a", { disableIndexIntercept: true })
+        .simplesort("a", { disableIndexIntersect: true })
         .data();
       for (idx = 0; idx < len - 1; idx++) {
         expect(loki.LokiOps.$lte(results[idx]["a"], results[idx + 1]["a"]));

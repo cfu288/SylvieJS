@@ -478,10 +478,10 @@ export default class Sylvie extends SylvieEventEmitter {
    * @returns {Collection} a reference to the collection which was just added
    * @memberof Loki
    */
-  addCollection<T extends { $loki: number }>(
+  addCollection(
     name,
     options?: Record<string, any>
-  ): Collection<T> | any {
+  ): Collection<Partial<CollectionDocument>> {
     let i;
     const len = this.collections.length;
 
@@ -1697,6 +1697,46 @@ export default class Sylvie extends SylvieEventEmitter {
       if (self.throttledCallbacks.length > 0) {
         self.saveDatabase();
       }
+    });
+  }
+
+  async saveDatabaseAsync(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!this.throttledSaves) {
+        this.saveDatabaseInternal(resolve());
+        return;
+      }
+
+      if (this.throttledSavePending) {
+        this.throttledCallbacks.push(resolve());
+        return;
+      }
+
+      const localCallbacks = this.throttledCallbacks;
+      this.throttledCallbacks = [];
+      localCallbacks.unshift(resolve());
+      this.throttledSavePending = true;
+
+      const self = this;
+      this.saveDatabaseInternal((err) => {
+        if (err) {
+          reject(err);
+        }
+        self.throttledSavePending = false;
+        localCallbacks.forEach((pcb) => {
+          if (typeof pcb === "function") {
+            // Queue the callbacks so we first finish this method execution
+            setTimeout(() => {
+              pcb(err);
+            }, 1);
+          }
+        });
+
+        // since this is called async, future requests may have come in, if so.. kick off next save
+        if (self.throttledCallbacks.length > 0) {
+          self.saveDatabase();
+        }
+      });
     });
   }
 

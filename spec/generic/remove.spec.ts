@@ -3,8 +3,8 @@ const loki = Sylvie;
 
 describe("remove", function () {
   it("removes", function () {
-    let db = new loki();
-    let users = db.addCollection("users");
+    const db = new loki();
+    const users = db.addCollection("users");
 
     users.insert({
       name: "joe",
@@ -31,7 +31,7 @@ describe("remove", function () {
       age: 21,
     });
 
-    let dv = users.addDynamicView("testview");
+    const dv = users.addDynamicView("testview");
     dv.applyWhere(function (obj) {
       return obj.name.length > 3;
     });
@@ -52,13 +52,13 @@ describe("remove", function () {
     expect(users.data.length).toEqual(0);
     expect(!!users.getDynamicView("testview")).toEqual(true);
 
-    let foo = {
+    const foo = {
       name: "foo",
       age: 42,
     };
     users.insert(foo);
     expect(users.data.length).toEqual(1);
-    let bar = users.remove(foo);
+    const bar = users.remove(foo);
     expect(users.data.length).toEqual(0);
     // test that $loki and meta properties have been removed correctly to allow object re-insertion
     expect(!bar.$loki).toEqual(true);
@@ -68,17 +68,17 @@ describe("remove", function () {
   });
 
   it("removes with unique index", function () {
-    let db = new loki();
-    let users1 = db.addCollection("userswithunique", {
+    const db = new loki();
+    const users1 = db.addCollection("userswithunique", {
       unique: ["username"],
     });
 
-    let joe = users1.insert({
+    const joe = users1.insert({
       username: "joe",
       name: "joe",
       age: 39,
     });
-    let jack = users1.insert({
+    const jack = users1.insert({
       username: "jack",
       name: "jack",
       age: 20,

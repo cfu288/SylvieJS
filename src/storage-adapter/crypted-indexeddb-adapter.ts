@@ -414,7 +414,6 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
    * @param {string} dbname - the name to give the serialized database within the catalog.
    * @param {string} dbstring - the serialized db string to save.
    * @param {function} callback - (Optional) callback passed obj.success with true or false
-   * @memberof LokiIndexedAdapter
    */
   saveDatabase(
     dbname: string,
@@ -573,7 +572,6 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
    * @memberof LokiIndexedAdapter
    */
   getCatalogSummary(callback) {
-    const appName = this.app;
     const adapter = this;
 
     // lazy open/create db reference

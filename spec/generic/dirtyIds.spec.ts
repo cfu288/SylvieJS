@@ -1,5 +1,6 @@
 import Sylvie from "../../src/sylviejs";
 import { PersistenceAdapter } from "../../src/storage-adapter/persistence-adapter";
+import { CollectionDocument } from "../../src/modules/collection";
 const loki = Sylvie;
 
 describe("dirtyIds", function () {
@@ -7,9 +8,9 @@ describe("dirtyIds", function () {
     const db = new loki("test.db");
     const coll = db.addCollection("coll");
 
-    const doc1 = { foo: "1" } as { foo: string; bar?: string; $loki: string },
-      doc2 = { foo: "2" } as { foo: string; bar?: string; $loki: string },
-      doc3 = { foo: "3" } as { foo: string; bar?: string; $loki: string };
+    const doc1 = { foo: "1" } as CollectionDocument,
+      doc2 = { foo: "2" } as CollectionDocument,
+      doc3 = { foo: "3" } as CollectionDocument;
     coll.insert([doc1, doc2, doc3]);
     doc2.bar = "true";
     coll.update(doc2);
@@ -34,7 +35,7 @@ describe("dirtyIds", function () {
     });
     const coll = db.addCollection("coll");
 
-    const doc1 = { foo: "1" } as { foo: string; $loki: string };
+    const doc1 = { foo: "1" } as CollectionDocument;
     coll.insert(doc1);
 
     expect(coll.dirtyIds).toEqual([doc1.$loki]);
@@ -46,11 +47,7 @@ describe("dirtyIds", function () {
     });
     const coll = db.addCollection("coll");
 
-    const doc1 = { foo: "1" } as {
-      foo: string;
-      change?: string;
-      $loki: string;
-    };
+    const doc1 = { foo: "1" } as CollectionDocument;
     coll.insert(doc1);
     doc1.change = "true";
     coll.update(doc1);
@@ -64,7 +61,7 @@ describe("dirtyIds", function () {
     });
     const coll = db.addCollection("coll");
 
-    const doc1 = { foo: "1" } as { foo: string; $loki: string };
+    const doc1 = { foo: "1" } as CollectionDocument;
     coll.insert(doc1);
     const id = doc1.$loki;
     coll.remove(doc1);
@@ -78,9 +75,9 @@ describe("dirtyIds", function () {
     });
     const coll = db.addCollection("coll");
 
-    const doc1 = { foo: "1" } as { foo: string; bar?: string; $loki: string },
-      doc2 = { foo: "2" } as { foo: string; bar?: string; $loki: string },
-      doc3 = { foo: "3" } as { foo: string; bar?: string; $loki: string };
+    const doc1 = { foo: "1" } as CollectionDocument,
+      doc2 = { foo: "2" } as CollectionDocument,
+      doc3 = { foo: "3" } as CollectionDocument;
     coll.insert([doc1, doc2, doc3]);
     const doc3id = doc3.$loki;
     doc2.bar = "true";
