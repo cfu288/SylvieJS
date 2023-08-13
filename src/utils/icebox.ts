@@ -9,7 +9,7 @@
 "use strict";
 import { clone } from "./clone";
 
-export function freeze(obj: object) {
+export function freeze(obj: object | any) {
   if (!Object.isFrozen(obj)) {
     Object.freeze(obj);
   }

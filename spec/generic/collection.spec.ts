@@ -125,16 +125,16 @@ describe("collection", function () {
       { a: 7, b: 8 },
       { a: 6, b: 4 },
     ]);
-    results = coll.find({ a: 6 }).map(function (obj) {
+    const res = coll.find({ a: 6 }).map(function (obj) {
       return obj.$loki;
     });
-    expect(results.length).toEqual(2);
-    coll.remove(results);
-    results = coll.chain().find().simplesort("b").data();
-    expect(results.length).toEqual(3);
-    expect(results[0].b).toEqual(2);
-    expect(results[1].b).toEqual(3);
-    expect(results[2].b).toEqual(8);
+    expect(res.length).toEqual(2);
+    coll.remove(res);
+    const res1 = coll.chain().find().simplesort("b").data();
+    expect(res1.length).toEqual(3);
+    expect(res1[0].b).toEqual(2);
+    expect(res1[1].b).toEqual(3);
+    expect(res1[2].b).toEqual(8);
   });
   it("updateWhere works", function () {
     const db = new loki("test.db");

@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable no-var */
 "use strict";
 import { deepFreeze, freeze } from "../utils/icebox";
 import { Collection, CollectionDocument } from "./collection";
@@ -29,7 +27,7 @@ import { SylvieEventEmitter } from "./sylvie-event-emitter";
  * @see {@link Collection#addDynamicView} to construct instances of DynamicView
  */
 
-interface DynamicViewOptions {
+export interface DynamicViewOptions {
   persistent: boolean;
   sortPriority: "passive" | "active";
   minRebuildInterval: number;
@@ -43,13 +41,23 @@ export class DynamicView<
   rebuildPending: boolean;
   options: Partial<DynamicViewOptions>;
   resultset: ResultSet<DT>;
-  resultdata: any[];
+  resultdata: unknown[];
   resultsdirty: boolean;
-  cachedresultset: any;
-  filterPipeline: any[];
-  sortFunction: any;
-  sortCriteria: any;
-  sortCriteriaSimple: any;
+  cachedresultset: ResultSet<DT>;
+  filterPipeline: { type: string; val: unknown; uid: unknown }[];
+  sortFunction: (a: any, b: any) => number;
+  sortCriteria: string[];
+  sortCriteriaSimple: {
+    propname: string;
+    options:
+      | {
+          desc: boolean;
+          disableIndexIntersect: boolean;
+          forceIndexIntersect: boolean;
+          useJavascriptSorting: boolean;
+        }
+      | boolean;
+  };
   sortDirty: boolean;
   events: { rebuild: any[]; filter: any[]; sort: any[] };
 
@@ -64,18 +72,18 @@ export class DynamicView<
     this.rebuildPending = false;
     this.options = options || {};
 
-    if (!this.options.hasOwnProperty("persistent")) {
+    if (!Object.hasOwn(this.options, "persistent")) {
       this.options.persistent = false;
     }
 
     // 'persistentSortPriority':
     // 'passive' will defer the sort phase until they call data(). (most efficient overall)
     // 'active' will sort async whenever next idle. (prioritizes read speeds)
-    if (!this.options.hasOwnProperty("sortPriority")) {
+    if (!Object.hasOwn(this.options, "sortPriority")) {
       this.options.sortPriority = "passive";
     }
 
-    if (!this.options.hasOwnProperty("minRebuildInterval")) {
+    if (!Object.hasOwn(this.options, "minRebuildInterval")) {
       this.options.minRebuildInterval = 1;
     }
 
@@ -130,7 +138,7 @@ export class DynamicView<
   rematerialize(options) {
     let fpl;
     let fpi;
-    let idx;
+    let idx: number;
 
     options = options || {};
 
@@ -143,7 +151,7 @@ export class DynamicView<
     }
 
     const wasFrozen = Object.isFrozen(this.filterPipeline);
-    if (options.hasOwnProperty("removeWhereFilters")) {
+    if (Object.hasOwn(options, "removeWhereFilters")) {
       // for each view see if it had any where filters applied... since they don't
       // serialize those functions lets remove those invalid filters
       if (wasFrozen) {
@@ -321,7 +329,15 @@ export class DynamicView<
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    * @memberof DynamicView
    */
-  applySimpleSort(propname, options) {
+  applySimpleSort(
+    propname,
+    options?: {
+      desc: boolean;
+      disableIndexIntersect: boolean;
+      forceIndexIntersect: boolean;
+      useJavascriptSorting: boolean;
+    }
+  ) {
     this.sortCriteriaSimple = {
       propname,
       options: options || false,
@@ -545,7 +561,7 @@ export class DynamicView<
    * @returns {DynamicView} this DynamicView object, for further chain ops.
    * @memberof DynamicView
    */
-  applyWhere(fun, uid) {
+  applyWhere(fun, uid?: string | number) {
     this.applyFilter({
       type: "where",
       val: fun,
@@ -813,7 +829,6 @@ export class DynamicView<
   removeDocument(objIndex) {
     let idx;
     let rmidx;
-    let rmlen;
     const rxo = {};
     const fxo = {};
     let adjels = [];
@@ -840,7 +855,7 @@ export class DynamicView<
       objIndex = [objIndex];
     }
 
-    rmlen = objIndex.length;
+    const rmlen = objIndex.length;
     // create intersection object of data indices to remove
     for (rmidx = 0; rmidx < rmlen; rmidx++) {
       rxo[objIndex[rmidx]] = true;

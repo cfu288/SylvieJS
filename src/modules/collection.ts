@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable no-var */
 "use strict";
 import { hasOwnProperty } from "../sylviejs";
 import { deepProperty } from "../utils/deep-property";
@@ -10,7 +8,7 @@ import { Utils } from "../utils/index";
 import { average, isDeepProperty, standardDeviation, sub } from "../utils/math";
 import { LokiOps } from "../utils/ops";
 import { Comparators } from "../utils/sort";
-import { DynamicView } from "./dynamic-view";
+import { DynamicView, DynamicViewOptions } from "./dynamic-view";
 import { ChangeOps } from "./sylvie";
 import { SylvieEventEmitter } from "./sylvie-event-emitter";
 import { ResultSet } from "./result-set";
@@ -60,6 +58,15 @@ export interface CollectionDocumentMeta {
   updated?: number;
 }
 
+export type BinaryIndex = Record<
+  string,
+  {
+    name: string;
+    dirty: boolean;
+    values: any[];
+  }
+>;
+
 /**
  * Collection class that handles documents of same type
  * @constructor Collection
@@ -91,35 +98,28 @@ export class Collection<
   isIncremental: boolean;
   name: string;
   idIndex: number[];
-  binaryIndices: Record<
-    string,
-    {
-      name: string;
-      dirty: boolean;
-      values: any[];
-    }
-  >;
+  binaryIndices: BinaryIndex;
   constraints: {
     unique: Record<string, UniqueIndex>;
     exact: Record<string, ExactIndex<number>>;
   };
   uniqueNames: string[];
   transforms: Record<string, (Record<string, any> & { type: string })[]>;
-  objType: any;
+  objType: string;
   dirty: boolean;
-  cachedIndex: any;
-  cachedBinaryIndex: any;
-  cachedData: any;
-  adaptiveBinaryIndices: any;
-  transactional: any;
-  cloneObjects: any;
-  cloneMethod: any;
-  disableMeta: any;
-  disableChangesApi: any;
-  disableDeltaChangesApi: any;
-  autoupdate: any;
-  serializableIndices: any;
-  disableFreeze: any;
+  cachedIndex: number[];
+  cachedBinaryIndex: BinaryIndex;
+  cachedData: ColT[];
+  adaptiveBinaryIndices: boolean;
+  transactional: boolean;
+  cloneObjects: boolean;
+  cloneMethod: CloneMethods;
+  disableMeta: boolean;
+  disableChangesApi: boolean;
+  disableDeltaChangesApi: boolean;
+  autoupdate: boolean;
+  serializableIndices: boolean;
+  disableFreeze: boolean;
   ttl: {
     age?: number;
     ttlInterval?: number;
@@ -185,7 +185,7 @@ export class Collection<
     options = options || {};
 
     // exact match and unique constraints
-    if (options.hasOwnProperty("unique")) {
+    if (options.unique) {
       if (!Array.isArray(options.unique)) {
         options.unique = [options.unique];
       }
@@ -195,7 +195,7 @@ export class Collection<
       });
     }
 
-    if (options.hasOwnProperty("exact")) {
+    if (options.exact) {
       options.exact.forEach((prop) => {
         self.constraints.exact[prop] = new ExactIndex(prop);
       });
@@ -203,62 +203,64 @@ export class Collection<
 
     // if set to true we will optimally keep indices 'fresh' during insert/update/remove ops (never dirty/never needs rebuild)
     // if you frequently intersperse insert/update/remove ops between find ops this will likely be significantly faster option.
-    this.adaptiveBinaryIndices = options.hasOwnProperty("adaptiveBinaryIndices")
+    this.adaptiveBinaryIndices = Object.hasOwn(options, "adaptiveBinaryIndices")
       ? options.adaptiveBinaryIndices
       : true;
 
     // is collection transactional
-    this.transactional = options.hasOwnProperty("transactional")
+    this.transactional = Object.hasOwn(options, "transactional")
       ? options.transactional
       : false;
 
     // options to clone objects when inserting them
-    this.cloneObjects = options.hasOwnProperty("clone") ? options.clone : false;
+    this.cloneObjects = Object.hasOwn(options, "clone") ? options.clone : false;
 
     // default clone method (if enabled) is parse-stringify
-    this.cloneMethod = options.hasOwnProperty("cloneMethod")
+    this.cloneMethod = Object.hasOwn(options, "cloneMethod")
       ? options.cloneMethod
       : "parse-stringify";
 
     // option to make event listeners async, default is sync
-    this.asyncListeners = options.hasOwnProperty("asyncListeners")
+    this.asyncListeners = Object.hasOwn(options, "asyncListeners")
       ? options.asyncListeners
       : false;
 
     // if set to true we will not maintain a meta property for a document
-    this.disableMeta = options.hasOwnProperty("disableMeta")
+    this.disableMeta = Object.hasOwn(options, "disableMeta")
       ? options.disableMeta
       : false;
 
     // disable track changes
-    this.disableChangesApi = options.hasOwnProperty("disableChangesApi")
+    this.disableChangesApi = Object.hasOwn(options, "disableChangesApi")
       ? options.disableChangesApi
       : true;
 
     // disable delta update object style on changes
-    this.disableDeltaChangesApi = options.hasOwnProperty(
+    this.disableDeltaChangesApi = Object.hasOwn(
+      options,
       "disableDeltaChangesApi"
     )
       ? options.disableDeltaChangesApi
       : true;
+
     if (this.disableChangesApi) {
       this.disableDeltaChangesApi = true;
     }
 
     // option to observe objects and update them automatically, ignored if Object.observe is not supported
-    this.autoupdate = options.hasOwnProperty("autoupdate")
+    this.autoupdate = Object.hasOwn(options, "autoupdate")
       ? options.autoupdate
       : false;
 
     // by default, if you insert a document into a collection with binary indices, if those indexed properties contain
     // a DateTime we will convert to epoch time format so that (across serializations) its value position will be the
     // same 'after' serialization as it was 'before'.
-    this.serializableIndices = options.hasOwnProperty("serializableIndices")
+    this.serializableIndices = Object.hasOwn(options, "serializableIndices")
       ? options.serializableIndices
       : true;
 
     // option to deep freeze all documents
-    this.disableFreeze = options.hasOwnProperty("disableFreeze")
+    this.disableFreeze = Object.hasOwn(options, "disableFreeze")
       ? options.disableFreeze
       : true;
 
@@ -364,9 +366,9 @@ export class Collection<
         const delta = {};
         for (let i = 0; i < propertyNames.length; i++) {
           const propertyName = propertyNames[i];
-          if (newObject.hasOwnProperty(propertyName)) {
+          if (propertyName in newObject) {
             if (
-              !oldObject.hasOwnProperty(propertyName) ||
+              !(propertyName in oldObject) ||
               self.uniqueNames.includes(propertyName) ||
               propertyName == "$loki" ||
               propertyName == "meta"
@@ -447,7 +449,7 @@ export class Collection<
       len = obj.length;
 
       for (idx = 0; idx < len; idx++) {
-        if (!obj[idx].hasOwnProperty("meta")) {
+        if (!("meta" in obj[idx])) {
           obj[idx].meta = {};
         }
 
@@ -500,10 +502,8 @@ export class Collection<
   }
 
   addAutoUpdateObserver(object: object) {
-    // @ts-ignore
     if (!this.autoupdate || typeof Object.observe !== "function") return;
 
-    // @ts-ignore
     Object.observe(object, this.observerCallback, [
       "add",
       "update",
@@ -514,10 +514,8 @@ export class Collection<
   }
 
   removeAutoUpdateObserver(object: object) {
-    // @ts-ignore
     if (!this.autoupdate || typeof Object.observe !== "function") return;
 
-    // @ts-ignore
     Object.unobserve(object, this.observerCallback);
   }
 
@@ -542,7 +540,7 @@ export class Collection<
     name: string,
     transform: (Record<string, any> & { type: string })[]
   ) {
-    if (this.transforms.hasOwnProperty(name)) {
+    if (name in this.transforms) {
       throw new Error("a transform by that name already exists");
     }
 
@@ -586,7 +584,7 @@ export class Collection<
     let obj: object;
     const query = [];
     for (prop in template) {
-      if (!template.hasOwnProperty(prop)) continue;
+      if (!(prop in template)) continue;
       query.push(((obj = {}), (obj[prop] = template[prop]), obj));
     }
     return {
@@ -658,7 +656,7 @@ export class Collection<
    * @memberof Collection
    */
   configureOptions = (options: { adaptiveBinaryIndices?: boolean } = {}) => {
-    if (options.hasOwnProperty("adaptiveBinaryIndices")) {
+    if ("adaptiveBinaryIndices" in options) {
       this.adaptiveBinaryIndices = options.adaptiveBinaryIndices;
 
       // if switching to adaptive binary indices, make sure none are 'dirty'
@@ -693,7 +691,7 @@ export class Collection<
     // if the index is already defined and we are using adaptiveBinaryIndices and we are not forcing a rebuild, return.
     if (
       this.adaptiveBinaryIndices === true &&
-      this.binaryIndices.hasOwnProperty(property) &&
+      property in this.binaryIndices &&
       !force
     ) {
       return;
@@ -818,7 +816,7 @@ export class Collection<
     let pos;
 
     // make sure we are passed a valid binary index name
-    if (!this.binaryIndices.hasOwnProperty(property)) {
+    if (!(property in this.binaryIndices)) {
       throw new Error(
         `called checkIndex on property without an index: ${property}`
       );
@@ -1045,7 +1043,7 @@ export class Collection<
    *
    * var results = pview.data();
    **/
-  addDynamicView(name, options) {
+  addDynamicView(name?: string, options?: Partial<DynamicViewOptions>) {
     const dv = new DynamicView(this, name, options);
     this.DynamicViews.push(dv);
 
@@ -1449,7 +1447,7 @@ export class Collection<
         obj.meta.version = 0;
       }
 
-      for (var i = 0, len = this.uniqueNames.length; i < len; i++) {
+      for (let i = 0, len = this.uniqueNames.length; i < len; i++) {
         this.getUniqueIndex(this.uniqueNames[i], true).set(obj);
       }
 
@@ -1469,7 +1467,7 @@ export class Collection<
       // now that we can efficiently determine the data[] position of newly added document,
       // submit it for all registered DynamicViews to evaluate for inclusion/exclusion
       const dvlen = this.DynamicViews.length;
-      for (i = 0; i < dvlen; i++) {
+      for (let i = 0; i < dvlen; i++) {
         this.DynamicViews[i].evaluateDocument(addedPos, true);
       }
 
@@ -1523,10 +1521,10 @@ export class Collection<
    * @param {function|object} query - query object to filter on
    * @memberof Collection
    */
-  removeWhere(query: (...args: any[]) => any | object) {
+  removeWhere(query: ((...args: any[]) => any) | Record<string, any>) {
     let list: ColT[];
     if (typeof query === "function") {
-      list = this.data.filter(query);
+      list = this.data.filter(query as (...args: any[]) => any);
       this.remove(list);
     } else {
       (this.chain() as ResultSet<ColT>).find(query).remove();
@@ -1678,12 +1676,18 @@ export class Collection<
 
   /**
    * Remove a document from the collection
-   * @param {object} doc - document to remove from collection
+   * @param {object | array | number} newDoc - document(s) to remove from collection. If number, remove by id
    * @memberof Collection
+   * @returns CollectionDocument | null - null if document not found, otherwise removed document. Array of new documents is not returned
    */
-  remove(doc: CollectionDocument) {
-    if (typeof doc === "number") {
-      doc = this.get(doc);
+  remove(
+    docOrId: CollectionDocument | number | CollectionDocument[]
+  ): CollectionDocument {
+    let doc: CollectionDocument;
+    if (typeof docOrId === "number") {
+      doc = this.get(docOrId as number);
+    } else {
+      doc = docOrId as CollectionDocument | CollectionDocument[];
     }
 
     if ("object" !== typeof doc) {
@@ -2015,7 +2019,7 @@ export class Collection<
     prop: string,
     val: any,
     adaptive: boolean | null,
-    usingDotNotation: boolean
+    usingDotNotation?: boolean
   ) {
     const rcd = this.data;
     const index = this.binaryIndices[prop].values;
@@ -2440,7 +2444,10 @@ export class Collection<
    * @returns {ResultSet} (this) resultset, or data array if any map or join functions where called
    * @memberof Collection
    */
-  chain(transform?: ChainTransform, parameters?: unknown): ResultSet<ColT> {
+  chain(
+    transform?: ChainTransform,
+    parameters?: any | any[]
+  ): ResultSet<ColT> | any {
     const rs = new ResultSet<ColT>(this);
 
     if (typeof transform === "undefined") {
@@ -2458,7 +2465,7 @@ export class Collection<
    * @returns {array} Array of matching documents
    * @memberof Collection
    */
-  find(query?: Record<string, object>) {
+  find(query?: Record<string, any>) {
     return (this.chain() as ResultSet<ColT>).find(query).data();
   }
 
@@ -2529,7 +2536,7 @@ export class Collection<
   };
 
   // async executor. This is only to enable callbacks at the end of the execution.
-  async(fun, callback) {
+  async(fun: () => void, callback: () => void) {
     setTimeout(() => {
       if (typeof fun === "function") {
         fun();
@@ -2583,7 +2590,17 @@ export class Collection<
    * @returns {ResultSet} Result of the mapping operation
    * @memberof Collection
    */
-  eqJoin(joinData, leftJoinProp, rightJoinProp, mapFun, dataOptions) {
+  eqJoin(
+    joinData: ColT[] | ResultSet<ColT> | Collection<ColT>,
+    leftJoinProp: string,
+    rightJoinProp: string,
+    mapFun: () => void,
+    dataOptions: {
+      removeMeta: boolean;
+      forceClones: boolean;
+      forceCloneMethod: CloneMethods;
+    }
+  ) {
     // logic in Resultset class
     return new ResultSet(this).eqJoin(
       joinData,
@@ -2804,6 +2821,7 @@ export class Collection<
       return (values[half - 1] + values[half]) / 2.0;
     }
   }
+
   lokiConsoleWrapper = {
     log(message: string) {},
     warn(message: string) {},

@@ -1573,6 +1573,7 @@ describe("loki", function () {
       db.addCollection("test2");
       // Throw error on wrong remove
       expect(function () {
+        // @ts-ignore
         t.remove("foo");
       }).toThrow(Error);
       // suite.assertThrows(

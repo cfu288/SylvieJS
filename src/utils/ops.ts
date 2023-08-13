@@ -5,7 +5,7 @@ import { containsCheckFn } from "./containsCheckFn";
 import { dotSubScan } from "./dotSubScan";
 import { Comparators } from "./sort";
 
-export function doQueryOp(val, op, record) {
+export function doQueryOp<T>(val, op, record: T) {
   for (var p in op) {
     if (Object.hasOwn(op, p)) {
       return LokiOps[p](val, op[p], record);
@@ -76,12 +76,12 @@ export const LokiOps = {
   },
 
   // ex : coll.find({'orderCount': {$between: [10, 50]}});
-  $between: function (a, vals) {
+  $between: function (a, vals: [number, number]) {
     if (a === undefined || a === null) return false;
     return Comparators.gt(a, vals[0], true) && Comparators.lt(a, vals[1], true);
   },
 
-  $jbetween: function (a, vals) {
+  $jbetween: function (a, vals: [number, number]) {
     if (a === undefined || a === null) return false;
     return a >= vals[0] && a <= vals[1];
   },
@@ -167,7 +167,7 @@ export const LokiOps = {
     return false;
   },
 
-  $type: function (a, b, record) {
+  $type: function <T>(a, b, record: T) {
     var type: typeof a | "array" | "date" = typeof a;
     if (type === "object") {
       if (Array.isArray(a)) {
@@ -183,7 +183,7 @@ export const LokiOps = {
     return b === isFinite(a);
   },
 
-  $size: function (a, b, record) {
+  $size: function <T>(a, b, record: T) {
     if (Array.isArray(a)) {
       return typeof b !== "object"
         ? a.length === b
@@ -192,7 +192,7 @@ export const LokiOps = {
     return false;
   },
 
-  $len: function (a, b, record) {
+  $len: function <T>(a, b, record: T) {
     if (typeof a === "string") {
       return typeof b !== "object"
         ? a.length === b
@@ -209,11 +209,11 @@ export const LokiOps = {
   // a is the value in the collection
   // b is the nested query operation (for '$not')
   //   or an array of nested query operations (for '$and' and '$or')
-  $not: function (a, b, record) {
+  $not: function <T>(a, b, record: T) {
     return !doQueryOp(a, b, record);
   },
 
-  $and: function (a, b, record) {
+  $and: function <T>(a, b, record: T) {
     for (var idx = 0, len = b.length; idx < len; idx += 1) {
       if (!doQueryOp(a, b[idx], record)) {
         return false;
@@ -222,7 +222,7 @@ export const LokiOps = {
     return true;
   },
 
-  $or: function (a, b, record) {
+  $or: function <T>(a, b, record: T) {
     for (var idx = 0, len = b.length; idx < len; idx += 1) {
       if (doQueryOp(a, b[idx], record)) {
         return true;
@@ -241,7 +241,7 @@ export const LokiOps = {
 };
 
 // ops that can be used with { $$op: 'column-name' } syntax
-export var valueLevelOps = [
+export const valueLevelOps = <const>[
   "$eq",
   "$aeq",
   "$ne",
@@ -256,13 +256,14 @@ export var valueLevelOps = [
   "$jlte",
   "$type",
 ];
+
 valueLevelOps.forEach(function (op) {
   var fun = LokiOps[op];
-  LokiOps["$" + op] = function (a, spec, record) {
+  LokiOps["$" + op] = function <T>(a: any, spec: (_: T) => void, record: T) {
     if (typeof spec === "string") {
-      return fun(a, record[spec]);
+      return (fun as (a: any, b: any) => boolean)(a, record[spec]);
     } else if (typeof spec === "function") {
-      return fun(a, spec(record));
+      return (fun as (a: any, b: any) => boolean)(a, spec(record));
     } else {
       throw new Error("Invalid argument to $$ matcher");
     }

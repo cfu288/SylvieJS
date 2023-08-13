@@ -19,9 +19,15 @@ import { precompileQuery } from "../utils/precompile-query";
 import { CloneMethods, clone } from "../utils/clone";
 import { dotSubScan } from "../utils/dotSubScan";
 import { Utils } from "../utils/index";
-import { indexedOps, LokiOps } from "../utils/ops";
+import { indexedOps, LokiOps, valueLevelOps } from "../utils/ops";
 import { sortHelper, compoundeval } from "../utils/sort";
 import { ChainTransform, Collection, CollectionDocument } from "./collection";
+
+export type MongoLikeOps =
+  | (typeof valueLevelOps)[number]
+  | "$regex"
+  | "$in"
+  | "$inSet";
 
 export class ResultSet<RST extends Partial<CollectionDocument>> {
   options: Record<string, any>;
@@ -30,6 +36,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
   filterInitialized: boolean;
   disableFreeze: boolean;
   rightData: RST[];
+
   constructor(collection: Collection<RST>, options?: Record<string, any>) {
     this.options = options || {};
 
@@ -58,7 +65,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * toJSON() - Override of toJSON to avoid circular references
    *
    */
-  toJSON() {
+  toJSON(): ResultSet<RST> {
     const copy = this.copy();
     copy.collection = null;
     return copy;
@@ -150,7 +157,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
   transform(
     transform: ChainTransform,
     parameters?: Record<string, any>
-  ): ResultSet<RST> {
+  ): ResultSet<RST> | any {
     let idx;
     let step;
     let rs: ResultSet<RST> = this;
@@ -191,11 +198,9 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
           rs.sort(step.value);
           break;
         case "limit":
-          // @ts-ignore
           rs = rs.limit(step.value);
           break; // limit makes copy so update reference
         case "offset":
-          // @ts-ignore
           rs = rs.offset(step.value);
           break; // offset makes copy so update reference
         case "map":
@@ -226,7 +231,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
       }
     }
 
-    return rs;
+    return rs as unknown as ResultSet<RST>;
   }
 
   /**
@@ -242,7 +247,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * @returns {ResultSet} Reference to this resultset, sorted, for future chain operations.
    * @memberof Resultset
    */
-  sort(comparefun) {
+  sort(comparefun: (a: any, b: any) => number): ResultSet<RST> {
     // if this has no filters applied, just we need to populate filteredrows first
     if (!this.filterInitialized && this.filteredrows.length === 0) {
       this.filteredrows = this.collection.prepareFullDocIndex();
@@ -273,7 +278,17 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * @example
    * var results = users.chain().simplesort('age').data();
    */
-  simplesort(propname, options) {
+  simplesort(
+    propname: string,
+    options?:
+      | Partial<{
+          desc: boolean;
+          disableIndexIntersect: boolean;
+          forceIndexIntersect: boolean;
+          useJavascriptSorting: boolean;
+        }>
+      | boolean
+  ): ResultSet<RST> {
     let eff;
     let targetEff = 10;
     const dc = this.collection.data.length;
@@ -405,7 +420,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * @returns {ResultSet} Reference to this resultset, sorted, for future chain operations.
    * @memberof Resultset
    */
-  compoundsort(properties) {
+  compoundsort(properties: (string | [string, boolean])[]): ResultSet<RST> {
     if (properties.length === 0) {
       throw new Error(
         "Invalid call to compoundsort, need at least one property"
@@ -453,7 +468,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * @param {array} expressionArray - array of expressions
    * @returns {ResultSet} this resultset for further chain ops.
    */
-  findOr(expressionArray) {
+  findOr(expressionArray: any[]): ResultSet<RST> {
     let fr = null;
     let fri = 0;
     let frlen = 0;
@@ -493,7 +508,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * @param {array} expressionArray - array of expressions
    * @returns {ResultSet} this resultset for further chain ops.
    */
-  findAnd(expressionArray) {
+  findAnd(expressionArray: any[]): ResultSet<RST> {
     // we have already implementing method chaining in this (our Resultset class)
     // so lets just progressively apply user supplied and filters
     for (let i = 0, len = expressionArray.length; i < len; i++) {
@@ -515,7 +530,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * @example
    * var over30 = users.chain().find({ age: { $gte: 30 } }).data();
    */
-  find(query: object, firstOnly?: boolean): ResultSet<RST> {
+  find(query?: Record<string, any>, firstOnly?: boolean): ResultSet<RST> {
     if (this.collection.data.length === 0) {
       this.filteredrows = [];
       this.filterInitialized = true;
@@ -524,12 +539,12 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
 
     const queryObject = query || "getAll";
     let p;
-    let property;
+    let property: string;
     let queryObjectOp;
     let obj;
-    let operator;
+    let operator: MongoLikeOps;
     let value;
-    let key;
+    let key: string;
     let searchByIndex = false;
     const result = [];
     const filters = [];
@@ -592,8 +607,8 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
       value = queryObjectOp;
     } else if (typeof queryObjectOp === "object") {
       for (key in queryObjectOp) {
-        if (hasOwnProperty.call(queryObjectOp, key)) {
-          operator = key;
+        if (key in queryObjectOp) {
+          operator = key as MongoLikeOps;
           value = queryObjectOp[key];
           break;
         }
@@ -675,11 +690,11 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
 
       // currently supporting dot notation for non-indexed conditions only
       if (usingDotNotation) {
-        property = property.split(".");
+        const propertyArr = property.split(".");
         for (i = 0; i < len; i++) {
           rowIdx = filter[i];
           record = t[rowIdx];
-          if (dotSubScan(record, property, fun, value, record)) {
+          if (dotSubScan(record, propertyArr, fun, value, record)) {
             result.push(rowIdx);
             if (firstOnly) {
               this.filteredrows = result;
@@ -708,10 +723,10 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
         len = t.length;
 
         if (usingDotNotation) {
-          property = property.split(".");
+          const propertyArr = property.split(".");
           for (i = 0; i < len; i++) {
             record = t[i];
-            if (dotSubScan(record, property, fun, value, record)) {
+            if (dotSubScan(record, propertyArr, fun, value, record)) {
               result.push(i);
               if (firstOnly) {
                 this.filteredrows = result;
@@ -790,9 +805,9 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * @example
    * var over30 = users.chain().where(function(obj) { return obj.age >= 30; }.data();
    */
-  where(fun) {
-    let viewFunction;
-    const result = [];
+  where(fun: (_: RST) => boolean) {
+    let viewFunction: (_: RST) => boolean;
+    const result: number[] = [];
 
     if ("function" === typeof fun) {
       viewFunction = fun;
@@ -834,32 +849,16 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * count() - returns the number of documents in the resultset.
    *
    * @returns {number} The number of documents in the resultset.
-   * @memberof Resultset
    * @example
    * var over30Count = users.chain().find({ age: { $gte: 30 } }).count();
    */
-  count() {
+  count(): number {
     if (this.filterInitialized) {
       return this.filteredrows.length;
     }
     return this.collection.count();
   }
 
-  /**
-   * Terminates the chain and returns array of filtered documents
-   *
-   * @param {object=} options - allows specifying 'forceClones' and 'forceCloneMethod' options.
-   * @param {boolean} options.forceClones - Allows forcing the return of cloned objects even when
-   *        the collection is not configured for clone object.
-   * @param {string} options.forceCloneMethod - Allows overriding the default or collection specified cloning method.
-   *        Possible values include 'parse-stringify', 'jquery-extend-deep', 'shallow', 'shallow-assign'
-   * @param {bool} options.removeMeta - Will force clones and strip $loki and meta properties from documents
-   *
-   * @returns {array} Array of documents in the resultset
-   * @memberof Resultset
-   * @example
-   * var resutls = users.chain().find({ age: 34 }).data();
-   */
   // Resultset.prototype
   /**
    * Used to run an update operation on all documents currently in the resultset.
@@ -872,7 +871,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    *   user.phoneFormat = "+49 AAAA BBBBBB";
    * });
    */
-  update(updateFunction) {
+  update(updateFunction: (_: RST) => void) {
     if (typeof updateFunction !== "function") {
       throw new TypeError("Argument is not a function");
     }
@@ -936,7 +935,6 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * @param {function} mapFunction - this function accepts a single document for you to transform and return
    * @param {function} reduceFunction - this function accepts many (array of map outputs) and returns single value
    * @returns {value} The output of your reduceFunction
-   * @memberof Resultset
    * @example
    * var db = new loki("order.db");
    * var orders = db.addCollection("orders");
@@ -951,7 +949,10 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * var grandOrderTotal = orders.chain().mapReduce(mapfun, reducefun);
    * console.log(grandOrderTotal);
    */
-  mapReduce(mapFunction, reduceFunction) {
+  mapReduce<U>(
+    mapFunction: (value: RST, index: number, array: RST[]) => U,
+    reduceFunction: (_: U[]) => U
+  ) {
     return reduceFunction(this.data().map(mapFunction));
   }
 
@@ -1004,11 +1005,15 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * console.log(orderSummary);
    */
   eqJoin(
-    joinData: ResultSet<RST> | Collection<RST>,
+    joinData: RST[] | ResultSet<RST> | Collection<RST>,
     leftJoinKey: string | ((...args: any[]) => string),
     rightJoinKey: string | ((...args: any[]) => string),
     mapFun: ((...args: any[]) => any) | undefined,
-    dataOptions: object | undefined
+    dataOptions: {
+      removeMeta: boolean;
+      forceClones: boolean;
+      forceCloneMethod: CloneMethods;
+    }
   ): ResultSet<RST> {
     let leftData = [];
     let rightData = [];
@@ -1027,7 +1032,6 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
       rightData = joinData.chain().data(dataOptions);
     } else if (joinData instanceof ResultSet) {
       const x = new ResultSet(new Collection<RST>(""));
-      const res = joinData.data(dataOptions);
       x.rightData = joinData.data(dataOptions);
     } else if (Array.isArray(joinData)) {
       rightData = joinData;
@@ -1083,7 +1087,6 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    * @example
    * var resutls = users.chain().find({ age: 34 }).data();
    */
-
   data(options?: Partial<ResultSetDataOptions>): RST[] {
     var result = [],
       data = this.collection.data,
@@ -1175,7 +1178,10 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    *   };
    * });
    */
-  map(mapFun, dataOptions?: Partial<ResultSetDataOptions>) {
+  map<U>(
+    mapFun: (value: RST, index: number, array: RST[]) => U,
+    dataOptions?: Partial<ResultSetDataOptions>
+  ) {
     const data = this.data(dataOptions).map(mapFun);
     //return return a new resultset with no filters
     this.collection = new Collection("mappedData");
