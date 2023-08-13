@@ -1,6 +1,6 @@
 {
   "name": "sylviejs",
-  "version": "1.5.12",
+  "version": "0.0.0",
   "description": "SylvieJS: Fast document oriented javascript in-memory database",
   "homepage": "https://techfort.github.io/LokiJS/",
   "main": "src/sylviejs.js",
@@ -39,7 +39,8 @@
     "jsdoc": "./node_modules/.bin/jsdoc -c jsdoc-conf.json",
     "benchmark": "jest --projects jest-bench.config.ts && mv benchmarks/result.txt benchmark/result.txt && rm -rf benchmarks/",
     "benchmark:incrementalidb": "npm run clean && npm run build:only && mkdir -p benchmark/benchmark_incrementalidb/dist/ && cp dist/storage-adapter/incremental-indexeddb-adapter.js benchmark/benchmark_incrementalidb/dist && cp -r dist/ benchmark/benchmark_incrementalidb/dist && serve benchmark/benchmark_incrementalidb",
-    "benchmark:web": "npm run clean && npm run build:only && mkdir -p benchmark/benchmark_web/dist/ && cp -r dist/ benchmark/benchmark_web/dist && serve benchmark/benchmark_web"
+    "benchmark:web": "npm run clean && npm run build:only && mkdir -p benchmark/benchmark_web/dist/ && cp -r dist/ benchmark/benchmark_web/dist && serve benchmark/benchmark_web",
+    "release": "release-it"
   },
   "author": "Christopher Fu <invent288cfu@gmail.com>",
   "contributors": [
@@ -77,12 +78,12 @@
     "jsdoc": "^3.5.5",
     "prettier": "^2.8.8",
     "puppeteer": "^20.4.0",
+    "release-it": "^16.1.5",
     "rimraf": "^2.5.4",
     "serve": "^14.2.0",
     "should": "^4.6.5",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4"
-  },
-  "dependencies": {}
+  }
 }
