@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 /* eslint-disable @typescript-eslint/no-this-alias */
 /*
-  Loki IndexedDb Adapter (need to include this script to use it)
+  Sylvie IndexedDb Adapter (need to include this script to use it)
 
   Console Usage can be used for management/diagnostic, here are a few examples :
   adapter.getDatabaseList(); // with no callback passed, this method will log results to console
@@ -18,7 +18,6 @@ import {
   AsyncPersistenceAdapter,
   PersistenceAdapter,
 } from "./persistence-adapter";
-// @ts-nocheck
 // @ts-ignore
 const DEBUG = typeof window !== "undefined" && !!window.__loki_idb_debug;
 
@@ -36,11 +35,9 @@ interface CryptedIndexedAdapterOptions {
   secret: string;
 }
 /**
- * Loki/Sylvie persistence adapter class for indexedDb.
+ * Loki/Sylvie encrypted persistence adapter class for indexedDb.
  *     This class fulfills abstract adapter interface which can be applied to other storage methods.
- *     Utilizes the included LokiCatalog app/key/value database for actual database persistence.
- *     Indexeddb is highly async, but this adapter has been made 'console-friendly' as well.
- *     Anywhere a callback is omitted, it should return results (if applicable) to console.
+ *     Utilizes the included SylvieCatalog app/key/value database for actual database persistence.
  *     IndexedDb storage is provided per-domain, so we implement app/key/value database to
  *     allow separate contexts for separate apps within a domain.
  *
@@ -49,7 +46,7 @@ interface CryptedIndexedAdapterOptions {
  *  secret: "pass"
  * });
  *
- * @constructor LokiIndexedAdapter
+ * @constructor SylvieIndexedAdapter
  *
  * @param {string} appname - (Optional) Application name context can be used to distinguish subdomains, 'loki' by default
  * @param {CryptedIndexedAdapterOptions} options Configuration options for the adapter
@@ -80,7 +77,7 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
     // keep reference to catalog class for base AKV operations
     this.catalog = null;
 
-    if (!this.checkAvailability()) {
+    if (!this.#checkIDBAvailability()) {
       throw new Error(
         "IndexedDB does not seem to be supported for your environment"
       );
@@ -98,19 +95,19 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
   /**
    * Used for closing the indexeddb database.
    */
-  closeDatabase() {
+  #closeDatabase = () => {
     if (this.catalog && this.catalog.db) {
       this.catalog.db.close();
       this.catalog.db = null;
     }
-  }
+  };
 
   /**
    * Used to check if adapter is available
    *
    * @returns {boolean} true if indexeddb is available, false if not.
    */
-  checkAvailability() {
+  #checkIDBAvailability() {
     if (typeof indexedDB !== "undefined" && indexedDB) return true;
     return false;
   }
@@ -120,7 +117,7 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
    *
    * @example
    * // LOAD
-   * var idbAdapter = new LokiIndexedAdapter('finance');
+   * var idbAdapter = new SylvieIndexedAdapter('finance');
    * var db = new loki('test', { adapter: idbAdapter });
    *   db.loadDatabase(function(result) {
    *   console.log('done');
@@ -172,7 +169,7 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
    *
    * @example
    * // SAVE : will save App/Key/Val as 'finance'/'test'/{serializedDb}
-   * var idbAdapter = new LokiIndexedAdapter('finance');
+   * var idbAdapter = new SylvieIndexedAdapter('finance');
    * var db = new loki('test', { adapter: idbAdapter });
    * var coll = db.addCollection('testColl');
    * coll.insert({test: 'val'});
@@ -207,7 +204,7 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
       }
 
       if (this.options.closeAfterSave === true) {
-        this.closeDatabase();
+        this.#closeDatabase();
       }
     };
 
@@ -250,7 +247,7 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
    *
    * @param {string} dbname - the name of the database to delete from the catalog.
    * @param {function=} callback - (Optional) executed on database delete
-   * @memberof LokiIndexedAdapter
+   * @memberof SylvieIndexedAdapter
    */
   deleteDatabase = (
     dbname: string,
@@ -300,7 +297,7 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
    * This utility method does not (yet) guarantee async deletions will be completed before returning
    *
    * @param {string} dbname - the base filename which container, partitions, or pages are derived
-   * @memberof LokiIndexedAdapter
+   * @memberof SylvieIndexedAdapter
    */
   deleteDatabasePartitions = (dbname) => {
     this.getDatabaseList((result) => {
@@ -324,7 +321,7 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
    * });
    *
    * @param {function} callback - should accept array of database names in the catalog for current app.
-   * @memberof LokiIndexedAdapter
+   * @memberof SylvieIndexedAdapter
    */
   getDatabaseList = (callback) => {
     // lazy open/create db reference so dont -need- callback in constructor
@@ -357,11 +354,38 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
     });
   };
 
+  getDatabaseListAsync = (): Promise<string[]> => {
+    // lazy open/create db reference so dont -need- callback in constructor
+    return new Promise((resolve, reject) => {
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new SylvieCatalog((cat) => {
+          this.catalog = cat;
+
+          this.getDatabaseListAsync();
+        });
+
+        return;
+      }
+
+      // catalog already initialized
+      // get all keys for current appName, and transpose results so just string array
+      this.catalog.getAppKeys(this.app, (results) => {
+        const names: string[] = [];
+
+        for (let idx = 0; idx < results.length; idx++) {
+          names.push(results[idx].key);
+        }
+
+        resolve(names);
+      });
+    });
+  };
+
   /**
    * Allows retrieval of list of all keys in catalog along with size
    *
    * @param {function} callback - (Optional) callback to accept result array.
-   * @memberof LokiIndexedAdapter
+   * @memberof SylvieIndexedAdapter
    */
   getCatalogSummary = (callback) => {
     // lazy open/create db reference

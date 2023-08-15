@@ -1420,7 +1420,12 @@ export default class Sylvie extends SylvieEventEmitter {
    * @param {object} options - not currently used (remove or allow overrides?)
    * @param {function=} callback - (Optional) user supplied async callback / error handler
    */
-  loadDatabaseInternal(options, callback?: (_: string | Error) => void) {
+  loadDatabaseInternal(
+    options,
+    callback?: (
+      _: Error | { success: true } | { success: false; error: Error }
+    ) => void
+  ) {
     const cFun =
       callback ||
       ((err) => {
@@ -1562,7 +1567,9 @@ export default class Sylvie extends SylvieEventEmitter {
       recursiveWaitLimit?: boolean;
       recursiveWaitLimitDelay?: boolean;
     },
-    callback?: (_: string | Error) => void
+    callback?: (
+      _: Error | { success: true } | { success: false; error: Error }
+    ) => void
   ) {
     const self = this;
 
@@ -1605,43 +1612,52 @@ export default class Sylvie extends SylvieEventEmitter {
     }, options);
   }
 
-  // async loadDatabaseAsync(options?: {
-  //   recursiveWait?: boolean;
-  //   recursiveWaitLimit?: boolean;
-  //   recursiveWaitLimitDelay?: boolean;
-  // }) {
-  //   const self = this;
+  async loadDatabaseAsync(options?: {
+    recursiveWait?: boolean;
+    recursiveWaitLimit?: boolean;
+    recursiveWaitLimitDelay?: boolean;
+  }) {
+    return new Promise((resolve, reject) => {
+      const resolveCallback = (_: { success: true }) => resolve(_);
+      const rejectCallback = (_: Error | { success: false; error: Error }) =>
+        reject(_);
+      const self = this;
 
-  //   // if throttling disabled, just call internal
-  //   if (!this.throttledSaves) {
-  //     return await this.loadDatabaseInternalAsync(options);
-  //   }
+      // if throttling disabled, just call internal
+      if (!this.throttledSaves) {
+        this.loadDatabaseInternal(options, resolveCallback);
+        return;
+      }
 
-  //   // try to drain any pending saves in the queue to lock it for loading
-  //   this.throttledSaveDrain(async (success) => {
-  //     if (success) {
-  //       // pause/throttle saving until loading is done
-  //       self.throttledSavePending = true;
-  //       try {
-  //         await self.loadDatabaseInternalAsync(options);
-  //       } catch (err) {
-  //         // now that we are finished loading, if no saves were throttled, disable flag
-  //         if (self.throttledCallbacks.length === 0) {
-  //           self.throttledSavePending = false;
-  //         }
-  //         // if saves requests came in while loading, kick off new save to kick off resume saves
-  //         else {
-  //           self.saveDatabase();
-  //         }
-  //       }
-  //       return;
-  //     } else {
-  //       throw new Error(
-  //         "Unable to pause save throttling long enough to read database"
-  //       );
-  //     }
-  //   }, options);
-  // }
+      // try to drain any pending saves in the queue to lock it for loading
+      this.throttledSaveDrain((success) => {
+        if (success) {
+          // pause/throttle saving until loading is done
+          self.throttledSavePending = true;
+
+          self.loadDatabaseInternal(options, (err) => {
+            // now that we are finished loading, if no saves were throttled, disable flag
+            if (self.throttledCallbacks.length === 0) {
+              self.throttledSavePending = false;
+            }
+            // if saves requests came in while loading, kick off new save to kick off resume saves
+            else {
+              self.saveDatabase();
+            }
+
+            resolve(err as { success: true });
+          });
+          return;
+        } else {
+          rejectCallback(
+            new Error(
+              "Unable to pause save throttling long enough to read database"
+            )
+          );
+        }
+      }, options);
+    });
+  }
 
   /**
    * Internal save logic, decoupled from save throttling logic
@@ -1792,45 +1808,43 @@ export default class Sylvie extends SylvieEventEmitter {
     });
   }
 
-  // async saveDatabaseAsync(): Promise<void> {
-  //   return new Promise((resolve, reject) => {
-  //     if (!this.throttledSaves) {
-  //       this.saveDatabaseInternal(resolve());
-  //       return;
-  //     }
+  async saveDatabaseAsync(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const resolveCallback = () => resolve();
+      if (!this.throttledSaves) {
+        this.saveDatabaseInternal(resolveCallback);
+        return;
+      }
 
-  //     if (this.throttledSavePending) {
-  //       this.throttledCallbacks.push(resolve());
-  //       return;
-  //     }
+      if (this.throttledSavePending) {
+        this.throttledCallbacks.push(resolveCallback);
+        return;
+      }
 
-  //     const localCallbacks = this.throttledCallbacks;
-  //     this.throttledCallbacks = [];
-  //     localCallbacks.unshift(resolve());
-  //     this.throttledSavePending = true;
+      const localCallbacks = this.throttledCallbacks;
+      this.throttledCallbacks = [];
+      localCallbacks.unshift(resolveCallback);
+      this.throttledSavePending = true;
 
-  //     const self = this;
-  //     this.saveDatabaseInternal((err) => {
-  //       if (err) {
-  //         reject(err);
-  //       }
-  //       self.throttledSavePending = false;
-  //       localCallbacks.forEach((pcb) => {
-  //         if (typeof pcb === "function") {
-  //           // Queue the callbacks so we first finish this method execution
-  //           setTimeout(() => {
-  //             pcb(err);
-  //           }, 1);
-  //         }
-  //       });
+      const self = this;
+      this.saveDatabaseInternal((err) => {
+        self.throttledSavePending = false;
+        localCallbacks.forEach((pcb) => {
+          if (typeof pcb === "function") {
+            // Queue the callbacks so we first finish this method execution
+            setTimeout(() => {
+              pcb(err);
+            }, 1);
+          }
+        });
 
-  //       // since this is called async, future requests may have come in, if so.. kick off next save
-  //       if (self.throttledCallbacks.length > 0) {
-  //         self.saveDatabase();
-  //       }
-  //     });
-  //   });
-  // }
+        // since this is called async, future requests may have come in, if so.. kick off next save
+        if (self.throttledCallbacks.length > 0) {
+          self.saveDatabase();
+        }
+      });
+    });
+  }
 
   /**
    * Handles deleting a database from file system, local
