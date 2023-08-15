@@ -401,7 +401,12 @@ export default class Sylvie extends SylvieEventEmitter {
      * @param {object} options - not currently used (remove or allow overrides?)
      * @param {function=} callback - (Optional) user supplied async callback / error handler
      */
-    loadDatabaseInternal(options: any, callback?: (_: string | Error) => void): void;
+    loadDatabaseInternal(options: any, callback?: (_: Error | {
+        success: true;
+    } | {
+        success: false;
+        error: Error;
+    }) => void): void;
     loadDatabaseInternalAsync(options: any): Promise<null | string>;
     /**
      * Handles manually loading from file system, local storage, or adapter (such as indexeddb)
@@ -431,7 +436,17 @@ export default class Sylvie extends SylvieEventEmitter {
         recursiveWait?: boolean;
         recursiveWaitLimit?: boolean;
         recursiveWaitLimitDelay?: boolean;
-    }, callback?: (_: string | Error) => void): void;
+    }, callback?: (_: Error | {
+        success: true;
+    } | {
+        success: false;
+        error: Error;
+    }) => void): void;
+    loadDatabaseAsync(options?: {
+        recursiveWait?: boolean;
+        recursiveWaitLimit?: boolean;
+        recursiveWaitLimitDelay?: boolean;
+    }): Promise<unknown>;
     /**
      * Internal save logic, decoupled from save throttling logic
      */
@@ -456,6 +471,7 @@ export default class Sylvie extends SylvieEventEmitter {
      * });
      */
     saveDatabase(callback?: (_: string | Error) => any): void;
+    saveDatabaseAsync(): Promise<void>;
     /**
      * Handles deleting a database from file system, local
      *    storage, or adapter (indexeddb)

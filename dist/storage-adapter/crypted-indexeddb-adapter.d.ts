@@ -5,11 +5,9 @@ interface CryptedIndexedAdapterOptions {
     secret: string;
 }
 /**
- * Loki/Sylvie persistence adapter class for indexedDb.
+ * Loki/Sylvie encrypted persistence adapter class for indexedDb.
  *     This class fulfills abstract adapter interface which can be applied to other storage methods.
- *     Utilizes the included LokiCatalog app/key/value database for actual database persistence.
- *     Indexeddb is highly async, but this adapter has been made 'console-friendly' as well.
- *     Anywhere a callback is omitted, it should return results (if applicable) to console.
+ *     Utilizes the included SylvieCatalog app/key/value database for actual database persistence.
  *     IndexedDb storage is provided per-domain, so we implement app/key/value database to
  *     allow separate contexts for separate apps within a domain.
  *
@@ -18,7 +16,7 @@ interface CryptedIndexedAdapterOptions {
  *  secret: "pass"
  * });
  *
- * @constructor LokiIndexedAdapter
+ * @constructor SylvieIndexedAdapter
  *
  * @param {string} appname - (Optional) Application name context can be used to distinguish subdomains, 'loki' by default
  * @param {CryptedIndexedAdapterOptions} options Configuration options for the adapter
@@ -35,21 +33,11 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
     constructor(appname: string, options?: Partial<CryptedIndexedAdapterOptions>);
     setSecret(secret: string): void;
     /**
-     * Used for closing the indexeddb database.
-     */
-    closeDatabase(): void;
-    /**
-     * Used to check if adapter is available
-     *
-     * @returns {boolean} true if indexeddb is available, false if not.
-     */
-    checkAvailability(): boolean;
-    /**
      * Retrieves a serialized db string from the catalog.
      *
      * @example
      * // LOAD
-     * var idbAdapter = new LokiIndexedAdapter('finance');
+     * var idbAdapter = new SylvieIndexedAdapter('finance');
      * var db = new loki('test', { adapter: idbAdapter });
      *   db.loadDatabase(function(result) {
      *   console.log('done');
@@ -64,7 +52,7 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
      *
      * @example
      * // SAVE : will save App/Key/Val as 'finance'/'test'/{serializedDb}
-     * var idbAdapter = new LokiIndexedAdapter('finance');
+     * var idbAdapter = new SylvieIndexedAdapter('finance');
      * var db = new loki('test', { adapter: idbAdapter });
      * var coll = db.addCollection('testColl');
      * coll.insert({test: 'val'});
@@ -92,7 +80,7 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
      *
      * @param {string} dbname - the name of the database to delete from the catalog.
      * @param {function=} callback - (Optional) executed on database delete
-     * @memberof LokiIndexedAdapter
+     * @memberof SylvieIndexedAdapter
      */
     deleteDatabase: (dbname: string, callback?: (_: Error | {
         success: true;
@@ -105,7 +93,7 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
      * This utility method does not (yet) guarantee async deletions will be completed before returning
      *
      * @param {string} dbname - the base filename which container, partitions, or pages are derived
-     * @memberof LokiIndexedAdapter
+     * @memberof SylvieIndexedAdapter
      */
     deleteDatabasePartitions: (dbname: any) => void;
     /**
@@ -120,14 +108,15 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
      * });
      *
      * @param {function} callback - should accept array of database names in the catalog for current app.
-     * @memberof LokiIndexedAdapter
+     * @memberof SylvieIndexedAdapter
      */
     getDatabaseList: (callback: any) => void;
+    getDatabaseListAsync: () => Promise<string[]>;
     /**
      * Allows retrieval of list of all keys in catalog along with size
      *
      * @param {function} callback - (Optional) callback to accept result array.
-     * @memberof LokiIndexedAdapter
+     * @memberof SylvieIndexedAdapter
      */
     getCatalogSummary: (callback: any) => void;
 }
