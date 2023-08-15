@@ -1475,7 +1475,10 @@ export default class Sylvie extends SylvieEventEmitter {
               return;
             }
 
-            cFun(`unexpected adapter response : ${dbString}`);
+            cFun({
+              success: false,
+              error: Error(`unexpected adapter response : ${dbString}`),
+            });
           }
         }
       );

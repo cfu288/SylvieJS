@@ -2,6 +2,8 @@
 
 **This repo is a fork of the original [LokiJS repository](https://github.com/techfort/LokiJS) maintained by cfu288.**
 
+The objectives of this fork are to modernize the API and the codebase (ES6, Async/Await + Promises instead of callbacks, TypeScript, modern browser test runner for Chrome/Safari/Firefox).
+
 The super fast in-memory javascript document oriented database.
 
 [![Node.js CI](https://github.com/cfu288/SylvieJS/actions/workflows/ci.yaml/badge.svg)](https://github.com/cfu288/SylvieJS/actions/workflows/ci.yaml)
