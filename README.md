@@ -2,7 +2,7 @@
 
 **This repo is a fork of the original [LokiJS repository](https://github.com/techfort/LokiJS) maintained by cfu288.**
 
-The objectives of this fork are to modernize the API and the codebase (ES6, ES Module, Async/Await + Promises instead of callbacks, TypeScript, modern browser test runner for Chrome/Safari/Firefox) while remaining backwards compatible with LokiJS.
+The objectives of this fork are to modernize the API and the codebase (ES6, ES Modules, Async/Await + Promises, TypeScript, modern browser test runner for Chrome/Safari/Firefox) while remaining backwards compatible with LokiJS.
 
 The super fast in-memory javascript document oriented database.
 
