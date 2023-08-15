@@ -22,7 +22,7 @@ import { SylvieEventEmitter } from "./sylvie-event-emitter";
  * @param {number} options.minRebuildInterval - minimum rebuild interval (need clarification to docs here)
  * @see {@link Collection#addDynamicView} to construct instances of DynamicView
  */
-interface DynamicViewOptions {
+export interface DynamicViewOptions {
     persistent: boolean;
     sortPriority: "passive" | "active";
     minRebuildInterval: number;
@@ -33,13 +33,25 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
     rebuildPending: boolean;
     options: Partial<DynamicViewOptions>;
     resultset: ResultSet<DT>;
-    resultdata: any[];
+    resultdata: unknown[];
     resultsdirty: boolean;
-    cachedresultset: any;
-    filterPipeline: any[];
-    sortFunction: any;
-    sortCriteria: any;
-    sortCriteriaSimple: any;
+    cachedresultset: ResultSet<DT>;
+    filterPipeline: {
+        type: string;
+        val: unknown;
+        uid: string | number | undefined;
+    }[];
+    sortFunction: (a: any, b: any) => number;
+    sortCriteria: string[];
+    sortCriteriaSimple: {
+        propname: string;
+        options: Partial<{
+            desc: boolean;
+            disableIndexIntersect: boolean;
+            forceIndexIntersect: boolean;
+            useJavascriptSorting: boolean;
+        }> | boolean;
+    };
     sortDirty: boolean;
     events: {
         rebuild: any[];
@@ -52,7 +64,15 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      *
      * @returns function (sortFunction) or array (sortCriteria) or object (sortCriteriaSimple)
      */
-    getSort(): any;
+    getSort(): string[] | ((a: any, b: any) => number) | {
+        propname: string;
+        options: boolean | Partial<{
+            desc: boolean;
+            disableIndexIntersect: boolean;
+            forceIndexIntersect: boolean;
+            useJavascriptSorting: boolean;
+        }>;
+    };
     /**
      * rematerialize() - internally used immediately after deserialization (loading)
      *    This will clear out and reapply filterPipeline ops, recreating the view.
@@ -94,7 +114,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      *
      * var results = dv.branchResultset('viewPaging', { pageStart: 10, pageSize: 10 }).data();
      */
-    branchResultset(transform: any, parameters: any): ResultSet<any>;
+    branchResultset(transform?: string | [], parameters?: Record<string, any>): any;
     /**
      * toJSON() - Override of toJSON to avoid circular references
      *
@@ -136,7 +156,12 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
-    applySimpleSort(propname: any, options: any): this;
+    applySimpleSort(propname: any, options?: Partial<{
+        desc: boolean;
+        disableIndexIntersect: boolean;
+        forceIndexIntersect: boolean;
+        useJavascriptSorting: boolean;
+    }>): this;
     /**
      * applySortCriteria() - Allows sorting a resultset based on multiple columns.
      * @example
@@ -208,7 +233,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
-    applyFind(query: any, uid: any): this;
+    applyFind(query: any, uid?: string | number): this;
     /**
      * applyWhere() - Adds or updates a javascript filter function in the DynamicView filter pipeline
      *
@@ -217,7 +242,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @returns {DynamicView} this DynamicView object, for further chain ops.
      * @memberof DynamicView
      */
-    applyWhere(fun: any, uid: any): this;
+    applyWhere(fun: any, uid?: string | number): this;
     /**
      * removeFilter() - Remove the specified filter from the DynamicView filter pipeline
      *
@@ -245,7 +270,7 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      * @returns {array} An array of documents representing the current DynamicView contents.
      * @memberof DynamicView
      */
-    data(options?: object): any[];
+    data(options?: object): unknown[];
     /**
      * queueRebuildEvent() - When the view is not sorted we may still wish to be notified of rebuild events.
      *     This event will throttle and queue a single rebuild event when batches of updates affect the view.
@@ -285,4 +310,3 @@ export declare class DynamicView<DT extends Partial<CollectionDocument>> extends
      */
     mapReduce(mapFunction: any, reduceFunction: any): any;
 }
-export {};

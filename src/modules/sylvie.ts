@@ -116,7 +116,7 @@ export default class Sylvie extends SylvieEventEmitter {
   throttledSaves: boolean;
   options?: Partial<ConfigOptions & ConstructorOptions>;
   persistenceMethod: any;
-  persistenceAdapter: any;
+  persistenceAdapter: PersistenceAdapter;
   throttledSavePending: boolean;
   throttledCallbacks: any[];
   verbose: boolean;
@@ -1479,6 +1479,59 @@ export default class Sylvie extends SylvieEventEmitter {
     }
   }
 
+  async loadDatabaseInternalAsync(options): Promise<null | string> {
+    return new Promise((resolve, reject) => {
+      const self = this;
+
+      // the persistenceAdapter should be present if all is ok, but check to be sure.
+      if (this.persistenceAdapter !== null) {
+        this.persistenceAdapter.loadDatabase(
+          this.filename,
+          function loadDatabaseCallback(dbString) {
+            if (typeof dbString === "string") {
+              let parseSuccess = false;
+              try {
+                self.loadJSON(dbString, options || {});
+                parseSuccess = true;
+              } catch (err) {
+                reject(err);
+              }
+              if (parseSuccess) {
+                resolve(null);
+                self.emit("loaded", `database ${self.filename} loaded`);
+              }
+            } else {
+              // falsy result means new database
+              if (!dbString) {
+                resolve(null);
+                self.emit("loaded", `empty database ${self.filename} loaded`);
+                return;
+              }
+
+              // instanceof error means load faulted
+              if (dbString instanceof Error) {
+                reject(dbString);
+                return;
+              }
+
+              // if adapter has returned an js object (other than null or error) attempt to load from JSON object
+              if (typeof dbString === "object") {
+                self.loadJSONObject(dbString, options || {});
+                resolve(null); // return null on success
+                self.emit("loaded", `database ${self.filename} loaded`);
+                return;
+              }
+
+              reject(`unexpected adapter response : ${dbString}`);
+            }
+          }
+        );
+      } else {
+        reject(new Error("persistenceAdapter not configured"));
+      }
+    });
+  }
+
   /**
    * Handles manually loading from file system, local storage, or adapter (such as indexeddb)
    *    This method utilizes loki configuration options (if provided) to determine which
@@ -1552,6 +1605,44 @@ export default class Sylvie extends SylvieEventEmitter {
     }, options);
   }
 
+  // async loadDatabaseAsync(options?: {
+  //   recursiveWait?: boolean;
+  //   recursiveWaitLimit?: boolean;
+  //   recursiveWaitLimitDelay?: boolean;
+  // }) {
+  //   const self = this;
+
+  //   // if throttling disabled, just call internal
+  //   if (!this.throttledSaves) {
+  //     return await this.loadDatabaseInternalAsync(options);
+  //   }
+
+  //   // try to drain any pending saves in the queue to lock it for loading
+  //   this.throttledSaveDrain(async (success) => {
+  //     if (success) {
+  //       // pause/throttle saving until loading is done
+  //       self.throttledSavePending = true;
+  //       try {
+  //         await self.loadDatabaseInternalAsync(options);
+  //       } catch (err) {
+  //         // now that we are finished loading, if no saves were throttled, disable flag
+  //         if (self.throttledCallbacks.length === 0) {
+  //           self.throttledSavePending = false;
+  //         }
+  //         // if saves requests came in while loading, kick off new save to kick off resume saves
+  //         else {
+  //           self.saveDatabase();
+  //         }
+  //       }
+  //       return;
+  //     } else {
+  //       throw new Error(
+  //         "Unable to pause save throttling long enough to read database"
+  //       );
+  //     }
+  //   }, options);
+  // }
+
   /**
    * Internal save logic, decoupled from save throttling logic
    */
@@ -1623,6 +1714,7 @@ export default class Sylvie extends SylvieEventEmitter {
       // filename may seem redundant but loadDatabase will need to expect this same filename
       this.persistenceAdapter.exportDatabase(
         this.filename,
+        // @ts-ignore
         this.copy({ removeNonSerializable: true }),
         function exportDatabaseCallback(err) {
           self.autosaveClearFlags();
@@ -1700,45 +1792,45 @@ export default class Sylvie extends SylvieEventEmitter {
     });
   }
 
-  async saveDatabaseAsync(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!this.throttledSaves) {
-        this.saveDatabaseInternal(resolve());
-        return;
-      }
+  // async saveDatabaseAsync(): Promise<void> {
+  //   return new Promise((resolve, reject) => {
+  //     if (!this.throttledSaves) {
+  //       this.saveDatabaseInternal(resolve());
+  //       return;
+  //     }
 
-      if (this.throttledSavePending) {
-        this.throttledCallbacks.push(resolve());
-        return;
-      }
+  //     if (this.throttledSavePending) {
+  //       this.throttledCallbacks.push(resolve());
+  //       return;
+  //     }
 
-      const localCallbacks = this.throttledCallbacks;
-      this.throttledCallbacks = [];
-      localCallbacks.unshift(resolve());
-      this.throttledSavePending = true;
+  //     const localCallbacks = this.throttledCallbacks;
+  //     this.throttledCallbacks = [];
+  //     localCallbacks.unshift(resolve());
+  //     this.throttledSavePending = true;
 
-      const self = this;
-      this.saveDatabaseInternal((err) => {
-        if (err) {
-          reject(err);
-        }
-        self.throttledSavePending = false;
-        localCallbacks.forEach((pcb) => {
-          if (typeof pcb === "function") {
-            // Queue the callbacks so we first finish this method execution
-            setTimeout(() => {
-              pcb(err);
-            }, 1);
-          }
-        });
+  //     const self = this;
+  //     this.saveDatabaseInternal((err) => {
+  //       if (err) {
+  //         reject(err);
+  //       }
+  //       self.throttledSavePending = false;
+  //       localCallbacks.forEach((pcb) => {
+  //         if (typeof pcb === "function") {
+  //           // Queue the callbacks so we first finish this method execution
+  //           setTimeout(() => {
+  //             pcb(err);
+  //           }, 1);
+  //         }
+  //       });
 
-        // since this is called async, future requests may have come in, if so.. kick off next save
-        if (self.throttledCallbacks.length > 0) {
-          self.saveDatabase();
-        }
-      });
-    });
-  }
+  //       // since this is called async, future requests may have come in, if so.. kick off next save
+  //       if (self.throttledCallbacks.length > 0) {
+  //         self.saveDatabase();
+  //       }
+  //     });
+  //   });
+  // }
 
   /**
    * Handles deleting a database from file system, local
@@ -1750,8 +1842,9 @@ export default class Sylvie extends SylvieEventEmitter {
    * @memberof Loki
    */
   deleteDatabase(
-    options: (_: string | Error) => void,
-    callback?: (_: string | Error) => void
+    callback?: (
+      _: Error | { success: true } | { success: false; error: Error }
+    ) => void
   ) {
     let cFun =
       callback ||
@@ -1760,12 +1853,6 @@ export default class Sylvie extends SylvieEventEmitter {
           throw err;
         }
       });
-
-    // we aren't even using options, so we will support syntax where
-    // callback is passed as first and only argument
-    if (typeof options === "function" && !callback) {
-      cFun = options;
-    }
 
     // the persistenceAdapter should be present if all is ok, but check to be sure.
     if (this.persistenceAdapter !== null) {

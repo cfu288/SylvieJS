@@ -12,7 +12,9 @@
  * @param {Collection} collection - The collection which this Resultset will query against.
  */
 import { CloneMethods } from "../utils/clone";
+import { valueLevelOps } from "../utils/ops";
 import { ChainTransform, Collection, CollectionDocument } from "./collection";
+export type MongoLikeOps = (typeof valueLevelOps)[number] | "$regex" | "$in" | "$inSet";
 export declare class ResultSet<RST extends Partial<CollectionDocument>> {
     options: Record<string, any>;
     collection: Collection<RST>;
@@ -83,7 +85,7 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      * ]);
      * var results = users.chain().transform("CountryFilter", { Country: 'fr' }).data();
      */
-    transform(transform: ChainTransform, parameters?: Record<string, any>): ResultSet<RST>;
+    transform(transform: ChainTransform, parameters?: Record<string, any>): ResultSet<RST> | any;
     /**
      * User supplied compare function is provided two documents to compare. (chainable)
      * @example
@@ -97,7 +99,7 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      * @returns {ResultSet} Reference to this resultset, sorted, for future chain operations.
      * @memberof Resultset
      */
-    sort(comparefun: any): this;
+    sort(comparefun: (a: any, b: any) => number): ResultSet<RST>;
     /**
      * Simpler, loose evaluation for user to sort based on a property name. (chainable).
      *    Sorting based on the same lt/gt helper functions used for binary indices.
@@ -113,7 +115,12 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      * @example
      * var results = users.chain().simplesort('age').data();
      */
-    simplesort(propname: any, options: any): this;
+    simplesort(propname: string, options?: Partial<{
+        desc: boolean;
+        disableIndexIntersect: boolean;
+        forceIndexIntersect: boolean;
+        useJavascriptSorting: boolean;
+    }> | boolean): ResultSet<RST>;
     /**
      * Allows sorting a resultset based on multiple columns.
      * @example
@@ -126,7 +133,7 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      * @returns {ResultSet} Reference to this resultset, sorted, for future chain operations.
      * @memberof Resultset
      */
-    compoundsort(properties: any): this;
+    compoundsort(properties: (string | [string, boolean])[]): ResultSet<RST>;
     /**
      * findOr() - oversee the operation of OR'ed query expressions.
      *    OR'ed expression evaluation runs each expression individually against the full collection,
@@ -136,7 +143,7 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      * @param {array} expressionArray - array of expressions
      * @returns {ResultSet} this resultset for further chain ops.
      */
-    findOr(expressionArray: any): this;
+    findOr(expressionArray: any[]): ResultSet<RST>;
     /**
      * findAnd() - oversee the operation of AND'ed query expressions.
      *    AND'ed expression evaluation runs each expression progressively against the full collection,
@@ -146,7 +153,7 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      * @param {array} expressionArray - array of expressions
      * @returns {ResultSet} this resultset for further chain ops.
      */
-    findAnd(expressionArray: any): this;
+    findAnd(expressionArray: any[]): ResultSet<RST>;
     /**
      * Used for querying via a mongo-style query object.
      *
@@ -157,7 +164,7 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      * @example
      * var over30 = users.chain().find({ age: { $gte: 30 } }).data();
      */
-    find(query: object, firstOnly?: boolean): ResultSet<RST>;
+    find(query?: Record<string, any>, firstOnly?: boolean): ResultSet<RST>;
     /**
      * where() - Used for filtering via a javascript filter function.
      *
@@ -167,31 +174,15 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      * @example
      * var over30 = users.chain().where(function(obj) { return obj.age >= 30; }.data();
      */
-    where(fun: any): this;
+    where(fun: (_: RST) => boolean): this;
     /**
      * count() - returns the number of documents in the resultset.
      *
      * @returns {number} The number of documents in the resultset.
-     * @memberof Resultset
      * @example
      * var over30Count = users.chain().find({ age: { $gte: 30 } }).count();
      */
     count(): number;
-    /**
-     * Terminates the chain and returns array of filtered documents
-     *
-     * @param {object=} options - allows specifying 'forceClones' and 'forceCloneMethod' options.
-     * @param {boolean} options.forceClones - Allows forcing the return of cloned objects even when
-     *        the collection is not configured for clone object.
-     * @param {string} options.forceCloneMethod - Allows overriding the default or collection specified cloning method.
-     *        Possible values include 'parse-stringify', 'jquery-extend-deep', 'shallow', 'shallow-assign'
-     * @param {bool} options.removeMeta - Will force clones and strip $loki and meta properties from documents
-     *
-     * @returns {array} Array of documents in the resultset
-     * @memberof Resultset
-     * @example
-     * var resutls = users.chain().find({ age: 34 }).data();
-     */
     /**
      * Used to run an update operation on all documents currently in the resultset.
      *
@@ -203,7 +194,7 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      *   user.phoneFormat = "+49 AAAA BBBBBB";
      * });
      */
-    update(updateFunction: any): this;
+    update(updateFunction: (_: RST) => void): this;
     /**
      * Removes all document objects which are currently in resultset from collection (as well as resultset)
      *
@@ -220,7 +211,6 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      * @param {function} mapFunction - this function accepts a single document for you to transform and return
      * @param {function} reduceFunction - this function accepts many (array of map outputs) and returns single value
      * @returns {value} The output of your reduceFunction
-     * @memberof Resultset
      * @example
      * var db = new loki("order.db");
      * var orders = db.addCollection("orders");
@@ -235,7 +225,7 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      * var grandOrderTotal = orders.chain().mapReduce(mapfun, reducefun);
      * console.log(grandOrderTotal);
      */
-    mapReduce(mapFunction: any, reduceFunction: any): any;
+    mapReduce<U>(mapFunction: (value: RST, index: number, array: RST[]) => U, reduceFunction: (_: U[]) => U): U;
     /**
      * eqJoin() - Left joining two sets of data. Join keys can be defined or calculated properties
      * eqJoin expects the right join key values to be unique.  Otherwise left data will be joined on the last joinData object with that key
@@ -284,7 +274,11 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      *
      * console.log(orderSummary);
      */
-    eqJoin(joinData: ResultSet<RST> | Collection<RST>, leftJoinKey: string | ((...args: any[]) => string), rightJoinKey: string | ((...args: any[]) => string), mapFun: ((...args: any[]) => any) | undefined, dataOptions: object | undefined): ResultSet<RST>;
+    eqJoin(joinData: RST[] | ResultSet<RST> | Collection<RST>, leftJoinKey: string | ((...args: any[]) => string), rightJoinKey: string | ((...args: any[]) => string), mapFun: ((...args: any[]) => any) | undefined, dataOptions: {
+        removeMeta: boolean;
+        forceClones: boolean;
+        forceCloneMethod: CloneMethods;
+    }): ResultSet<RST>;
     /**
      * Terminates the chain and returns array of filtered documents
      *
@@ -318,14 +312,14 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      *   };
      * });
      */
-    map(mapFun: any, dataOptions?: Partial<ResultSetDataOptions>): this;
+    map<U>(mapFun: (value: RST, index: number, array: RST[]) => U, dataOptions?: Partial<ResultSetDataOptions>): this;
     /**
      * Alias of copy()
      * @memberof Resultset
      */
     branch: () => ResultSet<any>;
-    $or: (expressionArray: any) => ResultSet<any>;
-    $and: (expressionArray: any) => ResultSet<any>;
+    $or: (expressionArray: any[]) => ResultSet<any>;
+    $and: (expressionArray: any[]) => ResultSet<any>;
 }
 interface ResultSetDataOptions {
     removeMeta: boolean;

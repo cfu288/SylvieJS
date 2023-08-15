@@ -1,5 +1,5 @@
 import { CloneMethods } from "../utils/clone";
-import { DynamicView } from "./dynamic-view";
+import { DynamicView, DynamicViewOptions } from "./dynamic-view";
 import { ChangeOps } from "./sylvie";
 import { SylvieEventEmitter } from "./sylvie-event-emitter";
 import { ResultSet } from "./result-set";
@@ -40,6 +40,11 @@ export interface CollectionDocumentMeta {
     revision?: number;
     updated?: number;
 }
+export type BinaryIndex = Record<string, {
+    name: string;
+    dirty: boolean;
+    values: any[];
+}>;
 /**
  * Collection class that handles documents of same type
  * @constructor Collection
@@ -67,12 +72,8 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
     data: ColT[];
     isIncremental: boolean;
     name: string;
-    idIndex: number[];
-    binaryIndices: Record<string, {
-        name: string;
-        dirty: boolean;
-        values: any[];
-    }>;
+    idIndex: number[] | null;
+    binaryIndices: BinaryIndex;
     constraints: {
         unique: Record<string, UniqueIndex>;
         exact: Record<string, ExactIndex<number>>;
@@ -81,21 +82,21 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
     transforms: Record<string, (Record<string, any> & {
         type: string;
     })[]>;
-    objType: any;
+    objType: string;
     dirty: boolean;
-    cachedIndex: any;
-    cachedBinaryIndex: any;
-    cachedData: any;
-    adaptiveBinaryIndices: any;
-    transactional: any;
-    cloneObjects: any;
-    cloneMethod: any;
-    disableMeta: any;
-    disableChangesApi: any;
-    disableDeltaChangesApi: any;
-    autoupdate: any;
-    serializableIndices: any;
-    disableFreeze: any;
+    cachedIndex: number[] | null;
+    cachedBinaryIndex: BinaryIndex | null;
+    cachedData: ColT[] | null;
+    adaptiveBinaryIndices: boolean;
+    transactional: boolean;
+    cloneObjects: boolean;
+    cloneMethod: CloneMethods;
+    disableMeta: boolean;
+    disableChangesApi: boolean;
+    disableDeltaChangesApi: boolean;
+    autoupdate: boolean;
+    serializableIndices: boolean;
+    disableFreeze: boolean;
     ttl: {
         age?: number;
         ttlInterval?: number;
@@ -120,7 +121,11 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
     /**
      * a collection of objects recording the changes applied through a commmitStage
      */
-    commitLog: any[];
+    commitLog: {
+        timestamp: number;
+        message: string;
+        data: string;
+    }[];
     no_op: () => void;
     constructor(name: string, options?: Partial<CollectionOptions>);
     createChange(name: string, op: "U" | "I" | "R", obj: object, old?: object): void;
@@ -310,7 +315,7 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      *
      * var results = pview.data();
      **/
-    addDynamicView(name: any, options: any): DynamicView<ColT>;
+    addDynamicView(name?: string, options?: Partial<DynamicViewOptions>): DynamicView<ColT>;
     /**
      * Remove a dynamic view from the collection
      * @param {string} name - name of dynamic view to remove
@@ -399,7 +404,7 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      * @param {function|object} query - query object to filter on
      * @memberof Collection
      */
-    removeWhere(query: (...args: any[]) => any | object): void;
+    removeWhere(query: ((...args: any[]) => any) | Record<string, any>): void;
     removeDataOnly(): void;
     /**
      * Internal method to remove a batch of documents from the collection.
@@ -413,10 +418,11 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
     removeBatch(batch: CollectionDocument[] | number[]): void;
     /**
      * Remove a document from the collection
-     * @param {object} doc - document to remove from collection
+     * @param {object | array | number} newDoc - document(s) to remove from collection. If number, remove by id
      * @memberof Collection
+     * @returns CollectionDocument | null - null if document not found, otherwise removed document. Array of new documents is not returned
      */
-    remove(doc: CollectionDocument): CollectionDocument;
+    remove(docOrId: CollectionDocument | number | CollectionDocument[]): CollectionDocument;
     /**
      * Get by Id - faster than other methods because of the searching algorithm
      * @param {int} id - $loki id of document you want to retrieve
@@ -466,7 +472,7 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      * @param {any} val - value to find within index
      * @param {bool?} adaptive - if true, we will return insert position
      */
-    calculateRangeStart(prop: string, val: any, adaptive: boolean | null, usingDotNotation: boolean): number;
+    calculateRangeStart(prop: string, val: any, adaptive: boolean | null, usingDotNotation?: boolean): number;
     /**
      * Internal method used for indexed $between.  Given a prop (index name), and a value
      * (which may or may not yet exist) this will find the final position of that upper range value.
@@ -507,7 +513,7 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      * @returns {ResultSet} (this) resultset, or data array if any map or join functions where called
      * @memberof Collection
      */
-    chain(transform?: ChainTransform, parameters?: unknown): ResultSet<ColT>;
+    chain(transform?: ChainTransform, parameters?: any | any[]): ResultSet<ColT> | any;
     /**
      * Find method, api is similar to mongodb.
      * for more complex queries use [chain()]{@link Collection#chain} or [where()]{@link Collection#where}.
@@ -516,7 +522,7 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      * @returns {array} Array of matching documents
      * @memberof Collection
      */
-    find(query?: Record<string, object>): ColT[];
+    find(query?: Record<string, any>): ColT[];
     /**
      * Find object by unindexed field by property equal to value,
      * simply iterates and returns the first element matching the query
@@ -531,7 +537,7 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
     commit: () => void;
     /** roll back the transation */
     rollback: () => void;
-    async(fun: any, callback: any): void;
+    async(fun: () => void, callback: () => void): void;
     /**
      * Query the collection by supplying a javascript filter function.
      * @example
@@ -567,7 +573,11 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      * @returns {ResultSet} Result of the mapping operation
      * @memberof Collection
      */
-    eqJoin(joinData: any, leftJoinProp: any, rightJoinProp: any, mapFun: any, dataOptions: any): ResultSet<ColT>;
+    eqJoin(joinData: ColT[] | ResultSet<ColT> | Collection<ColT>, leftJoinProp: string, rightJoinProp: string, mapFun: () => void, dataOptions: {
+        removeMeta: boolean;
+        forceClones: boolean;
+        forceCloneMethod: CloneMethods;
+    }): ResultSet<ColT>;
     /**
      * (Staging API) create a stage and/or retrieve it
      * @memberof Collection

@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import Sylvie from "../../src/sylviejs";
-import { Collection } from "../../src/modules/collection";
 import { CryptedIndexedDBAdapter } from "../../src/storage-adapter/crypted-indexeddb-adapter";
-const loki = Sylvie;
 
 describe("CryptedIndexedDBAdapter", function () {
   this.timeout(5000);
@@ -11,7 +9,7 @@ describe("CryptedIndexedDBAdapter", function () {
     const adapter = new CryptedIndexedDBAdapter("tests", {
       secret: "password",
     });
-    const db = new loki("test.db", {
+    const db = new Sylvie("test.db", {
       adapter: adapter,
     });
     const coll = db.addCollection("coll");
@@ -20,121 +18,235 @@ describe("CryptedIndexedDBAdapter", function () {
     expect(adapter.setSecret).not.toBeNull();
   });
 
-  it("can insert data", function (done) {
-    const db = new loki("test.db", {
+  it("can insert data", function () {
+    const db = new Sylvie("test.db", {
       adapter: new CryptedIndexedDBAdapter("tests", {
         secret: "password",
       }),
     });
     const collection = db.addCollection("items");
     collection.insert([
-      { customId: 0, val: "hello", constraints: 100 },
+      { customId: 0, val: "hello", extra: "world" },
       { customId: 1, val: "hello1" },
       { customId: 2, val: "hello2" },
     ]);
+
     expect(db.collections.length).toBe(1);
     expect(db.collections[0].data.length).toBe(3);
-
-    db.saveDatabase(function () {
-      collection.clear();
-
-      db.loadDatabase({}, function () {
-        const collection = db.getCollection("items");
-        done();
-
-        const docs = collection.find();
-        expect(docs.length).toEqual(3);
-      });
-    });
-
-    // await db.saveDatabase();
-
-    // const db2 = new loki("test.db", {
-    //   adapter: new CryptedIndexedDBAdapter("tests", {
-    //     secret: "password",
-    //   }),
-    // });
-    // await db2.loadDatabase();
-
-    // db.saveDatabase(function (e) {
-    //   expect(e).toBe(undefined);
-
-    //   // eslint-disable-next-line prefer-const
-    //   let adapter2 = new CryptedIndexedDBAdapter("tests", {
-    //     secret: "password",
-    //   });
-    //   const db2 = new loki("test.db", { adapter: adapter2 });
-
-    //   db2.loadDatabase({}, function (e) {
-    //     expect(e).toBe(undefined);
-    //     expect(db.collections.length).toBe(1);
-    //     expect(db.collections[1].data.length).toBe(2);
-    //     expect(db2.collections.length).toBe(1);
-    //     expect(db2.collections[1].data.length).toBe(2);
-    //     // checkDatabaseCopyIntegrity(db, db2);
-    //     done();
-    //   });
-    // });
+    expect(db.collections[0].data[0].customId).toEqual(0);
+    expect(db.collections[0].data[0].val).toEqual("hello");
+    expect(db.collections[0].data[0].extra).toEqual("world");
   });
 
-  function checkDatabaseCopyIntegrity(source, copy) {
-    source.collections.forEach(function (sourceCol: Collection<any>, i) {
-      const copyCol = copy.collections[i];
-      expect(copyCol.name).toBe(sourceCol.name);
-      expect(copyCol.data.length).toBe(sourceCol.data.length);
-      JSON.stringify(copyCol.data);
-      copyCol.data.every(function (copyEl, elIndex) {
-        console.log(JSON.stringify(copyEl));
-        expect(JSON.stringify(copyEl)).toBe(
-          JSON.stringify(source.collections[i].data[elIndex])
-        );
+  it("findAndRemove can remove data", function () {
+    const db = new Sylvie("test.db", {
+      adapter: new CryptedIndexedDBAdapter("tests", {
+        secret: "password",
+      }),
+    });
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+
+    collection.findAndRemove({ customId: 1 });
+
+    expect(db.collections[0].data.length).toBe(2);
+    expect(db.collections[0].data[0].customId).toEqual(0);
+    expect(db.collections[0].data[0].val).toEqual("hello");
+    expect(db.collections[0].data[0].extra).toEqual("world");
+    expect(db.collections[0].data[1].customId).toEqual(2);
+    expect(db.collections[0].data[1].val).toEqual("hello2");
+  });
+
+  it("removeWhere can remove data using function param", function () {
+    const db = new Sylvie("test.db", {
+      adapter: new CryptedIndexedDBAdapter("tests", {
+        secret: "password",
+      }),
+    });
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+
+    collection.removeWhere({ customId: 1 });
+
+    expect(db.collections[0].data.length).toBe(2);
+    expect(db.collections[0].data[0].customId).toEqual(0);
+    expect(db.collections[0].data[0].val).toEqual("hello");
+    expect(db.collections[0].data[0].extra).toEqual("world");
+    expect(db.collections[0].data[1].customId).toEqual(2);
+    expect(db.collections[0].data[1].val).toEqual("hello2");
+  });
+
+  it("removeWhere can remove data using mongo param", function () {
+    const db = new Sylvie("test.db", {
+      adapter: new CryptedIndexedDBAdapter("tests", {
+        secret: "password",
+      }),
+    });
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+    collection.removeWhere((doc) => doc.customId === 1);
+
+    expect(db.collections[0].data.length).toBe(2);
+    expect(db.collections[0].data[0].customId).toEqual(0);
+    expect(db.collections[0].data[0].val).toEqual("hello");
+    expect(db.collections[0].data[0].extra).toEqual("world");
+    expect(db.collections[0].data[1].customId).toEqual(2);
+    expect(db.collections[0].data[1].val).toEqual("hello2");
+  });
+
+  it("saving and reloading the db works", function (done) {
+    const db = new Sylvie("test.db", {
+      adapter: new CryptedIndexedDBAdapter("tests", {
+        secret: "password",
+      }),
+    });
+
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+    collection.removeWhere({ customId: 1 });
+    expect(db.collections[0].data.length).toBe(2);
+
+    // Save the database and try reloading it
+    db.saveDatabase(function (errorMessage) {
+      expect(errorMessage).toBeFalsy();
+      collection.clear();
+      db.loadDatabase({}, function (loadErrorMessage) {
+        expect(loadErrorMessage).toBeFalsy();
+        // Verify the database contents
+        const newCollection = db.getCollection("items");
+        const docs = newCollection.find();
+        expect(docs.length).toEqual(2);
+        expect(docs[0].customId).toEqual(0);
+        expect(docs[0].val).toEqual("hello");
+        expect(docs[0].extra).toEqual("world");
+        expect(docs[1].customId).toEqual(2);
+        expect(docs[1].val).toEqual("hello2");
+        done();
       });
     });
-  }
+  });
 
-  // it('basically works', function(done) {
-  //   var adapter = new IncrementalIndexedDBAdapter('tests');
-  //   var db = new loki('test.db', { adapter: adapter });
-  //   var col1 = db.addCollection('test_collection');
+  it("saving and reloading the db using a new instance works", function (done) {
+    const db = new Sylvie("test.db", {
+      adapter: new CryptedIndexedDBAdapter("tests", {
+        secret: "password",
+      }),
+    });
 
-  //   col1.insert({ customId: 0, val: 'hello', constraints: 100 });
-  //   col1.insert({ customId: 1, val: 'hello1' });
-  //   var h2 = col1.insert({ customId: 2, val: 'hello2' });
-  //   var h3 = col1.insert({ customId: 3, val: 'hello3' });
-  //   var h4 = col1.insert({ customId: 4, val: 'hello4' });
-  //   var h5 = col1.insert({ customId: 5, val: 'hello5' });
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+    collection.removeWhere({ customId: 1 });
+    expect(db.collections[0].data.length).toBe(2);
 
-  //   h2.val = 'UPDATED';
-  //   col1.update(h2);
+    // Save the database and try reloading it
+    db.saveDatabase(function (errorMessage) {
+      expect(errorMessage).toBeFalsy();
+      // Create a new db instance
+      const newDb = new Sylvie("test.db", {
+        adapter: new CryptedIndexedDBAdapter("tests", {
+          secret: "password",
+        }),
+      });
+      newDb.loadDatabase({}, function (loadErrorMessage) {
+        expect(loadErrorMessage).toBeFalsy();
+        // Verify the database contents
+        const newCollection = db.getCollection("items");
+        const docs = newCollection.find();
+        expect(docs.length).toEqual(2);
+        expect(docs[0].customId).toEqual(0);
+        expect(docs[0].val).toEqual("hello");
+        expect(docs[0].extra).toEqual("world");
+        expect(docs[1].customId).toEqual(2);
+        expect(docs[1].val).toEqual("hello2");
+        done();
+      });
+    });
+  });
 
-  //   h3.val = 'UPDATED';
-  //   col1.update(h3);
-  //   h3.val2 = 'added!';
-  //   col1.update(h3);
+  it("opening the db using the wrong password should throw", function (done) {
+    const db = new Sylvie("test.db", {
+      adapter: new CryptedIndexedDBAdapter("tests", {
+        secret: "password",
+      }),
+    });
 
-  //   col1.remove(h4);
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+    collection.removeWhere({ customId: 1 });
+    expect(db.collections[0].data.length).toBe(2);
 
-  //   var h6 = col1.insert({ customId: 6, val: 'hello6' });
+    // Save the database and try reloading it
+    db.saveDatabase(function (errorMessage) {
+      expect(errorMessage).toBeFalsy();
+      // Create a new db instance
+      const newDbWithWrongPass = new Sylvie("test.db", {
+        adapter: new CryptedIndexedDBAdapter("tests", {
+          secret: "wrongpassword",
+        }),
+      });
+      newDbWithWrongPass.loadDatabase({}, (error) => {
+        expect(error).toBeTruthy();
+        expect((error as Error).name).toBe("OperationError");
+        done();
+      });
+    });
+  });
 
-  //   db.saveDatabase(function (e) {
-  //     expect(e).toBe(undefined);
+  it("deleting the db should work", function (done) {
+    const adapter = new CryptedIndexedDBAdapter("tests", {
+      secret: "password",
+    });
+    const db = new Sylvie("test.db", {
+      adapter,
+    });
 
-  //     var adapter2 = new IncrementalIndexedDBAdapter('tests');
-  //     var db2 = new loki('test.db', { adapter: adapter2 });
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
 
-  //     db2.loadDatabase({}, function (e) {
-  //       expect(e).toBe(undefined);
+    adapter.getDatabaseList(function (keys) {
+      expect(keys.length).toBe(1);
+      expect(keys[0]).toBe("test.db");
+    });
 
-  //       checkDatabaseCopyIntegrity(db, db2);
-  //       done()
-  //     });
-  //   });
-  // })
-  // it('works with a lot of fuzzed data', function() {
-  // })
-  // it('can delete database', function() {
-  // })
-  // it('stores data in the expected format', function() {
-  // })
-  // NOTE: Because PhantomJS doesn't support IndexedDB, I moved tests to spec/incrementalidb.html
+    // Delete the database
+    db.deleteDatabase(function (err) {
+      expect((err as { success: true }).success).toBe(true);
+      adapter.getDatabaseList(function (keys) {
+        expect(keys.length).toBe(0);
+        done();
+      });
+    });
+  });
 });

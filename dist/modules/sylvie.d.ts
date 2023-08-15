@@ -93,7 +93,7 @@ export default class Sylvie extends SylvieEventEmitter {
     throttledSaves: boolean;
     options?: Partial<ConfigOptions & ConstructorOptions>;
     persistenceMethod: any;
-    persistenceAdapter: any;
+    persistenceAdapter: PersistenceAdapter;
     throttledSavePending: boolean;
     throttledCallbacks: any[];
     verbose: boolean;
@@ -211,9 +211,7 @@ export default class Sylvie extends SylvieEventEmitter {
      * @returns {Collection} a reference to the collection which was just added
      * @memberof Loki
      */
-    addCollection<T extends {
-        $loki: number;
-    }>(name: any, options?: Record<string, any>): Collection<T> | any;
+    addCollection(name: any, options?: Record<string, any>): Collection<Partial<CollectionDocument>>;
     loadCollection(collection: any): void;
     /**
      * Retrieves reference to a collection by name.
@@ -404,6 +402,7 @@ export default class Sylvie extends SylvieEventEmitter {
      * @param {function=} callback - (Optional) user supplied async callback / error handler
      */
     loadDatabaseInternal(options: any, callback?: (_: string | Error) => void): void;
+    loadDatabaseInternalAsync(options: any): Promise<null | string>;
     /**
      * Handles manually loading from file system, local storage, or adapter (such as indexeddb)
      *    This method utilizes loki configuration options (if provided) to determine which
@@ -466,7 +465,12 @@ export default class Sylvie extends SylvieEventEmitter {
      * @param {function=} callback - (Optional) user supplied async callback / error handler
      * @memberof Loki
      */
-    deleteDatabase(options: (_: string | Error) => void, callback?: (_: string | Error) => void): void;
+    deleteDatabase(callback?: (_: Error | {
+        success: true;
+    } | {
+        success: false;
+        error: Error;
+    }) => void): void;
     /**
      * autosaveDirty - check whether any collections are 'dirty' meaning we need to save (entire) database
      *

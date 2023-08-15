@@ -1,0 +1,10 @@
+export declare function base64ToBytes(str: string): Uint8Array;
+export declare const base64codes: Uint8Array;
+export declare function getBase64Code(charCode: number): number;
+export declare function bytesToBase64(bytes: Uint8Array): string;
+export declare function base64encode(str: string, encoder?: TextEncoder): string;
+export declare function base64decode(str: string, decoder?: TextDecoder): string;
+export declare const getPasswordKey: (password: any) => Promise<CryptoKey>;
+export declare const deriveKey: (passwordKey: any, salt: any, keyUsage: any) => Promise<CryptoKey>;
+export declare function encryptData(secretData: any, password: any): Promise<string>;
+export declare function decryptData(encryptedData: any, password: any): Promise<string>;

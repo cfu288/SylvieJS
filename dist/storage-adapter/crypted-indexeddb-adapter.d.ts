@@ -1,8 +1,5 @@
+import { SylvieCatalog } from "./crypted-indexeddb-adapter/sylvie-catalog";
 import { PersistenceAdapter } from "./persistence-adapter";
-export declare function bytesToBase64(bytes: Uint8Array): string;
-export declare function base64ToBytes(str: string): Uint8Array;
-export declare function base64encode(str: string, encoder?: TextEncoder): string;
-export declare function base64decode(str: string, decoder?: TextDecoder): string;
 interface CryptedIndexedAdapterOptions {
     closeAfterSave: boolean;
     secret: string;
@@ -30,14 +27,11 @@ interface CryptedIndexedAdapterOptions {
  */
 export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
     #private;
+    isAsync: true;
     app: string;
     options: Partial<CryptedIndexedAdapterOptions>;
     catalog: SylvieCatalog;
     mode: string;
-    loadKey: (dbname: any, callback: any) => void;
-    saveKey: (dbname: any, dbstring: any, callback: any) => void;
-    deleteKey: (dbname: any, callback: any) => void;
-    getKeyList: (callback: any) => void;
     constructor(appname: string, options?: Partial<CryptedIndexedAdapterOptions>);
     setSecret(secret: string): void;
     /**
@@ -64,7 +58,7 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
      * @param {string} dbname - the name of the database to retrieve.
      * @param {function} callback - callback should accept string param containing serialized db string.
      */
-    loadDatabase(dbname: string, callback: (serialized: string) => void): void;
+    loadDatabase: (dbname: string, callback: (serialized: string) => void) => void;
     /**
      * Saves a serialized db to the catalog.
      *
@@ -79,9 +73,13 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
      * @param {string} dbname - the name to give the serialized database within the catalog.
      * @param {string} dbstring - the serialized db string to save.
      * @param {function} callback - (Optional) callback passed obj.success with true or false
-     * @memberof LokiIndexedAdapter
      */
-    saveDatabase(dbname: string, dbstring: string, callback?: (err: Error) => void): void;
+    saveDatabase: (dbname: string, dbstring: string, callback?: (err: Error | {
+        success: true;
+    } | {
+        success: false;
+        error: Error;
+    }) => void) => void;
     /**
      * Deletes a serialized db from the catalog.
      *
@@ -96,7 +94,12 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
      * @param {function=} callback - (Optional) executed on database delete
      * @memberof LokiIndexedAdapter
      */
-    deleteDatabase(dbname: string, callback?: (_: any) => any): void;
+    deleteDatabase: (dbname: string, callback?: (_: Error | {
+        success: true;
+    } | {
+        success: false;
+        error: Error;
+    }) => any) => void;
     /**
      * Removes all database partitions and pages with the base filename passed in.
      * This utility method does not (yet) guarantee async deletions will be completed before returning
@@ -104,7 +107,7 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
      * @param {string} dbname - the base filename which container, partitions, or pages are derived
      * @memberof LokiIndexedAdapter
      */
-    deleteDatabasePartitions(dbname: any): void;
+    deleteDatabasePartitions: (dbname: any) => void;
     /**
      * Retrieves object array of catalog entries for current app.
      *
@@ -119,31 +122,13 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
      * @param {function} callback - should accept array of database names in the catalog for current app.
      * @memberof LokiIndexedAdapter
      */
-    getDatabaseList(callback: any): void;
+    getDatabaseList: (callback: any) => void;
     /**
      * Allows retrieval of list of all keys in catalog along with size
      *
      * @param {function} callback - (Optional) callback to accept result array.
      * @memberof LokiIndexedAdapter
      */
-    getCatalogSummary(callback: any): void;
-}
-/**
- * LokiCatalog - underlying App/Key/Value catalog persistence
- *    This non-interface class implements the actual persistence.
- *    Used by the IndexedDBAdapter class.
- */
-declare class SylvieCatalog {
-    db: IDBDatabase;
-    constructor(callback: any);
-    initializeLokiCatalog(callback: any): void;
-    getAppKey(app: any, key: any, callback: any): void;
-    getAppKeyById(id: any, callback: any, data: any): void;
-    setAppKey(app: any, key: any, val: any, callback: any): void;
-    deleteAppKey(id: any, callback: (result: {
-        success: boolean;
-    }) => void): void;
-    getAppKeys(app: any, callback: any): void;
-    getAllKeys(callback: any): void;
+    getCatalogSummary: (callback: any) => void;
 }
 export {};

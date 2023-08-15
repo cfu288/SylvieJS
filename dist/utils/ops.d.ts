@@ -1,4 +1,4 @@
-export declare function doQueryOp(val: any, op: any, record: any): any;
+export declare function doQueryOp<T>(val: any, op: any, record: T): any;
 export declare const LokiOps: {
     $eq: (a: any, b: any) => boolean;
     $aeq: (a: any, b: any) => boolean;
@@ -12,8 +12,8 @@ export declare const LokiOps: {
     $jgte: (a: any, b: any) => boolean;
     $jlt: (a: any, b: any) => boolean;
     $jlte: (a: any, b: any) => boolean;
-    $between: (a: any, vals: any) => boolean;
-    $jbetween: (a: any, vals: any) => boolean;
+    $between: (a: any, vals: [number, number]) => boolean;
+    $jbetween: (a: any, vals: [number, number]) => boolean;
     $in: (a: any, b: any) => boolean;
     $inSet: (a: any, b: any) => any;
     $nin: (a: any, b: any) => boolean;
@@ -27,17 +27,17 @@ export declare const LokiOps: {
     $containsAny: (a: any, b: any) => boolean;
     $contains: (a: any, b: any) => boolean;
     $elemMatch: (a: any, b: any) => boolean;
-    $type: (a: any, b: any, record: any) => any;
+    $type: <T>(a: any, b: any, record: T) => any;
     $finite: (a: any, b: any) => boolean;
-    $size: (a: any, b: any, record: any) => any;
-    $len: (a: any, b: any, record: any) => any;
+    $size: <T_1>(a: any, b: any, record: T_1) => any;
+    $len: <T_2>(a: any, b: any, record: T_2) => any;
     $where: (a: any, b: any) => boolean;
-    $not: (a: any, b: any, record: any) => boolean;
-    $and: (a: any, b: any, record: any) => boolean;
-    $or: (a: any, b: any, record: any) => boolean;
+    $not: <T_3>(a: any, b: any, record: T_3) => boolean;
+    $and: <T_4>(a: any, b: any, record: T_4) => boolean;
+    $or: <T_5>(a: any, b: any, record: T_5) => boolean;
     $exists: (a: any, b: any) => boolean;
 };
-export declare var valueLevelOps: string[];
+export declare const valueLevelOps: readonly ["$eq", "$aeq", "$ne", "$dteq", "$gt", "$gte", "$lt", "$lte", "$jgt", "$jgte", "$jlt", "$jlte", "$type"];
 export declare const indexedOps: {
     $eq: (a: any, b: any) => boolean;
     $aeq: boolean;
