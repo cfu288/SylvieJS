@@ -6,21 +6,20 @@ describe("CryptedIndexedDBAdapter", function () {
   this.timeout(10000);
 
   it("initializes Loki properly", function () {
-    const adapter = new CryptedIndexedDBAdapter("tests", {
+    const adapter = new CryptedIndexedDBAdapter({
       secret: "password",
     });
     const db = new Sylvie("test.db", {
       adapter: adapter,
     });
-    const coll = db.addCollection("coll");
 
-    // @ts-ignore
-    expect(adapter.setSecret).not.toBeNull();
+    expect(adapter.usePassword).not.toBeNull();
+    expect(adapter.changePassword).not.toBeNull();
   });
 
   it("can insert data", function () {
     const db = new Sylvie("test.db", {
-      adapter: new CryptedIndexedDBAdapter("tests", {
+      adapter: new CryptedIndexedDBAdapter({
         secret: "password",
       }),
     });
@@ -40,7 +39,7 @@ describe("CryptedIndexedDBAdapter", function () {
 
   it("findAndRemove can remove data", function () {
     const db = new Sylvie("test.db", {
-      adapter: new CryptedIndexedDBAdapter("tests", {
+      adapter: new CryptedIndexedDBAdapter({
         secret: "password",
       }),
     });
@@ -63,7 +62,7 @@ describe("CryptedIndexedDBAdapter", function () {
 
   it("removeWhere can remove data using function param", function () {
     const db = new Sylvie("test.db", {
-      adapter: new CryptedIndexedDBAdapter("tests", {
+      adapter: new CryptedIndexedDBAdapter({
         secret: "password",
       }),
     });
@@ -86,7 +85,7 @@ describe("CryptedIndexedDBAdapter", function () {
 
   it("removeWhere can remove data using mongo param", function () {
     const db = new Sylvie("test.db", {
-      adapter: new CryptedIndexedDBAdapter("tests", {
+      adapter: new CryptedIndexedDBAdapter({
         secret: "password",
       }),
     });
@@ -108,7 +107,7 @@ describe("CryptedIndexedDBAdapter", function () {
 
   it("saving and reloading the db works", function (done) {
     const db = new Sylvie("test.db", {
-      adapter: new CryptedIndexedDBAdapter("tests", {
+      adapter: new CryptedIndexedDBAdapter({
         secret: "password",
       }),
     });
@@ -145,7 +144,7 @@ describe("CryptedIndexedDBAdapter", function () {
 
   it("saving and reloading the db using a new instance works", function (done) {
     const db = new Sylvie("test.db", {
-      adapter: new CryptedIndexedDBAdapter("tests", {
+      adapter: new CryptedIndexedDBAdapter({
         secret: "password",
       }),
     });
@@ -165,7 +164,7 @@ describe("CryptedIndexedDBAdapter", function () {
       expect(errorMessage).toBeFalsy();
       // Create a new db instance
       const newDb = new Sylvie("test.db", {
-        adapter: new CryptedIndexedDBAdapter("tests", {
+        adapter: new CryptedIndexedDBAdapter({
           secret: "password",
         }),
       });
@@ -187,7 +186,7 @@ describe("CryptedIndexedDBAdapter", function () {
 
   it("opening the db using the wrong password should throw", function (done) {
     const db = new Sylvie("test.db", {
-      adapter: new CryptedIndexedDBAdapter("tests", {
+      adapter: new CryptedIndexedDBAdapter({
         secret: "password",
       }),
     });
@@ -205,7 +204,7 @@ describe("CryptedIndexedDBAdapter", function () {
       expect(errorMessage).toBeFalsy();
       // Create a new db instance
       const newDbWithWrongPass = new Sylvie("test.db", {
-        adapter: new CryptedIndexedDBAdapter("tests", {
+        adapter: new CryptedIndexedDBAdapter({
           secret: "wrongpassword",
         }),
       });
@@ -219,7 +218,7 @@ describe("CryptedIndexedDBAdapter", function () {
 
   it("deleting the db should work", function (done) {
     // Note that other tests may save dbs as well which are not cleared between test runs, can't rely on absolute counts
-    const adapter = new CryptedIndexedDBAdapter("tests", {
+    const adapter = new CryptedIndexedDBAdapter({
       secret: "password",
     });
     const db = new Sylvie("test_db_to_delete.db", {
@@ -246,7 +245,7 @@ describe("CryptedIndexedDBAdapter", function () {
 
   it("getDatabaseList should return list of db", function (done) {
     // Note that other tests may save dbs as well, can't rely on absolute counts
-    const adapter = new CryptedIndexedDBAdapter("tests", {
+    const adapter = new CryptedIndexedDBAdapter({
       secret: "password",
     });
     const db = new Sylvie("test.db", {
@@ -275,7 +274,7 @@ describe("CryptedIndexedDBAdapter", function () {
 
   it("getDatabaseListAsync should return list of db", function (done) {
     // Note that other tests may save dbs as well, can't rely on absolute counts
-    const adapter = new CryptedIndexedDBAdapter("tests", {
+    const adapter = new CryptedIndexedDBAdapter({
       secret: "password",
     });
     const db = new Sylvie("test_a.db", {
@@ -305,7 +304,7 @@ describe("CryptedIndexedDBAdapter", function () {
   it("TODO: MOVE THIS TEST SOMEWHERE ELSE: saveDatabaseAsync should work", async function () {
     // Note that other tests may save dbs as well, can't rely on absolute counts
     const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
-    const adapter = new CryptedIndexedDBAdapter("tests", {
+    const adapter = new CryptedIndexedDBAdapter({
       secret: "password",
     });
     const db = new Sylvie(TEST_DB_NAME, {
@@ -323,7 +322,7 @@ describe("CryptedIndexedDBAdapter", function () {
 
     // Create test db instance
     const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
-    const adapter = new CryptedIndexedDBAdapter("tests", {
+    const adapter = new CryptedIndexedDBAdapter({
       secret: "password",
     });
     const db = new Sylvie(TEST_DB_NAME, {
@@ -345,11 +344,117 @@ describe("CryptedIndexedDBAdapter", function () {
 
     // Open a new db instance
     const newDb = new Sylvie(TEST_DB_NAME, {
-      adapter: new CryptedIndexedDBAdapter("tests", {
+      adapter: new CryptedIndexedDBAdapter({
         secret: "password",
       }),
     });
     // Load the database
+    await newDb.loadDatabaseAsync({});
+
+    // Verify the database contents
+    const newCollection = newDb.getCollection("items");
+    const docs = newCollection.find();
+
+    expect(docs.length).toEqual(2);
+    expect(docs[0].customId).toEqual(0);
+    expect(docs[0].val).toEqual("hello");
+    expect(docs[0].extra).toEqual("world");
+    expect(docs[1].customId).toEqual(2);
+    expect(docs[1].val).toEqual("hello2");
+  });
+
+  it("changePassword should re-encrypt database with new password", async function () {
+    // Create test db instance
+    const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
+    const adapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+    });
+    const db = new Sylvie(TEST_DB_NAME, {
+      adapter,
+    });
+
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+    collection.removeWhere({ customId: 1 });
+
+    // Save db to disk
+    await db.saveDatabaseAsync();
+    collection.clear();
+
+    // Change password on database using async changePassword(dbname: string, newPassword: string): Promise<void>
+    await adapter.changePassword(TEST_DB_NAME, "newpassword");
+
+    // Open a new db instance
+    const newDb = new Sylvie(TEST_DB_NAME, {
+      adapter: new CryptedIndexedDBAdapter({
+        secret: "newpassword",
+      }),
+    });
+
+    // Load the database
+    await newDb.loadDatabaseAsync({});
+
+    // Verify the database contents
+    const newCollection = newDb.getCollection("items");
+    const docs = newCollection.find();
+
+    expect(docs.length).toEqual(2);
+    expect(docs[0].customId).toEqual(0);
+    expect(docs[0].val).toEqual("hello");
+    expect(docs[0].extra).toEqual("world");
+    expect(docs[1].customId).toEqual(2);
+    expect(docs[1].val).toEqual("hello2");
+  });
+
+  it("Using old password after changePassword should fail", async function () {
+    // Create test db instance
+    const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
+    const adapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+    });
+    const db = new Sylvie(TEST_DB_NAME, {
+      adapter,
+    });
+
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+    collection.removeWhere({ customId: 1 });
+
+    // Save db to disk
+    await db.saveDatabaseAsync();
+    collection.clear();
+
+    // Change password on database using async changePassword(dbname: string, newPassword: string): Promise<void>
+    await adapter.changePassword(TEST_DB_NAME, "newpassword");
+
+    // Open a new db instance
+    const newAdapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+    });
+    const newDb = new Sylvie(TEST_DB_NAME, {
+      adapter: newAdapter,
+    });
+
+    // Load the database with old password should fail
+    try {
+      await newDb.loadDatabaseAsync({});
+    } catch (error) {
+      expect(error).toBeTruthy();
+      expect((error as Error).name).toBe("OperationError");
+    }
+
+    // Load the database with new password should work
+    newAdapter.usePassword("newpassword");
     await newDb.loadDatabaseAsync({});
 
     // Verify the database contents

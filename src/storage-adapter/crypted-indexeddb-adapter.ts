@@ -31,6 +31,7 @@ if (!window.crypto.subtle) {
 }
 
 interface CryptedIndexedAdapterOptions {
+  appname: string;
   closeAfterSave: boolean;
   secret: string;
 }
@@ -48,13 +49,12 @@ interface CryptedIndexedAdapterOptions {
  *
  * @constructor SylvieIndexedAdapter
  *
- * @param {string} appname - (Optional) Application name context can be used to distinguish subdomains, 'loki' by default
  * @param {CryptedIndexedAdapterOptions} options Configuration options for the adapter
+ * @param {string} options.appname - (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  * @param {boolean} options.secret The password to encrypt with.
  */
 export class CryptedIndexedDBAdapter implements PersistenceAdapter {
-  //, AsyncPersistenceAdapter
   isAsync: true;
   app: string;
   options: Partial<CryptedIndexedAdapterOptions>;
@@ -62,16 +62,13 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
   mode: string;
   #secret: string;
 
-  constructor(
-    appname: string,
-    options?: Partial<CryptedIndexedAdapterOptions>
-  ) {
+  constructor(options?: Partial<CryptedIndexedAdapterOptions>) {
     DEBUG && console.log("Initialized crypted-indexeddb-adapter");
-    this.app = "loki";
+    this.app = "sylvie";
     this.options = options || {};
 
-    if (typeof appname !== "undefined") {
-      this.app = appname;
+    if (typeof options?.appname !== "undefined") {
+      this.app = options?.appname;
     }
 
     // keep reference to catalog class for base AKV operations
@@ -88,7 +85,20 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
     }
   }
 
-  setSecret(secret: string) {
+  /**
+   * Sets a password for use on future load and save of the database.
+   * Note that this does not re-encrypt the database with the new password. Use changePassword() for that.
+   * @param secret
+   * @example
+   * const db = new Sylvie(TEST_DB_NAME, {
+   *   adapter: new CryptedIndexedDBAdapter();
+   * });
+   *
+   * adapter.usePassword("newpassword");
+   *
+   * await newDb.loadDatabaseAsync({});
+   */
+  usePassword(secret: string) {
     this.#secret = secret;
   }
 
@@ -291,6 +301,38 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
         }
       });
   };
+
+  /**
+   * Changes the password of a database and re-encrypts the database with the new password.
+   * @param {string} dbName The name of the database to change the password of.
+   * @param {string} newPassword The new password to encrypt the database with.
+   * @memberof CryptedIndexedDBAdapter
+   * @returns {Promise<void>} A promise that resolves when the password has been changed.
+   * @throws {Error} If the adapter is not open.
+   * @example
+   * await adapter.changePassword("mydb", "newpassword");
+   * // The database "mydb" is now encrypted with the password "newpassword".
+   * // The old password will no longer work.
+   */
+  async changePassword(dbname: string, newPassword: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.loadDatabase(dbname, (serializedDbString) => {
+        const oldPassword = this.#secret;
+        this.#secret = newPassword;
+        this.saveDatabase(dbname, serializedDbString, (responseString) => {
+          if (responseString) {
+            this.#secret = oldPassword;
+            if ((responseString as { success: boolean }).success === true) {
+              resolve();
+            } else {
+              reject(responseString);
+            }
+          }
+          resolve();
+        });
+      });
+    });
+  }
 
   /**
    * Removes all database partitions and pages with the base filename passed in.

@@ -27,6 +27,7 @@
     "format": "prettier src/**/*.ts spec/**/*.ts -w",
     "typecheck": "tsc --noEmit",
     "test:browser": "web-test-runner spec/**/*.ts --node-resolve --playwright --browsers chromium firefox webkit",
+    "test:browser-only": "web-test-runner spec/browser/**/*.ts --node-resolve --playwright --browsers chromium firefox webkit",
     "test:node": "jest --config jest.config.ts spec/*.ts --silent=false",
     "pretest": "npm run build:only",
     "test": "npm run test:node && npm run test:browser",
