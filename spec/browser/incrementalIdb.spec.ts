@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import Sylvie from "../../src/sylviejs";
-import { Collection } from "../../src/modules/collection";
+import { Collection, CollectionDocument } from "../../src/modules/collection";
 import { PersistenceAdapter } from "../../src/storage-adapter/persistence-adapter";
 import { IncrementalIndexedDBAdapter } from "../../src/storage-adapter/incremental-indexeddb-adapter";
 const loki = Sylvie;
@@ -77,7 +77,7 @@ describe("IncrementalIndexedDBAdapter", function () {
 
     h3.val = "UPDATED";
     col1.update(h3);
-    h3.val2 = "added!";
+    (h3 as CollectionDocument).val2 = "added!";
     col1.update(h3);
 
     col1.remove(h4);
