@@ -1,3 +1,4 @@
+import { CollectionDocument } from "../../src/modules/collection";
 import Sylvie from "../../src/sylviejs";
 const loki = Sylvie;
 
@@ -218,7 +219,7 @@ describe("loki", function () {
       const now = new Date().getTime();
 
       // verify single insert return objs have meta set properly
-      const obj = coll.insert({ a: 1, b: 2 });
+      const obj: CollectionDocument = coll.insert({ a: 1, b: 2 });
       expect(obj.hasOwnProperty("meta")).toEqual(true);
       expect(obj.hasOwnProperty("$loki")).toEqual(true);
       expect(obj.meta.hasOwnProperty("revision")).toEqual(true);
@@ -232,7 +233,7 @@ describe("loki", function () {
         { a: 3, b: 4 },
       ]);
       expect(Array.isArray(objs));
-      objs.forEach(function (o) {
+      objs.forEach(function (o: CollectionDocument) {
         expect(o.hasOwnProperty("meta")).toEqual(true);
         expect(o.hasOwnProperty("$loki")).toEqual(true);
         expect(o.meta.hasOwnProperty("revision")).toEqual(true);
@@ -249,7 +250,7 @@ describe("loki", function () {
 
       coll.on("insert", function (o) {
         if (Array.isArray(o)) {
-          o.forEach(function (obj) {
+          o.forEach(function (obj: CollectionDocument) {
             expect(obj.hasOwnProperty("meta")).toEqual(true);
             expect(obj.hasOwnProperty("$loki")).toEqual(true);
             expect(obj.meta.hasOwnProperty("revision")).toEqual(true);

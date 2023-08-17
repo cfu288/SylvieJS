@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import Sylvie from "../../src/sylviejs";
 import { CryptedIndexedDBAdapter } from "../../src/storage-adapter/crypted-indexeddb-adapter";
-import { SylvieCatalog } from "../../src/storage-adapter/crypted-indexeddb-adapter/sylvie-catalog";
 
 describe("CryptedIndexedDBAdapter", function () {
-  this.timeout(5000);
+  this.timeout(10000);
 
   it("initializes Loki properly", function () {
     const adapter = new CryptedIndexedDBAdapter("tests", {

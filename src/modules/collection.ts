@@ -48,10 +48,12 @@ interface CollectionOptions {
 export type CollectionDocument = object &
   Record<string, any> &
   CollectionDocumentBase;
+
 export interface CollectionDocumentBase {
   meta?: CollectionDocumentMeta;
   $loki?: number;
 }
+
 export interface CollectionDocumentMeta {
   created?: number;
   revision?: number;
@@ -431,7 +433,12 @@ export class Collection<
   /*
    * For ChangeAPI default to clone entire object, for delta changes create object with only differences (+ $loki and meta)
    */
-  createChange(name: string, op: "U" | "I" | "R", obj: object, old?: object) {
+  createChange<T extends Partial<CollectionDocument>>(
+    name: string,
+    op: "U" | "I" | "R",
+    obj: T,
+    old?: T
+  ) {
     this.changes.push({
       name,
       operation: op,
@@ -442,7 +449,7 @@ export class Collection<
     });
   }
 
-  insertMeta(obj: CollectionDocument) {
+  insertMeta<T extends Partial<CollectionDocument>>(obj: T) {
     let len: number;
     let idx: number;
 
@@ -475,7 +482,7 @@ export class Collection<
     obj.meta.revision = 0;
   }
 
-  updateMeta(obj: CollectionDocument) {
+  updateMeta<T extends CollectionDocument>(obj: T) {
     if (this.disableMeta || !obj) {
       return obj;
     }
@@ -488,7 +495,7 @@ export class Collection<
     return obj;
   }
 
-  createInsertChange(obj: CollectionDocument) {
+  createInsertChange<T extends Partial<CollectionDocument>>(obj: T) {
     this.createChange(this.name, "I", obj);
   }
 
@@ -496,18 +503,18 @@ export class Collection<
     this.createChange(this.name, "U", obj, old);
   }
 
-  insertMetaWithChange(obj: CollectionDocument) {
+  insertMetaWithChange<T extends Partial<CollectionDocument>>(obj: T) {
     this.insertMeta(obj);
     this.createInsertChange(obj);
   }
 
-  updateMetaWithChange(obj: CollectionDocument, old: CollectionDocument) {
+  updateMetaWithChange<T extends CollectionDocument>(obj: T, old: T): T {
     obj = this.updateMeta(obj);
     this.createUpdateChange(obj, old);
     return obj;
   }
 
-  addAutoUpdateObserver(object: object) {
+  addAutoUpdateObserver<T extends CollectionDocument>(object: T) {
     if (!this.autoupdate || typeof Object.observe !== "function") return;
 
     Object.observe(object, this.observerCallback, [
@@ -519,7 +526,7 @@ export class Collection<
     ]);
   }
 
-  removeAutoUpdateObserver(object: object) {
+  removeAutoUpdateObserver<T extends object>(object: T) {
     if (!this.autoupdate || typeof Object.observe !== "function") return;
 
     Object.unobserve(object, this.observerCallback);
@@ -529,7 +536,7 @@ export class Collection<
    * Adds a named collection transform to the collection
    * @param {string} name - name to associate with transform
    * @param {array} transform - an array of transformation 'step' objects to save into the collection
-   * @memberof Collection
+   
    * @example
    * users.addTransform('progeny', [
    *   {
@@ -556,7 +563,6 @@ export class Collection<
   /**
    * Retrieves a named transform from the collection.
    * @param {string} name - name of the transform to lookup.
-   * @memberof Collection
    */
   getTransform(name: string) {
     return this.transforms[name];
@@ -566,7 +572,7 @@ export class Collection<
    * Updates a named collection transform to the collection
    * @param {string} name - name to associate with transform
    * @param {object} transform - a transformation object to save into collection
-   * @memberof Collection
+   
    */
   setTransform(
     name: string,
@@ -578,7 +584,7 @@ export class Collection<
   /**
    * Removes a named collection transform from the collection
    * @param {string} name - name of collection transform to remove
-   * @memberof Collection
+   
    */
   removeTransform(name: string) {
     delete this.transforms[name];
@@ -629,7 +635,7 @@ export class Collection<
    * Updates or applies collection TTL settings.
    * @param {int} age - age (in ms) to expire document from collection
    * @param {int} interval - time (in ms) to clear collection of aged documents.
-   * @memberof Collection
+   
    */
   setTTL(age: number, interval: number) {
     if (age < 0) {
@@ -659,7 +665,7 @@ export class Collection<
   /**
    * Will allow reconfiguring certain collection options.
    * @param {boolean} options.adaptiveBinaryIndices - collection indices will be actively rebuilt rather than lazily
-   * @memberof Collection
+   
    */
   configureOptions = (options: { adaptiveBinaryIndices?: boolean } = {}) => {
     if ("adaptiveBinaryIndices" in options) {
@@ -676,7 +682,7 @@ export class Collection<
    * Ensure binary index on a certain field
    * @param {string} property - name of property to create binary index on
    * @param {boolean=} force - (Optional) flag indicating whether to construct index immediately
-   * @memberof Collection
+   
    */
   ensureIndex(property: string, force?: boolean) {
     // optional parameter to force rebuild whether flagged as dirty or not
@@ -744,7 +750,7 @@ export class Collection<
    * @param {number} [options.randomSamplingFactor=0.10] - percentage of total rows to randomly sample
    * @param {boolean} [options.repair=false] - whether to fix problems if they are encountered
    * @returns {string[]} array of index names where problems were found.
-   * @memberof Collection
+   
    * @example
    * // check all indices on a collection, returns array of invalid index names
    * var result = coll.checkAllIndexes({ repair: true, randomSampling: true, randomSamplingFactor: 0.15 });
@@ -784,7 +790,7 @@ export class Collection<
    * @param {number} [options.randomSamplingFactor=0.10] - percentage of total rows to randomly sample
    * @param {boolean} [options.repair=false] - whether to fix problems if they are encountered
    * @returns {boolean} whether the index was found to be valid (before optional correcting).
-   * @memberof Collection
+   
    * @example
    * // full test
    * var valid = coll.checkIndex('name');
@@ -963,7 +969,7 @@ export class Collection<
   /**
    * Ensure all binary indices
    * @param {boolean} force - whether to force rebuild of existing lazy binary indices
-   * @memberof Collection
+   
    */
   ensureAllIndexes(force?: boolean) {
     const bIndices = this.binaryIndices;
@@ -997,7 +1003,7 @@ export class Collection<
    * Quickly determine number of documents in collection (or query)
    * @param {object=} query - (optional) query object to count results of
    * @returns {number} number of documents in the collection
-   * @memberof Collection
+   
    */
   count = (query?: Record<string, any>) => {
     if (!query) {
@@ -1041,7 +1047,6 @@ export class Collection<
    * @param {string} [options.sortPriority='passive'] - 'passive' (sorts performed on call to data) or 'active' (after updates)
    * @param {number} options.minRebuildInterval - minimum rebuild interval (need clarification to docs here)
    * @returns {DynamicView} reference to the dynamic view added
-   * @memberof Collection
    * @example
    * var pview = users.addDynamicView('progeny');
    * pview.applyFind({'age': {'$lte': 40}});
@@ -1059,7 +1064,6 @@ export class Collection<
   /**
    * Remove a dynamic view from the collection
    * @param {string} name - name of dynamic view to remove
-   * @memberof Collection
    **/
   removeDynamicView(name) {
     this.DynamicViews = this.DynamicViews.filter((dv) => dv.name !== name);
@@ -1069,7 +1073,6 @@ export class Collection<
    * Look up dynamic view reference from within the collection
    * @param {string} name - name of dynamic view to retrieve reference of
    * @returns {DynamicView} A reference to the dynamic view with that name
-   * @memberof Collection
    **/
   getDynamicView(name) {
     for (let idx = 0; idx < this.DynamicViews.length; idx++) {
@@ -1087,7 +1090,6 @@ export class Collection<
    *
    * @param {object|function} filterObject - 'mongo-like' query object (or deprecated filterFunction mode)
    * @param {function} updateFunction - update function to run against filtered documents
-   * @memberof Collection
    */
   findAndUpdate(filterObject, updateFunction) {
     if (typeof filterObject === "function") {
@@ -1103,7 +1105,6 @@ export class Collection<
    * Applies a 'mongo-like' find query object removes all documents which match that filter.
    *
    * @param {object} filterObject - 'mongo-like' query object
-   * @memberof Collection
    */
   findAndRemove(filterObject?: Record<string, any>) {
     (this.chain() as ResultSet<ColT>).find(filterObject).remove();
@@ -1116,7 +1117,6 @@ export class Collection<
    *   temporarily disabled and then fully rebuilt after batch. This will be faster for
    *   large inserts, but slower for small/medium inserts in large collections
    * @returns {(object|array)} document or documents inserted
-   * @memberof Collection
    * @example
    * users.insert({
    *     name: 'Odin',
@@ -1127,9 +1127,12 @@ export class Collection<
    * // alternatively, insert array of documents
    * users.insert([{ name: 'Thor', age: 35}, { name: 'Loki', age: 30}]);
    */
-  insert(doc, overrideAdaptiveIndices?: boolean) {
+  insert<T extends CollectionDocument | CollectionDocument[]>(
+    doc: T,
+    overrideAdaptiveIndices?: boolean
+  ): T {
     if (!Array.isArray(doc)) {
-      return this.insertOne(doc);
+      return this.insertOne(doc as CollectionDocument) as T;
     }
 
     // holder to the clone of the object inserted if collections is set to clone objects
@@ -1179,7 +1182,10 @@ export class Collection<
    * @param {boolean} bulkInsert - quiet pre-insert and insert event emits
    * @returns {object} document or 'undefined' if there was a problem inserting it
    */
-  insertOne(doc, bulkInsert?: boolean) {
+  insertOne<T extends CollectionDocument>(
+    doc: T,
+    bulkInsert?: boolean
+  ): T | undefined {
     let err = null;
 
     if (typeof doc !== "object") {
@@ -1244,12 +1250,11 @@ export class Collection<
   }
 
   /**
-   * Empties the collection.
+   * Empties the collection of all data but leaves indexes and options intact by default.
    * @param {object=} options - configure clear behavior
    * @param {bool=} [options.removeIndices=false] - whether to remove indices in addition to data
-   * @memberof Collection
    */
-  clear(options?: { removeIndices?: boolean }) {
+  clear(options?: { removeIndices?: boolean }): void {
     const self = this;
 
     options = options || {};
@@ -1286,8 +1291,8 @@ export class Collection<
 
   /**
    * Updates an object and notifies collection that the document has changed.
-   * @param {object} doc - document to update within the collection
-   * @memberof Collection
+   * @param {CollectionDocument} doc - document to update within the collection
+   * @returns the document that was updated
    */
   update(doc: CollectionDocument | CollectionDocument[]) {
     let adaptiveBatchOverride;
@@ -1504,7 +1509,7 @@ export class Collection<
    *
    * @param {function} filterFunction - filter function whose results will execute update
    * @param {function} updateFunction - update function to run against filtered documents
-   * @memberof Collection
+   
    */
   updateWhere(filterFunction, updateFunction) {
     const results = this.where(filterFunction);
@@ -1525,7 +1530,7 @@ export class Collection<
    * Remove all documents matching supplied filter function.
    * For 'mongo-like' querying you should migrate to [findAndRemove()]{@link Collection#findAndRemove}.
    * @param {function|object} query - query object to filter on
-   * @memberof Collection
+   
    */
   removeWhere(query: ((...args: any[]) => any) | Record<string, any>) {
     let list: ColT[];
@@ -1683,7 +1688,7 @@ export class Collection<
   /**
    * Remove a document from the collection
    * @param {object | array | number} newDoc - document(s) to remove from collection. If number, remove by id
-   * @memberof Collection
+   
    * @returns CollectionDocument | null - null if document not found, otherwise removed document. Array of new documents is not returned
    */
   remove(
@@ -1781,7 +1786,7 @@ export class Collection<
    * @param {boolean} returnPosition - if 'true' we will return [object, position]
    * @returns {(object|array|null)} Object reference if document was found, null if not,
    *     or an array if 'returnPosition' was passed.
-   * @memberof Collection
+   
    */
   get(id: number, returnPosition?: boolean): object | Array<any> | null {
     if (!this.idIndex) {
@@ -2403,7 +2408,7 @@ export class Collection<
    * @param {string} field - name of uniquely indexed property to use when doing lookup
    * @param {value} value - unique value to search for
    * @returns {object} document matching the value passed
-   * @memberof Collection
+   
    */
   by(field: string, value?: string) {
     let self;
@@ -2424,7 +2429,7 @@ export class Collection<
    * Find one object by index property, by property equal to value
    * @param {object} query - query object used to perform search with
    * @returns {(object|null)} First matching document, or null if none
-   * @memberof Collection
+   
    */
   findOne(query = {}) {
     // Instantiate Resultset and exec find op passing firstOnly = true param
@@ -2448,7 +2453,7 @@ export class Collection<
    * @param {string|array=} transform - named transform or array of transform steps
    * @param {object=} parameters - Object containing properties representing parameters to substitute
    * @returns {ResultSet} (this) resultset, or data array if any map or join functions where called
-   * @memberof Collection
+   
    */
   chain(
     transform?: ChainTransform,
@@ -2469,7 +2474,7 @@ export class Collection<
    * @example {@tutorial Query Examples}
    * @param {object} query - 'mongo-like' query object
    * @returns {array} Array of matching documents
-   * @memberof Collection
+   
    */
   find(query?: Record<string, any>) {
     return (this.chain() as ResultSet<ColT>).find(query).data();
@@ -2564,7 +2569,7 @@ export class Collection<
    *
    * @param {function} fun - filter function to run against all collection docs
    * @returns {array} all documents which pass your filter function
-   * @memberof Collection
+   
    */
   where(fun) {
     return (this.chain() as ResultSet<ColT>).where(fun).data();
@@ -2576,7 +2581,7 @@ export class Collection<
    * @param {function} mapFunction - function to use as map function
    * @param {function} reduceFunction - function to use as reduce function
    * @returns {data} The result of your mapReduce operation
-   * @memberof Collection
+   
    */
   mapReduce = (mapFunction, reduceFunction) => {
     return reduceFunction(this.data.map(mapFunction));
@@ -2594,7 +2599,7 @@ export class Collection<
    * @param {boolean} dataOptions.forceClones - forcing the return of cloned objects to your map object
    * @param {string} dataOptions.forceCloneMethod - Allows overriding the default or collection specified cloning method.
    * @returns {ResultSet} Result of the mapping operation
-   * @memberof Collection
+   
    */
   eqJoin(
     joinData: ColT[] | ResultSet<ColT> | Collection<ColT>,
@@ -2621,7 +2626,7 @@ export class Collection<
 
   /**
    * (Staging API) create a stage and/or retrieve it
-   * @memberof Collection
+   
    */
   getStage(name: string): CollectionDocument {
     if (!this.stages[name]) {
@@ -2632,7 +2637,7 @@ export class Collection<
 
   /**
    * (Staging API) create a copy of an object and insert it into a stage
-   * @memberof Collection
+   
    */
   stage(stageName: string, obj: CollectionDocument) {
     const copy = JSON.parse(JSON.stringify(obj));
@@ -2645,7 +2650,7 @@ export class Collection<
    * then create a message to be inserted in the commitlog
    * @param {string} stageName - name of stage
    * @param {string} message
-   * @memberof Collection
+   
    */
   commitStage(stageName: string, message: string) {
     const stage = this.getStage(stageName);
@@ -2664,7 +2669,7 @@ export class Collection<
   }
 
   /**
-   * @memberof Collection
+   
    */
   extract(field) {
     let i = 0;
@@ -2678,21 +2683,21 @@ export class Collection<
   }
 
   /**
-   * @memberof Collection
+   
    */
   max(field) {
     return Math.max.apply(null, this.extract(field));
   }
 
   /**
-   * @memberof Collection
+   
    */
   min(field) {
     return Math.min.apply(null, this.extract(field));
   }
 
   /**
-   * @memberof Collection
+   
    */
   maxRecord(field) {
     let i = 0;
@@ -2722,7 +2727,7 @@ export class Collection<
   }
 
   /**
-   * @memberof Collection
+   
    */
   minRecord(field) {
     let i = 0;
@@ -2752,7 +2757,7 @@ export class Collection<
   }
 
   /**
-   * @memberof Collection
+   
    */
   extractNumerical(field) {
     return this.extract(field)
@@ -2766,7 +2771,7 @@ export class Collection<
    *
    * @param {string} field - name of property in docs to average
    * @returns {number} average of property in all docs in the collection
-   * @memberof Collection
+   
    */
   avg(field) {
     return average(this.extractNumerical(field));
@@ -2774,7 +2779,7 @@ export class Collection<
 
   /**
    * Calculate standard deviation of a field
-   * @memberof Collection
+   
    * @param {string} field
    */
   stdDev(field) {
@@ -2782,7 +2787,7 @@ export class Collection<
   }
 
   /**
-   * @memberof Collection
+   
    * @param {string} field
    */
   mode(field) {
@@ -2812,7 +2817,7 @@ export class Collection<
   }
 
   /**
-   * @memberof Collection
+   
    * @param {string} field - property name
    */
   median(field) {

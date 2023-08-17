@@ -1,21 +1,15 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable no-var */
-/**
- * LokiJS
- * @author Joe Minichino <joe.minichino@gmail.com>
- *
- * A lightweight document oriented javascript database
- */
 "use strict";
 import { clone } from "./clone";
 
-export function freeze(obj: object | any) {
+export function freeze<T = object>(obj: T): void {
   if (!Object.isFrozen(obj)) {
     Object.freeze(obj);
   }
 }
 
-export function deepFreeze(obj: object) {
+export function deepFreeze<T = object>(obj: T) {
   var prop, i;
   if (Array.isArray(obj)) {
     for (i = 0; i < obj.length; i++) {
@@ -32,7 +26,7 @@ export function deepFreeze(obj: object) {
   }
 }
 
-export function unFreeze(obj: object) {
+export function unFreeze<T = object>(obj: T) {
   if (!Object.isFrozen(obj)) {
     return obj;
   }

@@ -10,7 +10,7 @@ export type CloneMethods =
   | "shallow-assign"
   | "shallow-recurse-objects";
 
-export function clone(data: object, method: CloneMethods) {
+export function clone<T = object>(data: T, method: CloneMethods): T {
   if (data === null || data === undefined) {
     return null;
   }

@@ -890,7 +890,7 @@ describe("async adapter tests", function () {
     });
 
     // this happens immediately after saveDatabase is called
-    gungnir.foo = "bar";
+    (gungnir as Record<string, string>).foo = "bar";
     items.update(gungnir);
   });
 

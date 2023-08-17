@@ -1258,6 +1258,17 @@ export default class Sylvie extends SylvieEventEmitter {
     this.emit("close");
   }
 
+  // TODO: add tests
+  async closeAsync() {
+    if (this.autosave) {
+      this.autosaveDisable();
+      if (this.autosaveDirty()) {
+        await this.saveDatabaseAsync();
+      }
+    }
+    this.emit("close");
+  }
+
   /**-------------------------+
   | Changes API               |
   +--------------------------*/
