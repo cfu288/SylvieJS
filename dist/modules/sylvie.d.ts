@@ -488,6 +488,9 @@ export default class Sylvie extends SylvieEventEmitter {
         success: false;
         error: Error;
     }) => void): void;
+    deleteDatabaseAsync(): Promise<{
+        success: true;
+    }>;
     /**
      * autosaveDirty - check whether any collections are 'dirty' meaning we need to save (entire) database
      *

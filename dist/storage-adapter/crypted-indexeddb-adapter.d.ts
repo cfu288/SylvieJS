@@ -1,6 +1,7 @@
 import { SylvieCatalog } from "./crypted-indexeddb-adapter/sylvie-catalog";
 import { PersistenceAdapter } from "./persistence-adapter";
 interface CryptedIndexedAdapterOptions {
+    appname: string;
     closeAfterSave: boolean;
     secret: string;
 }
@@ -18,8 +19,8 @@ interface CryptedIndexedAdapterOptions {
  *
  * @constructor SylvieIndexedAdapter
  *
- * @param {string} appname - (Optional) Application name context can be used to distinguish subdomains, 'loki' by default
  * @param {CryptedIndexedAdapterOptions} options Configuration options for the adapter
+ * @param {string} options.appname - (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  * @param {boolean} options.secret The password to encrypt with.
  */
@@ -30,8 +31,21 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
     options: Partial<CryptedIndexedAdapterOptions>;
     catalog: SylvieCatalog;
     mode: string;
-    constructor(appname: string, options?: Partial<CryptedIndexedAdapterOptions>);
-    setSecret(secret: string): void;
+    constructor(options?: Partial<CryptedIndexedAdapterOptions>);
+    /**
+     * Sets a password for use on future load and save of the database.
+     * Note that this does not re-encrypt the database with the new password. Use changePassword() for that.
+     * @param secret
+     * @example
+     * const db = new Sylvie(TEST_DB_NAME, {
+     *   adapter: new CryptedIndexedDBAdapter();
+     * });
+     *
+     * adapter.usePassword("newpassword");
+     *
+     * await newDb.loadDatabaseAsync({});
+     */
+    usePassword(secret: string): void;
     /**
      * Retrieves a serialized db string from the catalog.
      *
@@ -88,6 +102,19 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
         success: false;
         error: Error;
     }) => any) => void;
+    /**
+     * Changes the password of a database and re-encrypts the database with the new password.
+     * @param {string} dbName The name of the database to change the password of.
+     * @param {string} newPassword The new password to encrypt the database with.
+     * @memberof CryptedIndexedDBAdapter
+     * @returns {Promise<void>} A promise that resolves when the password has been changed.
+     * @throws {Error} If the adapter is not open.
+     * @example
+     * await adapter.changePassword("mydb", "newpassword");
+     * // The database "mydb" is now encrypted with the password "newpassword".
+     * // The old password will no longer work.
+     */
+    changePassword(dbname: string, newPassword: string): Promise<void>;
     /**
      * Removes all database partitions and pages with the base filename passed in.
      * This utility method does not (yet) guarantee async deletions will be completed before returning

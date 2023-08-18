@@ -20,7 +20,7 @@ export declare function aeqHelper(prop1: boolean | string | number, prop2: boole
  */
 export declare function ltHelper(prop1: number | boolean | string, prop2: number | boolean | string, equal: boolean): boolean;
 export declare function gtHelper(prop1: number | boolean | string, prop2: number | boolean | string, equal: boolean): boolean;
-export declare function sortHelper(prop1: string | number | boolean, prop2: string | number | boolean, desc: boolean): 1 | -1 | 0;
+export declare function sortHelper(prop1: string | number | boolean, prop2: string | number | boolean, desc: boolean): 0 | 1 | -1;
 /**
  * compoundeval() - helper function for compoundsort(), performing individual object comparisons
  *

@@ -10,4 +10,9 @@ export default {
             </head>
       </html>
       `,
+  files: [
+    "**/*.spec.ts", // include `.spec.ts` files
+    "!**/node/*.spec.ts", // exclude `.e2e.spec.ts` files
+    "!**/node_modules/**/*", // exclude any node modules
+  ],
 };

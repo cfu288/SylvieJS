@@ -1895,6 +1895,29 @@ export default class Sylvie extends SylvieEventEmitter {
     }
   }
 
+  async deleteDatabaseAsync(): Promise<{ success: true }> {
+    return new Promise((resolve, reject) => {
+      if (this.persistenceAdapter !== null) {
+        this.persistenceAdapter.deleteDatabase(
+          this.filename,
+          (
+            res: Error | { success: true } | { success: false; error: Error }
+          ) => {
+            if (res instanceof Error) {
+              reject(res);
+            } else if ((res as { success: true })?.success) {
+              resolve(res as { success: true });
+            } else {
+              reject(res);
+            }
+          }
+        );
+      } else {
+        reject(new Error("persistenceAdapter not configured"));
+      }
+    });
+  }
+
   /**
    * autosaveDirty - check whether any collections are 'dirty' meaning we need to save (entire) database
    *

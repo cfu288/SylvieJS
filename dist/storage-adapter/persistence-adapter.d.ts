@@ -13,13 +13,13 @@ export interface PersistenceAdapter {
         success: false;
         error: Error;
     }) => void): void;
-    exportDatabase?(dbname: string, dbref: typeof Sylvie, callback?: (result: Error | {
+    saveDatabase(dbname: string, dbstring: any, callback?: (result: Error | {
         success: true;
     } | {
         success: false;
         error: Error;
     }) => void): void;
-    saveDatabase(dbname: string, dbstring: any, callback?: (result: Error | {
+    exportDatabase?(dbname: string, dbref: typeof Sylvie, callback?: (result: Error | {
         success: true;
     } | {
         success: false;
@@ -33,10 +33,10 @@ export interface AsyncPersistenceAdapter {
     deleteDatabaseAsync(dbname: string): Promise<{
         success: true;
     }>;
-    exportDatabaseAsync?(dbname: string, dbref: typeof Sylvie): Promise<{
+    saveDatabaseAsync(dbname: string, dbstring: string): Promise<{
         success: true;
     }>;
-    saveDatabaseAsync(dbname: string, dbstring: string): Promise<{
+    exportDatabaseAsync?(dbname: string, dbref: typeof Sylvie): Promise<{
         success: true;
     }>;
 }

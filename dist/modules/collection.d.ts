@@ -313,7 +313,7 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      *
      * var results = pview.data();
      **/
-    addDynamicView(name?: string, options?: Partial<DynamicViewOptions>): any;
+    addDynamicView(name?: string, options?: Partial<DynamicViewOptions>): DynamicView<ColT>;
     /**
      * Remove a dynamic view from the collection
      * @param {string} name - name of dynamic view to remove
