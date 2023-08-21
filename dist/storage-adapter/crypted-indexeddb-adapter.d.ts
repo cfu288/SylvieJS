@@ -1,5 +1,5 @@
 import { SylvieCatalog } from "./crypted-indexeddb-adapter/sylvie-catalog";
-import { PersistenceAdapter } from "./persistence-adapter";
+import { AsyncPersistenceAdapter, PersistenceAdapter } from "./persistence-adapter";
 interface CryptedIndexedAdapterOptions {
     appname: string;
     closeAfterSave: boolean;
@@ -24,7 +24,7 @@ interface CryptedIndexedAdapterOptions {
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  * @param {boolean} options.secret The password to encrypt with.
  */
-export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
+export declare class CryptedIndexedDBAdapter implements PersistenceAdapter, AsyncPersistenceAdapter {
     #private;
     isAsync: true;
     app: string;
@@ -62,6 +62,29 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
      */
     loadDatabase: (dbname: string, callback: (serialized: string) => void) => void;
     /**
+     * Retrieves a serialized db string from the catalog, returns a promise to a string of the serialized database.
+     * @param dbname
+     * @returns {Promise<string>} A promise to a string of the serialized database.
+     * @example
+     * const db = new Sylvie(TEST_DB_NAME, {
+     *  adapter: new CryptedIndexedDBAdapter();
+     * });
+     * await db.loadDatabaseAsync({});
+     * // db is now ready to use
+     * // you can also chain the promises
+     * await db.loadDatabaseAsync({}).then(() => {
+     * // db is now ready to use
+     * });
+     * // or use async await syntax
+     * await db.loadDatabaseAsync({});
+     * // db is now ready to use
+     * @memberof CryptedIndexedDBAdapter
+     * @throws {Error} If the database is not found.
+     * @throws {Error} If the database is not decrypted successfully.
+     * @throws {Error} If the database is not deserialized successfully.
+     */
+    loadDatabaseAsync: (dbname: string) => Promise<string>;
+    /**
      * Saves a serialized db to the catalog.
      *
      * @example
@@ -82,6 +105,9 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
         success: false;
         error: Error;
     }) => void) => void;
+    saveDatabaseAsync(dbname: string, dbstring: string): Promise<{
+        success: true;
+    }>;
     /**
      * Deletes a serialized db from the catalog.
      *
@@ -102,6 +128,9 @@ export declare class CryptedIndexedDBAdapter implements PersistenceAdapter {
         success: false;
         error: Error;
     }) => any) => void;
+    deleteDatabaseAsync(dbname: string): Promise<{
+        success: true;
+    }>;
     /**
      * Changes the password of a database and re-encrypts the database with the new password.
      * @param {string} dbName The name of the database to change the password of.

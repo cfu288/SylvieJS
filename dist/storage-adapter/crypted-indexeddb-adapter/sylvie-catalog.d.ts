@@ -4,10 +4,14 @@
  *    Used by the IndexedDBAdapter class.
  */
 export declare class SylvieCatalog {
+    #private;
     db: IDBDatabase;
     constructor(callback: (SylvieCatalog: any) => void);
+    /**
+     * An alternative to passing a callback to the constructor
+     */
+    initialize(): Promise<SylvieCatalog>;
     openCatalog(): IDBOpenDBRequest;
-    initializeCatalog(): Promise<SylvieCatalog>;
     getAppKeyAsync(app: any, key: any): Promise<{
         app: string;
         appkey: string;
