@@ -54,7 +54,9 @@ interface CryptedIndexedAdapterOptions {
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  * @param {boolean} options.secret The password to encrypt with.
  */
-export class CryptedIndexedDBAdapter implements PersistenceAdapter {
+export class CryptedIndexedDBAdapter
+  implements PersistenceAdapter, AsyncPersistenceAdapter
+{
   isAsync: true;
   app: string;
   options: Partial<CryptedIndexedAdapterOptions>;
@@ -145,6 +147,13 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
         this.catalog = catalog;
         this.loadDatabase(dbname, callback);
       });
+      try {
+        this.catalog.initialize().then((catalog) => {
+          this.catalog = catalog;
+        });
+      } catch (e) {
+        console.log(e);
+      }
       return;
     }
 
@@ -171,6 +180,62 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
           console.log(val);
         }
       }
+    });
+  };
+
+  /**
+   * Retrieves a serialized db string from the catalog, returns a promise to a string of the serialized database.
+   * @param dbname
+   * @returns {Promise<string>} A promise to a string of the serialized database.
+   * @example
+   * const db = new Sylvie(TEST_DB_NAME, {
+   *  adapter: new CryptedIndexedDBAdapter();
+   * });
+   * await db.loadDatabaseAsync({});
+   * // db is now ready to use
+   * // you can also chain the promises
+   * await db.loadDatabaseAsync({}).then(() => {
+   * // db is now ready to use
+   * });
+   * // or use async await syntax
+   * await db.loadDatabaseAsync({});
+   * // db is now ready to use
+   * @memberof CryptedIndexedDBAdapter
+   * @throws {Error} If the database is not found.
+   * @throws {Error} If the database is not decrypted successfully.
+   * @throws {Error} If the database is not deserialized successfully.
+   */
+  loadDatabaseAsync = async (dbname: string): Promise<string> => {
+    DEBUG && console.debug("loading database");
+
+    return new Promise((resolve, reject) => {
+      // lazy open/create db reference so dont -need- callback in constructor
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog.initialize().then((catalog) => {
+          this.catalog = catalog;
+          this.loadDatabase(dbname, (str) => resolve(str));
+        });
+        return;
+      }
+
+      // lookup up dbstring in AKV db
+      this.catalog.getAppKeyAsync(this.app, dbname).then((props) => {
+        const { success } = props as { success: boolean };
+        if (success === false) {
+          reject(null);
+        } else {
+          const { val } = props as { val: string };
+          const encryptedDbString = val;
+          decryptData(encryptedDbString, this.#secret)
+            .then((decryptedDbString) => {
+              DEBUG && console.debug(`DECRYPTED STRING: ${decryptedDbString}`);
+              resolve(decryptedDbString);
+            })
+            .catch((err) => {
+              reject(err);
+            });
+        }
+      });
     });
   };
 
@@ -245,6 +310,62 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
       });
   };
 
+  async saveDatabaseAsync(
+    dbname: string,
+    dbstring: string
+  ): Promise<{ success: true }> {
+    return new Promise((resolve, reject) => {
+      const saveCallback = (result: { success: boolean } | Error) => {
+        if (result === null || result === undefined) {
+          resolve(undefined);
+        } else if (
+          typeof result === "object" &&
+          Object.hasOwn(result, "success") &&
+          result &&
+          (result as { success: boolean }).success === true
+        ) {
+          resolve(undefined);
+        } else {
+          reject(new Error("Error saving database: " + result));
+        }
+
+        if (this.options.closeAfterSave === true) {
+          this.#closeDatabase();
+        }
+      };
+
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new SylvieCatalog(() => {
+          this.saveDatabase(dbname, dbstring, saveCallback);
+        });
+
+        return;
+      }
+
+      encryptData(dbstring, this.#secret)
+        .then((encryptedDbString) => {
+          // lazy open/create db reference so dont -need- callback in constructor
+          DEBUG && console.debug(`ENCRYPTED STRING: ${encryptedDbString}`);
+          // set (add/update) entry to AKV database
+          this.catalog
+            .setAppKeyAsync(this.app, dbname, encryptedDbString)
+            .then((res) => {
+              if (res.success === true) {
+                resolve(res);
+              } else {
+                reject(res);
+              }
+            })
+            .catch((err) => {
+              reject(err);
+            });
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
   /**
    * Deletes a serialized db from the catalog.
    *
@@ -301,6 +422,44 @@ export class CryptedIndexedDBAdapter implements PersistenceAdapter {
         }
       });
   };
+
+  async deleteDatabaseAsync(dbname: string): Promise<{
+    success: true;
+  }> {
+    // lazy open/create db reference and pass callback ahead
+    return new Promise((resolve, reject) => {
+      if (this.catalog === null || this.catalog.db === null) {
+        this.catalog = new SylvieCatalog((catalog) => {
+          this.catalog = catalog;
+          return this.deleteDatabaseAsync(dbname);
+        });
+      }
+
+      // catalog was already initialized, so just lookup object and delete by id
+      this.catalog
+        .getAppKeyAsync(this.app, dbname)
+        .then((result) => {
+          const id = result.id;
+          if (id !== 0) {
+            this.catalog
+              .deleteAppKeyAsync(id)
+              .then((res) => {
+                if (res.success === true) {
+                  resolve(res);
+                } else {
+                  reject(res);
+                }
+              })
+              .catch((err) => {
+                reject(err);
+              });
+          }
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
 
   /**
    * Changes the password of a database and re-encrypts the database with the new password.

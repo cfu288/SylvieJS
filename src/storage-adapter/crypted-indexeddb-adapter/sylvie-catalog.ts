@@ -7,16 +7,34 @@ export class SylvieCatalog {
   db: IDBDatabase;
   constructor(callback: (SylvieCatalog) => void) {
     this.db = null;
-    this.initializeCatalog()
-      .then((res) => {
-        if (typeof callback === "function") {
-          callback(res);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        throw err;
-      });
+    if (callback) {
+      this.#initializeCatalog()
+        .then((res) => {
+          if (typeof callback === "function") {
+            callback(res);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          throw err;
+        });
+    }
+  }
+
+  /**
+   * An alternative to passing a callback to the constructor
+   */
+  initialize(): Promise<SylvieCatalog> {
+    return new Promise((resolve, reject) => {
+      this.#initializeCatalog()
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          console.log(err);
+          reject(err);
+        });
+    });
   }
 
   openCatalog() {
@@ -42,7 +60,7 @@ export class SylvieCatalog {
     return openRequest;
   }
 
-  async initializeCatalog(): Promise<SylvieCatalog> {
+  async #initializeCatalog(): Promise<SylvieCatalog> {
     const cat = this;
     const openRequest = this.openCatalog();
 
