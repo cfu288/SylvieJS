@@ -54,13 +54,14 @@ Currently maintained by cfu288. Originally made by [@techfort](http://twitter.co
 
 ## Installation
 
-For browser environments you simply need the sylviejs.js file contained in `dist/`
+SylvieJS is distributed via npm and can be installed with the command:
+`npm install sylviejs`.
 
-For node environments you can install through `npm install cfu288/SylvieJS`.
+For browser environments you simply need the sylviejs.js file contained in `dist/`
 
 ## License
 
-Copyright (c) 2015 Christopher Fu
+Copyright (c) 2023 Christopher Fu
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
