@@ -4,7 +4,14 @@ The super fast in-memory javascript document oriented database.
 
 **This repo is a fork of the original [LokiJS repository](https://github.com/techfort/LokiJS)**
 
-The objectives of this fork are to modernize the API and the codebase (ES6, ES Modules, Async/Await + Promises, TypeScript, modern browser test runner for Chrome/Safari/Firefox) while remaining backwards compatible with LokiJS.
+The objectives of this fork are to modernize the API and the codebase:
+
+- Migrate codebase to ES6
+- Export SylvieJS as an ES Module
+- Add API for Async/Await + Promises instead of callbacks
+- Use TypeScript
+- Add automated browser test runner for Chrome/Safari/Firefox
+- Maintain backwards compatibility with LokiJS
 
 [![Node.js CI](https://github.com/cfu288/SylvieJS/actions/workflows/ci.yaml/badge.svg)](https://github.com/cfu288/SylvieJS/actions/workflows/ci.yaml)
 
