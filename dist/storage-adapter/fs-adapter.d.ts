@@ -2,13 +2,11 @@
  * A loki persistence adapter which persists using node fs module
  * @constructor LokiFsAdapter
  */
-import Sylvie from "../modules/sylvie";
-import { PersistenceAdapter } from "./persistence-adapter";
-export declare class FsAdapter implements PersistenceAdapter {
+import { NormalSyncPersistenceAdapter } from "./persistence-adapter";
+export declare class FsAdapter implements NormalSyncPersistenceAdapter {
     fs: any;
     constructor();
-    mode: string;
-    exportDatabase(dbname: string, dbref: typeof Sylvie, callback: (err: Error) => void): void;
+    mode: "normal";
     /** loadDatabase() - Load data from file, will throw an error if the file does not exist
      * @param {string} dbname - the filename of the database to load
      * @param {function} callback - the callback to handle the result

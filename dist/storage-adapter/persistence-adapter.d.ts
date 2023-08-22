@@ -4,8 +4,9 @@ import Sylvie from "../modules/sylvie";
  * localStorage   for use in browser environment
  * defined as helper classes here so its easy and clean to use
  */
-export interface PersistenceAdapter {
-    mode: string | undefined;
+export type SyncPersistenceAdapter = NormalSyncPersistenceAdapter | ReferenceSyncPersistenceAdapter | IncrementalSyncPersistenceAdapter;
+export interface NormalSyncPersistenceAdapter {
+    mode: "normal";
     loadDatabase(dbname: string, callback: (value: string | Error) => void): void;
     deleteDatabase(dbname: string, callback: (result: Error | {
         success: true;
@@ -19,7 +20,39 @@ export interface PersistenceAdapter {
         success: false;
         error: Error;
     }) => void): void;
-    exportDatabase?(dbname: string, dbref: typeof Sylvie, callback?: (result: Error | {
+}
+export interface IncrementalSyncPersistenceAdapter {
+    mode: "incremental";
+    loadDatabase(dbname: string, callback: (value: string | Error) => void): void;
+    deleteDatabase(dbname: string, callback: (result: Error | {
+        success: true;
+    } | {
+        success: false;
+        error: Error;
+    }) => void): void;
+    saveDatabase(dbname: string, dbstring: any, callback?: (result: Error | {
+        success: true;
+    } | {
+        success: false;
+        error: Error;
+    }) => void): void;
+}
+export interface ReferenceSyncPersistenceAdapter {
+    mode: "reference";
+    loadDatabase(dbname: string, callback: (value: string | Error) => void): void;
+    deleteDatabase(dbname: string, callback: (result: Error | {
+        success: true;
+    } | {
+        success: false;
+        error: Error;
+    }) => void): void;
+    saveDatabase(dbname: string, dbstring: any, callback?: (result: Error | {
+        success: true;
+    } | {
+        success: false;
+        error: Error;
+    }) => void): void;
+    exportDatabase(dbname: string, dbref: typeof Sylvie, callback?: (result: Error | {
         success: true;
     } | {
         success: false;
@@ -28,7 +61,7 @@ export interface PersistenceAdapter {
 }
 export interface AsyncPersistenceAdapter {
     isAsync: true;
-    mode: string | undefined;
+    mode?: "normal" | "incremental" | "reference";
     loadDatabaseAsync(dbname: string): Promise<string | Error>;
     deleteDatabaseAsync(dbname: string): Promise<{
         success: true;

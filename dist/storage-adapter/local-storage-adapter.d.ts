@@ -1,12 +1,10 @@
-import Sylvie from "../modules/sylvie";
-import { PersistenceAdapter } from "./persistence-adapter";
+import { NormalSyncPersistenceAdapter } from "./persistence-adapter";
 /**
  * A loki persistence adapter which persists to web browser's local storage object
  * @constructor LokiLocalStorageAdapter
  */
-export declare class LocalStorageAdapter implements PersistenceAdapter {
-    mode: string;
-    exportDatabase(dbname: string, dbref: typeof Sylvie, callback: (err: Error) => void): void;
+export declare class LocalStorageAdapter implements NormalSyncPersistenceAdapter {
+    mode: "normal";
     /**
      * loadDatabase() - Load data from localstorage
      * @param {string} dbname - the name of the database to load

@@ -297,26 +297,22 @@ describe("CryptedIndexedDBAdapter", function () {
     expect(keys).toContain(TEST_DB_NAME);
   });
 
-  // it("saveDatabaseAsync() with no password set should throw", async () => {
-  //   const db = new Sylvie("test.db", {
-  //     adapter: new CryptedIndexedDBAdapter({}),
-  //   });
+  it("saveDatabaseAsync() with no password set should not throw", async () => {
+    const db = new Sylvie("test.db", {
+      adapter: new CryptedIndexedDBAdapter({}),
+    });
 
-  //   // Add some data, manipulate it
-  //   const collection = db.addCollection("items");
-  //   collection.insert([
-  //     { customId: 0, val: "hello", extra: "world" },
-  //     { customId: 1, val: "hello1" },
-  //     { customId: 2, val: "hello2" },
-  //   ]);
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
 
-  //   // Save the database
-  //   // try {
-  //   await db.saveDatabaseAsync();
-  //   // } catch (error) {
-  //   // expect((error as Error).name).toBe("OperationError");
-  //   // }
-  // });
+    // Save the database
+    await db.saveDatabaseAsync();
+  });
 
   it("loadDatabaseAsync() should work", async function () {
     // Note that other tests may save dbs as well, can't rely on absolute counts
@@ -389,8 +385,7 @@ describe("CryptedIndexedDBAdapter", function () {
         }),
       });
       newDbWithWrongPass.loadDatabase({}, (error) => {
-        expect(error).toBeTruthy();
-        expect((error as Error).name).toBe("OperationError");
+        expect((error as Error)?.name).toBe("OperationError");
         done();
       });
     });
@@ -412,7 +407,7 @@ describe("CryptedIndexedDBAdapter", function () {
     ]);
 
     // Save the database
-    await db.saveDatabase();
+    await db.saveDatabaseAsync();
 
     // Create a new db instance
     const newDbWithWrongPass = new Sylvie("test.db", {

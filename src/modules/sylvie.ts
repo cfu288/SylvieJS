@@ -19,7 +19,10 @@ import {
   PartitioningAdapter,
   PartitioningAdapterOptions,
 } from "../storage-adapter/partitioning-adapter";
-import { PersistenceAdapter } from "../storage-adapter/persistence-adapter";
+import {
+  AsyncPersistenceAdapter,
+  SyncPersistenceAdapter,
+} from "../storage-adapter/persistence-adapter";
 
 export type ChangeOpsLoadJSONUsersOptions = {
   inflate:
@@ -75,7 +78,7 @@ interface ConstructorOptions {
 }
 
 interface ConfigOptions {
-  adapter: PersistenceAdapter | null;
+  adapter: SyncPersistenceAdapter | AsyncPersistenceAdapter | null;
   autoload: boolean;
   autoloadCallback: (err: any) => void;
   autosave: boolean;
@@ -116,7 +119,7 @@ export default class Sylvie extends SylvieEventEmitter {
   throttledSaves: boolean;
   options?: Partial<ConfigOptions & ConstructorOptions>;
   persistenceMethod: any;
-  persistenceAdapter: PersistenceAdapter;
+  persistenceAdapter: SyncPersistenceAdapter | AsyncPersistenceAdapter | null;
   throttledSavePending: boolean;
   throttledCallbacks: any[];
   verbose: boolean;
@@ -1447,108 +1450,64 @@ export default class Sylvie extends SylvieEventEmitter {
 
     const self = this;
 
+    const loadDatabaseCallback = (dbString) => {
+      if (typeof dbString === "string") {
+        let parseSuccess = false;
+        try {
+          self.loadJSON(dbString, options || {});
+          parseSuccess = true;
+        } catch (err) {
+          cFun(err);
+        }
+        if (parseSuccess) {
+          cFun(null);
+          self.emit("loaded", `database ${self.filename} loaded`);
+        }
+      } else {
+        // falsy result means new database
+        if (!dbString) {
+          cFun(null);
+          self.emit("loaded", `empty database ${self.filename} loaded`);
+          return;
+        }
+
+        // instanceof error means load faulted
+        if (dbString instanceof Error) {
+          cFun(dbString);
+          return;
+        }
+
+        // if adapter has returned an js object (other than null or error) attempt to load from JSON object
+        if (typeof dbString === "object") {
+          self.loadJSONObject(dbString, options || {});
+          cFun(null); // return null on success
+          self.emit("loaded", `database ${self.filename} loaded`);
+          return;
+        }
+
+        cFun({
+          success: false,
+          error: Error(`unexpected adapter response : ${dbString}`),
+        });
+      }
+    };
+
     // the persistenceAdapter should be present if all is ok, but check to be sure.
     if (this.persistenceAdapter !== null) {
-      this.persistenceAdapter.loadDatabase(
-        this.filename,
-        function loadDatabaseCallback(dbString) {
-          if (typeof dbString === "string") {
-            let parseSuccess = false;
-            try {
-              self.loadJSON(dbString, options || {});
-              parseSuccess = true;
-            } catch (err) {
-              cFun(err);
-            }
-            if (parseSuccess) {
-              cFun(null);
-              self.emit("loaded", `database ${self.filename} loaded`);
-            }
-          } else {
-            // falsy result means new database
-            if (!dbString) {
-              cFun(null);
-              self.emit("loaded", `empty database ${self.filename} loaded`);
-              return;
-            }
-
-            // instanceof error means load faulted
-            if (dbString instanceof Error) {
-              cFun(dbString);
-              return;
-            }
-
-            // if adapter has returned an js object (other than null or error) attempt to load from JSON object
-            if (typeof dbString === "object") {
-              self.loadJSONObject(dbString, options || {});
-              cFun(null); // return null on success
-              self.emit("loaded", `database ${self.filename} loaded`);
-              return;
-            }
-
-            cFun({
-              success: false,
-              error: Error(`unexpected adapter response : ${dbString}`),
-            });
-          }
-        }
-      );
+      if ("isAsync" in this.persistenceAdapter) {
+        this.persistenceAdapter
+          .loadDatabaseAsync(this.filename)
+          .then(loadDatabaseCallback)
+          .catch(loadDatabaseCallback);
+      } else {
+        this.persistenceAdapter.loadDatabase(
+          this.filename,
+          loadDatabaseCallback
+        );
+      }
     } else {
       cFun(new Error("persistenceAdapter not configured"));
     }
-  }
-
-  async loadDatabaseInternalAsync(options): Promise<null | string> {
-    return new Promise((resolve, reject) => {
-      const self = this;
-
-      // the persistenceAdapter should be present if all is ok, but check to be sure.
-      if (this.persistenceAdapter !== null) {
-        this.persistenceAdapter.loadDatabase(
-          this.filename,
-          function loadDatabaseCallback(dbString) {
-            if (typeof dbString === "string") {
-              let parseSuccess = false;
-              try {
-                self.loadJSON(dbString, options || {});
-                parseSuccess = true;
-              } catch (err) {
-                reject(err);
-              }
-              if (parseSuccess) {
-                resolve(null);
-                self.emit("loaded", `database ${self.filename} loaded`);
-              }
-            } else {
-              // falsy result means new database
-              if (!dbString) {
-                resolve(null);
-                self.emit("loaded", `empty database ${self.filename} loaded`);
-                return;
-              }
-
-              // instanceof error means load faulted
-              if (dbString instanceof Error) {
-                reject(dbString);
-                return;
-              }
-
-              // if adapter has returned an js object (other than null or error) attempt to load from JSON object
-              if (typeof dbString === "object") {
-                self.loadJSONObject(dbString, options || {});
-                resolve(null); // return null on success
-                self.emit("loaded", `database ${self.filename} loaded`);
-                return;
-              }
-
-              reject(`unexpected adapter response : ${dbString}`);
-            }
-          }
-        );
-      } else {
-        reject(new Error("persistenceAdapter not configured"));
-      }
-    });
   }
 
   /**
@@ -1699,58 +1658,78 @@ export default class Sylvie extends SylvieEventEmitter {
       // ignore autosave until we copy loki (only then we can clear dirty flags,
       // but if we don't do it now, autosave will be triggered a lot unnecessarily)
       this.ignoreAutosave = true;
-      this.persistenceAdapter.saveDatabase(
-        this.filename,
-        function getLokiCopy() {
-          self.ignoreAutosave = false;
-          if (cachedDirty) {
-            cFun(
-              new Error("adapter error - getLokiCopy called more than once")
-            );
-            return;
-          }
-          const lokiCopy = self.copy({ removeNonSerializable: true });
+      if (!("isAsync" in this.persistenceAdapter)) {
+        this.persistenceAdapter.saveDatabase(
+          this.filename,
+          function getLokiCopy() {
+            self.ignoreAutosave = false;
+            if (cachedDirty) {
+              cFun(
+                new Error("adapter error - getLokiCopy called more than once")
+              );
+              return;
+            }
+            const lokiCopy = self.copy({ removeNonSerializable: true });
 
-          // remember and clear dirty ids -- we must do it before the save so that if
-          // and update occurs between here and callback, it will get saved later
-          cachedDirty = self.collections.map(({ dirty, dirtyIds }) => [
-            dirty,
-            dirtyIds,
-          ]);
-          self.collections.forEach((col) => {
-            col.dirty = false;
-            col.dirtyIds = [];
-          });
-          return lokiCopy;
-        },
-        function exportDatabaseCallback(err) {
-          self.ignoreAutosave = false;
-          if (err && cachedDirty) {
-            // roll back dirty IDs to be saved later
-            self.collections.forEach((col, i) => {
-              const cached = cachedDirty[i];
-              col.dirty = col.dirty || cached[0];
-              col.dirtyIds = col.dirtyIds.concat(cached[1]);
+            // remember and clear dirty ids -- we must do it before the save so that if
+            // and update occurs between here and callback, it will get saved later
+            cachedDirty = self.collections.map(({ dirty, dirtyIds }) => [
+              dirty,
+              dirtyIds,
+            ]);
+            self.collections.forEach((col) => {
+              col.dirty = false;
+              col.dirtyIds = [];
             });
+            return lokiCopy;
+          },
+          function exportDatabaseCallback(err) {
+            self.ignoreAutosave = false;
+            if (err && cachedDirty) {
+              // roll back dirty IDs to be saved later
+              self.collections.forEach((col, i) => {
+                const cached = cachedDirty[i];
+                col.dirty = col.dirty || cached[0];
+                col.dirtyIds = col.dirtyIds.concat(cached[1]);
+              });
+            }
+            cFun(err);
           }
-          cFun(err);
-        }
-      );
-    } else if (
-      this.persistenceAdapter.mode === "reference" &&
-      typeof this.persistenceAdapter.exportDatabase === "function"
-    ) {
+        );
+      } else {
+        // TODO: figure out the intended behavior of incremental and reference modes
+        cFun(
+          new Error(
+            "Async incremental persistenceAdapter handling not implemented in SylvieJS"
+          )
+        );
+        return;
+      }
+    } else if (this.persistenceAdapter.mode === "reference") {
       // TODO: dirty should be cleared here
       // filename may seem redundant but loadDatabase will need to expect this same filename
-      this.persistenceAdapter.exportDatabase(
-        this.filename,
-        // @ts-ignore
-        this.copy({ removeNonSerializable: true }),
-        function exportDatabaseCallback(err) {
-          self.autosaveClearFlags();
-          cFun(err);
-        }
-      );
+      if (
+        !("isAsync" in this.persistenceAdapter) &&
+        this.persistenceAdapter.mode === "reference" &&
+        typeof this.persistenceAdapter.exportDatabase === "function"
+      ) {
+        this.persistenceAdapter.exportDatabase(
+          this.filename,
+          // @ts-ignore
+          this.copy({ removeNonSerializable: true }),
+          function exportDatabaseCallback(err) {
+            self.autosaveClearFlags();
+            cFun(err);
+          }
+        );
+      } else {
+        cFun(
+          new Error(
+            "Async reference persistenceAdapter handling not implemented in SylvieJS"
+          )
+        );
+        return;
+      }
     }
     // otherwise just pass the serialized database to adapter
     else {
@@ -1758,13 +1737,21 @@ export default class Sylvie extends SylvieEventEmitter {
       // or autosave won't work if an update occurs between here and the callback
       // TODO: This should be stored and rolled back in case of DB save failure
       this.autosaveClearFlags();
-      this.persistenceAdapter.saveDatabase(
-        this.filename,
-        this.serialize(),
-        function saveDatabasecallback(err) {
-          cFun(err);
-        }
-      );
+      const afterSaveCallback = (err) => {
+        cFun(err);
+      };
+      if ("isAsync" in this.persistenceAdapter) {
+        this.persistenceAdapter
+          .saveDatabaseAsync(this.filename, this.serialize())
+          .then(afterSaveCallback)
+          .catch(afterSaveCallback);
+      } else {
+        this.persistenceAdapter.saveDatabase(
+          this.filename,
+          this.serialize(),
+          afterSaveCallback
+        );
+      }
     }
   }
 
@@ -1823,7 +1810,7 @@ export default class Sylvie extends SylvieEventEmitter {
   }
 
   async saveDatabaseAsync(): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const resolveCallback = () => resolve();
       if (!this.throttledSaves) {
         this.saveDatabaseInternal(resolveCallback);
@@ -1874,7 +1861,7 @@ export default class Sylvie extends SylvieEventEmitter {
       _: Error | { success: true } | { success: false; error: Error }
     ) => void
   ) {
-    let cFun =
+    const cFun =
       callback ||
       ((err) => {
         if (err) {
@@ -1884,12 +1871,20 @@ export default class Sylvie extends SylvieEventEmitter {
 
     // the persistenceAdapter should be present if all is ok, but check to be sure.
     if (this.persistenceAdapter !== null) {
-      this.persistenceAdapter.deleteDatabase(
-        this.filename,
-        function deleteDatabaseCallback(err) {
-          cFun(err);
-        }
-      );
+      const afterDeleteCallback = (err) => {
+        cFun(err);
+      };
+      if ("isAsync" in this.persistenceAdapter) {
+        this.persistenceAdapter
+          .deleteDatabaseAsync(this.filename)
+          .then(afterDeleteCallback)
+          .catch(afterDeleteCallback);
+      } else {
+        this.persistenceAdapter.deleteDatabase(
+          this.filename,
+          afterDeleteCallback
+        );
+      }
     } else {
       cFun(new Error("persistenceAdapter not configured"));
     }
@@ -1897,21 +1892,29 @@ export default class Sylvie extends SylvieEventEmitter {
 
   async deleteDatabaseAsync(): Promise<{ success: true }> {
     return new Promise((resolve, reject) => {
+      const afterDeleteCallback = (
+        res: Error | { success: true } | { success: false; error: Error }
+      ) => {
+        if (res instanceof Error) {
+          reject(res);
+        } else if ((res as { success: true })?.success) {
+          resolve(res as { success: true });
+        } else {
+          reject(res);
+        }
+      };
       if (this.persistenceAdapter !== null) {
-        this.persistenceAdapter.deleteDatabase(
-          this.filename,
-          (
-            res: Error | { success: true } | { success: false; error: Error }
-          ) => {
-            if (res instanceof Error) {
-              reject(res);
-            } else if ((res as { success: true })?.success) {
-              resolve(res as { success: true });
-            } else {
-              reject(res);
-            }
-          }
-        );
+        if ("isAsync" in this.persistenceAdapter) {
+          this.persistenceAdapter
+            .deleteDatabaseAsync(this.filename)
+            .then(afterDeleteCallback)
+            .catch(afterDeleteCallback);
+        } else {
+          this.persistenceAdapter.deleteDatabase(
+            this.filename,
+            afterDeleteCallback
+          );
+        }
       } else {
         reject(new Error("persistenceAdapter not configured"));
       }

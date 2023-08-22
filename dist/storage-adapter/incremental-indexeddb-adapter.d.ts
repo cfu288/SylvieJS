@@ -1,4 +1,4 @@
-import { PersistenceAdapter } from "./persistence-adapter";
+import { IncrementalSyncPersistenceAdapter } from "./persistence-adapter";
 /**
  * An improved Loki persistence adapter for IndexedDB (not compatible with LokiIndexedAdapter)
  *     Unlike LokiIndexedAdapter, the database is saved not as one big JSON blob, but split into
@@ -34,8 +34,8 @@ import { PersistenceAdapter } from "./persistence-adapter";
  * @param {array} options.lazyCollections Names of collections that should be deserialized lazily
  *     Only use this for collections that aren't used at launch
  */
-export declare class IncrementalIndexedDBAdapter implements PersistenceAdapter {
-    mode: string;
+export declare class IncrementalIndexedDBAdapter implements IncrementalSyncPersistenceAdapter {
+    mode: "incremental";
     constructor(options?: {
         onversionchange?: (versionChangeEvent: IDBVersionChangeEvent) => void;
         onFetchStart?: () => void;

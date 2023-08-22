@@ -1,5 +1,5 @@
 import Sylvie from "../../src/sylviejs";
-import { PersistenceAdapter } from "../../src/storage-adapter/persistence-adapter";
+import { SyncPersistenceAdapter } from "../../src/storage-adapter/persistence-adapter";
 import { CollectionDocument } from "../../src/modules/collection";
 const loki = Sylvie;
 
@@ -21,7 +21,7 @@ describe("dirtyIds", function () {
   it("loki and db are incremental if adapter is incremental", function () {
     const adapter = { mode: "incremental" };
     const db = new loki("test.db", {
-      adapter: adapter as PersistenceAdapter,
+      adapter: adapter as SyncPersistenceAdapter,
     });
     const coll = db.addCollection("coll");
 
@@ -31,7 +31,7 @@ describe("dirtyIds", function () {
   it("tracks inserts", function () {
     const adapter = { mode: "incremental" };
     const db = new loki("test.db", {
-      adapter: adapter as PersistenceAdapter,
+      adapter: adapter as SyncPersistenceAdapter,
     });
     const coll = db.addCollection("coll");
 
@@ -43,7 +43,7 @@ describe("dirtyIds", function () {
   it("tracks updates", function () {
     const adapter = { mode: "incremental" };
     const db = new loki("test.db", {
-      adapter: adapter as PersistenceAdapter,
+      adapter: adapter as SyncPersistenceAdapter,
     });
     const coll = db.addCollection("coll");
 
@@ -57,7 +57,7 @@ describe("dirtyIds", function () {
   it("tracks deletes", function () {
     const adapter = { mode: "incremental" };
     const db = new loki("test.db", {
-      adapter: adapter as PersistenceAdapter,
+      adapter: adapter as SyncPersistenceAdapter,
     });
     const coll = db.addCollection("coll");
 
@@ -71,7 +71,7 @@ describe("dirtyIds", function () {
   it("tracks many changes", function () {
     const adapter = { mode: "incremental" };
     const db = new loki("test.db", {
-      adapter: adapter as PersistenceAdapter,
+      adapter: adapter as SyncPersistenceAdapter,
     });
     const coll = db.addCollection("coll");
 

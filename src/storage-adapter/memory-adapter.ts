@@ -20,13 +20,15 @@
  */
 
 import Sylvie from "../modules/sylvie";
-import { PersistenceAdapter } from "./persistence-adapter";
+import { NormalSyncPersistenceAdapter } from "./persistence-adapter";
 
 interface MemoryAdapterOptions {
   asyncResponses: boolean;
   asyncTimeout: number;
 }
-export class MemoryAdapter implements PersistenceAdapter {
+
+export class MemoryAdapter implements NormalSyncPersistenceAdapter {
+  mode: "normal";
   hashStore: Record<string, any>;
   options: Partial<MemoryAdapterOptions>;
   constructor(options?: Partial<MemoryAdapterOptions>) {
@@ -40,14 +42,6 @@ export class MemoryAdapter implements PersistenceAdapter {
     if (!this.options.hasOwnProperty("asyncTimeout")) {
       this.options.asyncTimeout = 50; // 50 ms default
     }
-  }
-  mode: string;
-  exportDatabase(
-    dbname: string,
-    dbref: typeof Sylvie,
-    callback: (err: Error) => void
-  ): void {
-    throw new Error("Method not implemented.");
   }
 
   /**

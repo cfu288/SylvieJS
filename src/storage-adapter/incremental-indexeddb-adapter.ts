@@ -1,6 +1,9 @@
 // @ts-nocheck
 
-import { PersistenceAdapter } from "./persistence-adapter";
+import {
+  IncrementalSyncPersistenceAdapter,
+  SyncPersistenceAdapter,
+} from "./persistence-adapter";
 
 /* jshint -W030 */
 const DEBUG =
@@ -41,8 +44,10 @@ const DEBUG =
  * @param {array} options.lazyCollections Names of collections that should be deserialized lazily
  *     Only use this for collections that aren't used at launch
  */
-export class IncrementalIndexedDBAdapter implements PersistenceAdapter {
-  mode = "incremental";
+export class IncrementalIndexedDBAdapter
+  implements IncrementalSyncPersistenceAdapter
+{
+  mode: "incremental";
   constructor(options?: {
     onversionchange?: (versionChangeEvent: IDBVersionChangeEvent) => void;
     onFetchStart?: () => void;

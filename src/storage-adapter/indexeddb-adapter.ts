@@ -10,7 +10,7 @@
   adapter.deleteDatabase('UserDatabase');
 */
 // @ts-nocheck
-import { PersistenceAdapter } from "./persistence-adapter";
+import { SyncPersistenceAdapter } from "./persistence-adapter";
 
 // @ts-ignore
 const DEBUG = typeof window !== "undefined" && !!window.__loki_idb_debug;
@@ -40,7 +40,7 @@ interface IndexedAdapterOptions {
  * @param {object=} options Configuration options for the adapter
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  */
-class IndexedDBAdapter implements PersistenceAdapter {
+class IndexedDBAdapter implements SyncPersistenceAdapter {
   app: string;
   options: Partial<IndexedAdapterOptions>;
   catalog: SylvieCatalog;

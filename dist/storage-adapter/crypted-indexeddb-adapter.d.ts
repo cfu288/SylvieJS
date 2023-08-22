@@ -1,5 +1,5 @@
 import { SylvieCatalog } from "./crypted-indexeddb-adapter/sylvie-catalog";
-import { AsyncPersistenceAdapter, PersistenceAdapter } from "./persistence-adapter";
+import { AsyncPersistenceAdapter, NormalSyncPersistenceAdapter } from "./persistence-adapter";
 interface CryptedIndexedAdapterOptions {
     appname: string;
     closeAfterSave: boolean;
@@ -24,13 +24,13 @@ interface CryptedIndexedAdapterOptions {
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  * @param {boolean} options.secret The password to encrypt with.
  */
-export declare class CryptedIndexedDBAdapter implements PersistenceAdapter, AsyncPersistenceAdapter {
+export declare class CryptedIndexedDBAdapter implements NormalSyncPersistenceAdapter, AsyncPersistenceAdapter {
     #private;
     isAsync: true;
     app: string;
     options: Partial<CryptedIndexedAdapterOptions>;
     catalog: SylvieCatalog;
-    mode: string;
+    mode: "normal";
     constructor(options?: Partial<CryptedIndexedAdapterOptions>);
     /**
      * Sets a password for use on future load and save of the database.

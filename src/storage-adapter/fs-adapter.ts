@@ -7,9 +7,9 @@
  */
 
 import Sylvie from "../modules/sylvie";
-import { PersistenceAdapter } from "./persistence-adapter";
+import { NormalSyncPersistenceAdapter } from "./persistence-adapter";
 
-export class FsAdapter implements PersistenceAdapter {
+export class FsAdapter implements NormalSyncPersistenceAdapter {
   fs: any;
   constructor() {
     try {
@@ -18,14 +18,7 @@ export class FsAdapter implements PersistenceAdapter {
       this.fs = null;
     }
   }
-  mode: string;
-  exportDatabase(
-    dbname: string,
-    dbref: typeof Sylvie,
-    callback: (err: Error) => void
-  ): void {
-    throw new Error("Method not implemented.");
-  }
+  mode: "normal";
 
   /** loadDatabase() - Load data from file, will throw an error if the file does not exist
    * @param {string} dbname - the filename of the database to load

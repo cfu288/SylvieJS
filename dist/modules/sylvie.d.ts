@@ -6,7 +6,7 @@ import { ResultSet } from "./result-set";
 import { LocalStorageAdapter } from "../storage-adapter/local-storage-adapter";
 import { MemoryAdapter } from "../storage-adapter/memory-adapter";
 import { PartitioningAdapterOptions } from "../storage-adapter/partitioning-adapter";
-import { PersistenceAdapter } from "../storage-adapter/persistence-adapter";
+import { AsyncPersistenceAdapter, SyncPersistenceAdapter } from "../storage-adapter/persistence-adapter";
 export type ChangeOpsLoadJSONUsersOptions = {
     inflate: ((src: any) => ChangeOpsLoadJSONOptionsMeta) | ((src: any, dest: ChangeOpsLoadJSONOptionsMeta) => void);
     proto: (n: any) => void;
@@ -53,7 +53,7 @@ interface ConstructorOptions {
     env: "NATIVESCRIPT" | "NODEJS" | "CORDOVA" | "BROWSER" | "NA";
 }
 interface ConfigOptions {
-    adapter: PersistenceAdapter | null;
+    adapter: SyncPersistenceAdapter | AsyncPersistenceAdapter | null;
     autoload: boolean;
     autoloadCallback: (err: any) => void;
     autosave: boolean;
@@ -93,7 +93,7 @@ export default class Sylvie extends SylvieEventEmitter {
     throttledSaves: boolean;
     options?: Partial<ConfigOptions & ConstructorOptions>;
     persistenceMethod: any;
-    persistenceAdapter: PersistenceAdapter;
+    persistenceAdapter: SyncPersistenceAdapter | AsyncPersistenceAdapter | null;
     throttledSavePending: boolean;
     throttledCallbacks: any[];
     verbose: boolean;
@@ -408,7 +408,6 @@ export default class Sylvie extends SylvieEventEmitter {
         success: false;
         error: Error;
     }) => void): void;
-    loadDatabaseInternalAsync(options: any): Promise<null | string>;
     /**
      * Handles manually loading from file system, local storage, or adapter (such as indexeddb)
      *    This method utilizes loki configuration options (if provided) to determine which
