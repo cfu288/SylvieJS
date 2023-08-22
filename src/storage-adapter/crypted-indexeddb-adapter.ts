@@ -33,7 +33,7 @@ if (!window.crypto.subtle) {
   throw new Error("Required crypto lib is not availible");
 }
 
-interface CryptedIndexedAdapterOptions {
+interface CryptedIndexedDBAdapterOptions {
   appname: string;
   closeAfterSave: boolean;
   secret: string;
@@ -52,7 +52,7 @@ interface CryptedIndexedAdapterOptions {
  *
  * @constructor SylvieIndexedAdapter
  *
- * @param {CryptedIndexedAdapterOptions} options Configuration options for the adapter
+ * @param {CryptedIndexedDBAdapterOptions} options Configuration options for the adapter
  * @param {string} options.appname - (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  * @param {boolean} options.secret The password to encrypt with.
@@ -62,12 +62,12 @@ export class CryptedIndexedDBAdapter
 {
   isAsync: true;
   app: string;
-  options: Partial<CryptedIndexedAdapterOptions>;
+  options: Partial<CryptedIndexedDBAdapterOptions>;
   catalog: IDBCatalog;
   mode: "normal";
   #secret: string;
 
-  constructor(options?: Partial<CryptedIndexedAdapterOptions>) {
+  constructor(options?: Partial<CryptedIndexedDBAdapterOptions>) {
     DEBUG && console.log("Initialized crypted-indexeddb-adapter");
     this.app = "sylvie";
     this.options = options || {};

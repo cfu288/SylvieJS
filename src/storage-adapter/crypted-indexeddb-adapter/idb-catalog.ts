@@ -7,7 +7,7 @@ export type ResultType = SuccessResultType | FailResultType;
  *    using IndexedDBAdapter.
  */
 export class IDBCatalog {
-  db: IDBDatabase;
+  db?: IDBDatabase;
   constructor() {
     this.db = null;
   }

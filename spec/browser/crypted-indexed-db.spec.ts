@@ -106,10 +106,13 @@ describe("CryptedIndexedDBAdapter", function () {
   });
 
   it("saveDatabase() and loadDatabase() the db works", function (done) {
+    const adapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+    });
+    // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
     const db = new Sylvie("test.db", {
-      adapter: new CryptedIndexedDBAdapter({
-        secret: "password",
-      }),
+      adapter,
     });
 
     // Add some data, manipulate it
@@ -176,10 +179,13 @@ describe("CryptedIndexedDBAdapter", function () {
   });
 
   it("saveDatabase() and loadDatabase() of a new instance of the db works", function (done) {
+    const adapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+    });
+    // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
     const db = new Sylvie("test.db", {
-      adapter: new CryptedIndexedDBAdapter({
-        secret: "password",
-      }),
+      adapter,
     });
 
     // Add some data, manipulate it
@@ -196,10 +202,13 @@ describe("CryptedIndexedDBAdapter", function () {
     db.saveDatabase(function (errorMessage) {
       expect(errorMessage).toBeFalsy();
       // Create a new db instance
+      const newAdapter = new CryptedIndexedDBAdapter({
+        secret: "password",
+      });
+      // Force legacy use of callback sync API for testing purposes
+      delete newAdapter.isAsync;
       const newDb = new Sylvie("test.db", {
-        adapter: new CryptedIndexedDBAdapter({
-          secret: "password",
-        }),
+        adapter: newAdapter,
       });
       newDb.loadDatabase({}, function (loadErrorMessage) {
         expect(loadErrorMessage).toBeFalsy();
@@ -261,6 +270,8 @@ describe("CryptedIndexedDBAdapter", function () {
     const adapter = new CryptedIndexedDBAdapter({
       secret: "password",
     });
+    // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
     const db = new Sylvie(TEST_DB_NAME, {
       adapter,
     });
@@ -314,6 +325,88 @@ describe("CryptedIndexedDBAdapter", function () {
     await db.saveDatabaseAsync();
   });
 
+  it("passing 'closeAfterSave' = false option to Crypted constructor should close the database after saveDatabase()", function (done) {
+    const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
+    const adapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+      closeAfterSave: true,
+    });
+    const db = new Sylvie(TEST_DB_NAME, {
+      adapter,
+    });
+
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([{ customId: 0, val: "hello", extra: "world" }]);
+
+    // Save the database
+    db.saveDatabase(function () {
+      // Verify that the database is closed
+      expect(adapter.catalog.db).toBeNull();
+      done();
+    });
+  });
+
+  it("passing 'closeAfterSave' = false option to Crypted constructor should close the database after saveDatabase()", function (done) {
+    const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
+    const adapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+    });
+    const db = new Sylvie(TEST_DB_NAME, {
+      adapter,
+    });
+
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([{ customId: 0, val: "hello", extra: "world" }]);
+
+    // Save the database
+    db.saveDatabase(function () {
+      // Verify that the database is closed
+      expect(adapter.catalog.db).not.toBeNull();
+      done();
+    });
+  });
+
+  it("passing 'closeAfterSave' = true option to Crypted constructor should close the database after saveDatabaseAsync()", async function () {
+    const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
+    const adapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+      closeAfterSave: true,
+    });
+    const db = new Sylvie(TEST_DB_NAME, {
+      adapter,
+    });
+
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([{ customId: 0, val: "hello", extra: "world" }]);
+
+    // Save the database
+    await db.saveDatabaseAsync();
+    // Verify that the database is closed
+    expect(adapter.catalog.db).toBeNull();
+  });
+
+  it("passing 'closeAfterSave' = false option to Crypted constructor should close the database after saveDatabaseAsync()", async function () {
+    const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
+    const adapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+    });
+    const db = new Sylvie(TEST_DB_NAME, {
+      adapter,
+    });
+
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([{ customId: 0, val: "hello", extra: "world" }]);
+
+    // Save the database
+    await db.saveDatabaseAsync();
+    // Verify that the database is closed
+    expect(adapter.catalog.db).not.toBeNull();
+  });
+
   it("loadDatabaseAsync() should work", async function () {
     // Note that other tests may save dbs as well, can't rely on absolute counts
 
@@ -361,10 +454,13 @@ describe("CryptedIndexedDBAdapter", function () {
   });
 
   it("loadDatabase() using the wrong password should throw", function (done) {
+    const adapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+    });
+    // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
     const db = new Sylvie("test.db", {
-      adapter: new CryptedIndexedDBAdapter({
-        secret: "password",
-      }),
+      adapter,
     });
 
     // Add some data, manipulate it
@@ -428,6 +524,8 @@ describe("CryptedIndexedDBAdapter", function () {
     const adapter = new CryptedIndexedDBAdapter({
       secret: "password",
     });
+    // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
     const db = new Sylvie(TEST_DB_NAME, {
       adapter,
     });
@@ -486,6 +584,8 @@ describe("CryptedIndexedDBAdapter", function () {
     const adapter = new CryptedIndexedDBAdapter({
       secret: "password",
     });
+    // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
     const db = new Sylvie("test.db", {
         adapter,
       }),
