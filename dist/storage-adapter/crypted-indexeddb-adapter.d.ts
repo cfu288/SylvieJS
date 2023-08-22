@@ -1,4 +1,4 @@
-import { SylvieCatalog } from "./crypted-indexeddb-adapter/sylvie-catalog";
+import { IDBCatalog } from "./crypted-indexeddb-adapter/idb-catalog";
 import { AsyncPersistenceAdapter, NormalSyncPersistenceAdapter } from "./persistence-adapter";
 interface CryptedIndexedAdapterOptions {
     appname: string;
@@ -29,7 +29,7 @@ export declare class CryptedIndexedDBAdapter implements NormalSyncPersistenceAda
     isAsync: true;
     app: string;
     options: Partial<CryptedIndexedAdapterOptions>;
-    catalog: SylvieCatalog;
+    catalog: IDBCatalog;
     mode: "normal";
     constructor(options?: Partial<CryptedIndexedAdapterOptions>);
     /**
@@ -105,9 +105,7 @@ export declare class CryptedIndexedDBAdapter implements NormalSyncPersistenceAda
         success: false;
         error: Error;
     }) => void) => void;
-    saveDatabaseAsync(dbname: string, dbstring: string): Promise<{
-        success: true;
-    }>;
+    saveDatabaseAsync(dbname: string, dbstring: string): Promise<void>;
     /**
      * Deletes a serialized db from the catalog.
      *
@@ -128,9 +126,7 @@ export declare class CryptedIndexedDBAdapter implements NormalSyncPersistenceAda
         success: false;
         error: Error;
     }) => any) => void;
-    deleteDatabaseAsync(dbname: string): Promise<{
-        success: true;
-    }>;
+    deleteDatabaseAsync(dbname: string): Promise<void>;
     /**
      * Changes the password of a database and re-encrypts the database with the new password.
      * @param {string} dbName The name of the database to change the password of.
@@ -166,14 +162,7 @@ export declare class CryptedIndexedDBAdapter implements NormalSyncPersistenceAda
      * @param {function} callback - should accept array of database names in the catalog for current app.
      * @memberof SylvieIndexedAdapter
      */
-    getDatabaseList: (callback: any) => void;
+    getDatabaseList: (callback: (_: any) => any) => void;
     getDatabaseListAsync: () => Promise<string[]>;
-    /**
-     * Allows retrieval of list of all keys in catalog along with size
-     *
-     * @param {function} callback - (Optional) callback to accept result array.
-     * @memberof SylvieIndexedAdapter
-     */
-    getCatalogSummary: (callback: any) => void;
 }
 export {};

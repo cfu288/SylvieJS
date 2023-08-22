@@ -1434,12 +1434,12 @@ export default class Sylvie extends SylvieEventEmitter {
    * @param {object} options - not currently used (remove or allow overrides?)
    * @param {function=} callback - (Optional) user supplied async callback / error handler
    */
-  loadDatabaseInternal(
+  loadDatabaseInternal = (
     options,
     callback?: (
       _: Error | { success: true } | { success: false; error: Error }
     ) => void
-  ) {
+  ) => {
     const cFun =
       callback ||
       ((err) => {
@@ -1448,47 +1448,55 @@ export default class Sylvie extends SylvieEventEmitter {
         }
       });
 
-    const self = this;
+    const handleValidDbString = (dbString) => {
+      let parseSuccess = false;
+      try {
+        this.loadJSON(dbString, options || {});
+        parseSuccess = true;
+      } catch (err) {
+        cFun(err);
+      }
+      if (parseSuccess) {
+        cFun(null);
+        this.emit("loaded", `database ${this.filename} loaded`);
+      }
+    };
 
-    const loadDatabaseCallback = (dbString) => {
+    const handleLoadError = (dbString: undefined | Error | object) => {
+      // falsy result means new database
+      if (!dbString) {
+        cFun(null);
+        this.emit("loaded", `empty database ${this.filename} loaded`);
+        return;
+      }
+
+      // instanceof error means load faulted
+      if (dbString instanceof Error) {
+        cFun(dbString);
+        return;
+      }
+
+      // if adapter has returned an js object (other than null or error) attempt to load from JSON object
+      if (typeof dbString === "object") {
+        this.loadJSONObject(dbString, options || {});
+        cFun(null); // return null on success
+        this.emit("loaded", `database ${this.filename} loaded`);
+        return;
+      }
+
+      cFun({
+        success: false,
+        error: Error(`unexpected adapter response : ${dbString}`),
+      });
+    };
+
+    const loadDatabaseCallback = (
+      dbString: string | undefined | Error | object
+    ) => {
       if (typeof dbString === "string") {
-        let parseSuccess = false;
-        try {
-          self.loadJSON(dbString, options || {});
-          parseSuccess = true;
-        } catch (err) {
-          cFun(err);
-        }
-        if (parseSuccess) {
-          cFun(null);
-          self.emit("loaded", `database ${self.filename} loaded`);
-        }
+        handleValidDbString(dbString);
       } else {
-        // falsy result means new database
-        if (!dbString) {
-          cFun(null);
-          self.emit("loaded", `empty database ${self.filename} loaded`);
-          return;
-        }
-
-        // instanceof error means load faulted
-        if (dbString instanceof Error) {
-          cFun(dbString);
-          return;
-        }
-
-        // if adapter has returned an js object (other than null or error) attempt to load from JSON object
-        if (typeof dbString === "object") {
-          self.loadJSONObject(dbString, options || {});
-          cFun(null); // return null on success
-          self.emit("loaded", `database ${self.filename} loaded`);
-          return;
-        }
-
-        cFun({
-          success: false,
-          error: Error(`unexpected adapter response : ${dbString}`),
-        });
+        handleLoadError(dbString);
       }
     };
 
@@ -1497,8 +1505,8 @@ export default class Sylvie extends SylvieEventEmitter {
       if ("isAsync" in this.persistenceAdapter) {
         this.persistenceAdapter
           .loadDatabaseAsync(this.filename)
-          .then(loadDatabaseCallback)
-          .catch(loadDatabaseCallback);
+          .then((dbstring) => handleValidDbString(dbstring))
+          .catch((error) => handleLoadError(error));
       } else {
         this.persistenceAdapter.loadDatabase(
           this.filename,
@@ -1508,7 +1516,7 @@ export default class Sylvie extends SylvieEventEmitter {
     } else {
       cFun(new Error("persistenceAdapter not configured"));
     }
-  }
+  };
 
   /**
    * Handles manually loading from file system, local storage, or adapter (such as indexeddb)
@@ -1877,8 +1885,12 @@ export default class Sylvie extends SylvieEventEmitter {
       if ("isAsync" in this.persistenceAdapter) {
         this.persistenceAdapter
           .deleteDatabaseAsync(this.filename)
-          .then(afterDeleteCallback)
-          .catch(afterDeleteCallback);
+          .then(() => {
+            afterDeleteCallback({ success: true });
+          })
+          .catch((err) => {
+            afterDeleteCallback(err);
+          });
       } else {
         this.persistenceAdapter.deleteDatabase(
           this.filename,
@@ -1907,8 +1919,12 @@ export default class Sylvie extends SylvieEventEmitter {
         if ("isAsync" in this.persistenceAdapter) {
           this.persistenceAdapter
             .deleteDatabaseAsync(this.filename)
-            .then(afterDeleteCallback)
-            .catch(afterDeleteCallback);
+            .then(() => {
+              afterDeleteCallback({ success: true });
+            })
+            .catch((err) => {
+              afterDeleteCallback(err);
+            });
         } else {
           this.persistenceAdapter.deleteDatabase(
             this.filename,

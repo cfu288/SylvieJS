@@ -402,12 +402,12 @@ export default class Sylvie extends SylvieEventEmitter {
      * @param {object} options - not currently used (remove or allow overrides?)
      * @param {function=} callback - (Optional) user supplied async callback / error handler
      */
-    loadDatabaseInternal(options: any, callback?: (_: Error | {
+    loadDatabaseInternal: (options: any, callback?: (_: Error | {
         success: true;
     } | {
         success: false;
         error: Error;
-    }) => void): void;
+    }) => void) => void;
     /**
      * Handles manually loading from file system, local storage, or adapter (such as indexeddb)
      *    This method utilizes loki configuration options (if provided) to determine which

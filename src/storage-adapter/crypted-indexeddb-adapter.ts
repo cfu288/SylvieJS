@@ -13,11 +13,13 @@ import {
   decryptData,
   encryptData,
 } from "./crypted-indexeddb-adapter/string-encryption-utils";
-import { SylvieCatalog } from "./crypted-indexeddb-adapter/sylvie-catalog";
+import {
+  IDBCatalog,
+  SuccessResultType,
+} from "./crypted-indexeddb-adapter/idb-catalog";
 import {
   AsyncPersistenceAdapter,
   NormalSyncPersistenceAdapter,
-  SyncPersistenceAdapter,
 } from "./persistence-adapter";
 // @ts-ignore
 const DEBUG = typeof window !== "undefined" && !!window.__loki_idb_debug;
@@ -61,7 +63,7 @@ export class CryptedIndexedDBAdapter
   isAsync: true;
   app: string;
   options: Partial<CryptedIndexedAdapterOptions>;
-  catalog: SylvieCatalog;
+  catalog: IDBCatalog;
   mode: "normal";
   #secret: string;
 
@@ -120,7 +122,7 @@ export class CryptedIndexedDBAdapter
    *
    * @returns {boolean} true if indexeddb is available, false if not.
    */
-  #checkIDBAvailability() {
+  #checkIDBAvailability(): boolean {
     if (typeof indexedDB !== "undefined" && indexedDB) return true;
     return false;
   }
@@ -144,7 +146,7 @@ export class CryptedIndexedDBAdapter
 
     // lazy open/create db reference so dont -need- callback in constructor
     if (this.catalog === null || this.catalog.db === null) {
-      new SylvieCatalog().initialize().then((catalog) => {
+      new IDBCatalog().initialize().then((catalog) => {
         this.catalog = catalog;
         this.loadDatabase(dbname, callback);
         return;
@@ -227,7 +229,7 @@ export class CryptedIndexedDBAdapter
       // lazy open/create db reference so dont -need- callback in constructor
       if (this.catalog === null || this.catalog.db === null) {
         // catalog not initialized yet
-        new SylvieCatalog()
+        new IDBCatalog()
           .initialize()
           .then((catalog) => {
             this.catalog = catalog;
@@ -267,6 +269,7 @@ export class CryptedIndexedDBAdapter
   ) => {
     DEBUG &&
       console.debug(`in saveDatabase(${dbname}, ${dbstring}, ${callback})`);
+
     const doSave = () =>
       encryptData(dbstring, this.#secret)
         .then((encryptedDbString) => {
@@ -286,43 +289,27 @@ export class CryptedIndexedDBAdapter
           callback(err);
         });
 
-    const afterSaveCallback = (result: { success: boolean } | Error) => {
-      if (result === null || result === undefined) {
-        callback(undefined);
-      } else if (
-        typeof result === "object" &&
-        Object.hasOwn(result, "success") &&
-        result &&
-        (result as { success: boolean }).success === true
-      ) {
-        callback(undefined);
-      } else {
-        callback(new Error("Error saving database: " + result));
-      }
-
-      if (this.options.closeAfterSave === true) {
-        this.#closeDatabase();
-      }
-    };
-
     if (this.catalog === null || this.catalog.db === null) {
       // catalog not initialized yet
-      new SylvieCatalog()
+      new IDBCatalog()
         .initialize()
         .then((catalog) => {
           this.catalog = catalog;
-          // doSave();
-          // TODO: fix this
           this.saveDatabaseAsync(dbname, dbstring)
-            .then((res) => {
-              afterSaveCallback(res);
+            .then(() => {
+              callback(undefined);
             })
             .catch((err) => {
-              afterSaveCallback(err);
+              callback(new Error("Error saving database: " + err));
+            })
+            .finally(() => {
+              if (this.options.closeAfterSave === true) {
+                this.#closeDatabase();
+              }
             });
         })
         .catch((err) => {
-          afterSaveCallback(err);
+          callback(new Error("Error saving database: " + err));
         });
     } else {
       // catalog was already initialized, so just lookup object and delete by id
@@ -330,10 +317,7 @@ export class CryptedIndexedDBAdapter
     }
   };
 
-  async saveDatabaseAsync(
-    dbname: string,
-    dbstring: string
-  ): Promise<{ success: true }> {
+  async saveDatabaseAsync(dbname: string, dbstring: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const doSave = () =>
         encryptData(dbstring, this.#secret)
@@ -345,7 +329,7 @@ export class CryptedIndexedDBAdapter
               .setAppKeyAsync(this.app, dbname, encryptedDbString)
               .then((res) => {
                 if (res.success === true) {
-                  resolve(res);
+                  resolve();
                 } else {
                   reject(res);
                 }
@@ -358,39 +342,22 @@ export class CryptedIndexedDBAdapter
             reject(err);
           });
 
-      const afterSaveCallback = (result: { success: boolean } | Error) => {
-        if (result === null || result === undefined) {
-          resolve(undefined);
-        } else if (
-          typeof result === "object" &&
-          Object.hasOwn(result, "success") &&
-          result &&
-          (result as { success: boolean }).success === true
-        ) {
-          resolve(undefined);
-        } else {
-          reject(new Error("Error saving database: " + result));
-        }
-
-        if (this.options.closeAfterSave === true) {
-          this.#closeDatabase();
-        }
-      };
-
       if (this.catalog === null || this.catalog.db === null) {
         // catalog not initialized yet
-        new SylvieCatalog()
+        new IDBCatalog()
           .initialize()
           .then((catalog) => {
             this.catalog = catalog;
-            // doSave();
-            // TODO: fix this
+            // Now that catalog is initialized, try again
             this.saveDatabaseAsync(dbname, dbstring)
-              .then((res) => {
-                afterSaveCallback(res);
+              .then(resolve)
+              .catch((error) => {
+                reject(new Error("Error saving database: " + error));
               })
-              .catch((err) => {
-                afterSaveCallback(err);
+              .finally(() => {
+                if (this.options.closeAfterSave === true) {
+                  this.#closeDatabase();
+                }
               });
           })
           .catch((err) => {
@@ -425,10 +392,15 @@ export class CryptedIndexedDBAdapter
   ) => {
     // lazy open/create db reference and pass callback ahead
     if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new SylvieCatalog((catalog) => {
-        this.catalog = catalog;
-        this.deleteDatabase(dbname, callback);
-      });
+      new IDBCatalog()
+        .initialize()
+        .then((catalog) => {
+          this.catalog = catalog;
+          this.deleteDatabase(dbname, callback);
+        })
+        .catch((err) => {
+          callback(new Error("Error deleting database: " + err));
+        });
 
       return;
     }
@@ -460,9 +432,7 @@ export class CryptedIndexedDBAdapter
       });
   };
 
-  async deleteDatabaseAsync(dbname: string): Promise<{
-    success: true;
-  }> {
+  async deleteDatabaseAsync(dbname: string): Promise<void> {
     // lazy open/create db reference and pass callback ahead
     return new Promise((resolve, reject) => {
       const doDelete = () =>
@@ -475,7 +445,7 @@ export class CryptedIndexedDBAdapter
                 .deleteAppKeyAsync(id)
                 .then((res) => {
                   if (res.success === true) {
-                    resolve(res);
+                    resolve();
                   } else {
                     reject(res);
                   }
@@ -491,7 +461,7 @@ export class CryptedIndexedDBAdapter
 
       if (this.catalog === null || this.catalog.db === null) {
         // catalog not initialized yet
-        new SylvieCatalog()
+        new IDBCatalog()
           .initialize()
           .then((catalog) => {
             this.catalog = catalog;
@@ -570,14 +540,18 @@ export class CryptedIndexedDBAdapter
    * @param {function} callback - should accept array of database names in the catalog for current app.
    * @memberof SylvieIndexedAdapter
    */
-  getDatabaseList = (callback) => {
+  getDatabaseList = (callback: (_: any) => any) => {
     // lazy open/create db reference so dont -need- callback in constructor
     if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new SylvieCatalog((cat) => {
-        this.catalog = cat;
-
-        this.getDatabaseList(callback);
-      });
+      new IDBCatalog()
+        .initialize()
+        .then((catalog) => {
+          this.catalog = catalog;
+          this.getDatabaseList(callback);
+        })
+        .catch((err) => {
+          callback(new Error("Error getting database list: " + err));
+        });
 
       return;
     }
@@ -606,7 +580,7 @@ export class CryptedIndexedDBAdapter
       // lazy open/create db reference
       if (this.catalog === null || this.catalog.db === null) {
         // catalog not initialized yet
-        new SylvieCatalog()
+        new IDBCatalog()
           .initialize()
           .then((catalog) => {
             this.catalog = catalog;
@@ -624,56 +598,6 @@ export class CryptedIndexedDBAdapter
         this.catalog.getAppKeys(this.app, (results) => {
           const names: string[] = results.map((result) => result.key);
           resolve(names);
-        });
-      }
-    });
-  };
-
-  /**
-   * Allows retrieval of list of all keys in catalog along with size
-   *
-   * @param {function} callback - (Optional) callback to accept result array.
-   * @memberof SylvieIndexedAdapter
-   */
-  getCatalogSummary = (callback) => {
-    // lazy open/create db reference
-    if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new SylvieCatalog((cat) => {
-        this.catalog = cat;
-
-        this.getCatalogSummary(callback);
-      });
-
-      return;
-    }
-
-    // catalog already initialized
-    // get all keys for current appName, and transpose results so just string array
-    this.catalog.getAllKeys((results) => {
-      const entries = [];
-      let obj;
-      let size;
-      let oapp;
-      let okey;
-      let oval;
-
-      for (let idx = 0; idx < results.length; idx++) {
-        obj = results[idx];
-        oapp = obj.app || "";
-        okey = obj.key || "";
-        oval = obj.val || "";
-
-        // app and key are composited into an appkey column so we will mult by 2
-        size = oapp.length * 2 + okey.length * 2 + oval.length + 1;
-
-        entries.push({ app: obj.app, key: obj.key, size: size });
-      }
-
-      if (typeof callback === "function") {
-        callback(entries);
-      } else {
-        entries.forEach((obj) => {
-          console.log(obj);
         });
       }
     });

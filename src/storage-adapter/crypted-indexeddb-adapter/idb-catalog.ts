@@ -1,30 +1,21 @@
+export type SuccessResultType = { success: true };
+export type FailResultType = { success: false; error: Error };
+export type ResultType = SuccessResultType | FailResultType;
 /**
- * LokiCatalog - underlying App/Key/Value catalog persistence
- *    This non-interface class implements the actual persistence.
- *    Used by the IndexedDBAdapter class.
+ * IDBCatalog - underlying App/Key/Value catalog persistence
+ *    This non-interface class implements the actual persistence
+ *    using IndexedDBAdapter.
  */
-export class SylvieCatalog {
+export class IDBCatalog {
   db: IDBDatabase;
-  constructor(callback?: (SylvieCatalog) => void) {
+  constructor() {
     this.db = null;
-    if (callback) {
-      this.#initializeCatalog()
-        .then((res) => {
-          if (typeof callback === "function") {
-            callback(res);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          throw err;
-        });
-    }
   }
 
   /**
-   * An alternative to passing a callback to the constructor
+   * Asynchronously initializes the catalog the database after creation. Must be run after the database is constructed but before using the database.
    */
-  initialize(): Promise<SylvieCatalog> {
+  initialize(): Promise<IDBCatalog> {
     return new Promise((resolve, reject) => {
       this.#initializeCatalog()
         .then((res) => {
@@ -38,16 +29,16 @@ export class SylvieCatalog {
   }
 
   openCatalog() {
-    const openRequest = indexedDB.open("SylvieCatalog", 1);
+    const openRequest = indexedDB.open("IDBCatalog", 1);
 
     openRequest.onupgradeneeded = ({ target }) => {
       const thisDB = (target as any).result;
-      if (thisDB.objectStoreNames.contains("SylvieAKV")) {
-        thisDB.deleteObjectStore("SylvieAKV");
+      if (thisDB.objectStoreNames.contains("IDBAKV")) {
+        thisDB.deleteObjectStore("IDBAKV");
       }
 
-      if (!thisDB.objectStoreNames.contains("SylvieAKV")) {
-        const objectStore = thisDB.createObjectStore("SylvieAKV", {
+      if (!thisDB.objectStoreNames.contains("IDBAKV")) {
+        const objectStore = thisDB.createObjectStore("IDBAKV", {
           keyPath: "id",
           autoIncrement: true,
         });
@@ -60,7 +51,7 @@ export class SylvieCatalog {
     return openRequest;
   }
 
-  async #initializeCatalog(): Promise<SylvieCatalog> {
+  async #initializeCatalog(): Promise<IDBCatalog> {
     const cat = this;
     const openRequest = this.openCatalog();
 
@@ -92,8 +83,8 @@ export class SylvieCatalog {
         success: false;
       }
   > {
-    const transaction = this.db.transaction(["SylvieAKV"], "readonly");
-    const store = transaction.objectStore("SylvieAKV");
+    const transaction = this.db.transaction(["IDBAKV"], "readonly");
+    const store = transaction.objectStore("IDBAKV");
     const index = store.index("appkey");
     const appkey = `${app},${key}`;
     const request = index.get(appkey);
@@ -118,13 +109,9 @@ export class SylvieCatalog {
     });
   }
 
-  async setAppKeyAsync(
-    app,
-    key,
-    val
-  ): Promise<{ success: false; error: Error } | { success: true }> {
-    const transaction = this.db.transaction(["SylvieAKV"], "readwrite");
-    const store = transaction.objectStore("SylvieAKV");
+  async setAppKeyAsync(app, key, val): Promise<ResultType> {
+    const transaction = this.db.transaction(["IDBAKV"], "readwrite");
+    const store = transaction.objectStore("IDBAKV");
     const index = store.index("appkey");
     const appkey = `${app},${key}`;
     const request = index.get(appkey);
@@ -148,7 +135,7 @@ export class SylvieCatalog {
 
         requestPut.onerror = () => {
           reject({ success: false, error: requestPut.error });
-          console.error("SylvieCatalog.setAppKey (set) onerror");
+          console.error("IDBCatalog.setAppKey (set) onerror");
           console.error(request.error);
         };
 
@@ -159,17 +146,15 @@ export class SylvieCatalog {
 
       request.onerror = () => {
         reject({ success: false, error: request.error });
-        console.error("SylvieCatalog.setAppKey (get) onerror");
+        console.error("IDBCatalog.setAppKey (get) onerror");
         console.error(request.error);
       };
     });
   }
 
-  deleteAppKeyAsync(
-    id
-  ): Promise<{ success: true } | { success: false; error: Error }> {
-    const transaction = this.db.transaction(["SylvieAKV"], "readwrite");
-    const store = transaction.objectStore("SylvieAKV");
+  deleteAppKeyAsync(id): Promise<ResultType> {
+    const transaction = this.db.transaction(["IDBAKV"], "readwrite");
+    const store = transaction.objectStore("IDBAKV");
     const request = store.delete(id);
 
     return new Promise((resolve, reject) => {
@@ -179,15 +164,15 @@ export class SylvieCatalog {
 
       request.onerror = (e) => {
         reject({ success: false, error: e });
-        console.error("SylvieCatalog.deleteAppKey raised onerror");
+        console.error("IDBCatalog.deleteAppKey raised onerror");
         console.error(request.error);
       };
     });
   }
 
   getAppKeys(app, callback) {
-    const transaction = this.db.transaction(["SylvieAKV"], "readonly");
-    const store = transaction.objectStore("SylvieAKV");
+    const transaction = this.db.transaction(["IDBAKV"], "readonly");
+    const store = transaction.objectStore("IDBAKV");
     const index = store.index("app");
 
     // We want cursor to all values matching our (single) app param
@@ -221,7 +206,7 @@ export class SylvieCatalog {
       if (typeof usercallback === "function") {
         usercallback(null);
       } else {
-        console.error("SylvieCatalog.getAppKeys raised onerror");
+        console.error("IDBCatalog.getAppKeys raised onerror");
         console.error(e);
       }
     })(callback);
@@ -229,8 +214,8 @@ export class SylvieCatalog {
 
   // Hide 'cursoring' and return array of { id: id, key: key }
   getAllKeys(callback) {
-    const transaction = this.db.transaction(["SylvieAKV"], "readonly");
-    const store = transaction.objectStore("SylvieAKV");
+    const transaction = this.db.transaction(["IDBAKV"], "readonly");
+    const store = transaction.objectStore("IDBAKV");
     const cursor = store.openCursor();
 
     const localdata = [];

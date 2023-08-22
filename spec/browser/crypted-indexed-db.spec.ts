@@ -475,7 +475,7 @@ describe("CryptedIndexedDBAdapter", function () {
             });
           })
           .catch((err) => {
-            expect((err as { success: true }).success).toBe(true);
+            expect(err).toBeFalsy();
           });
       });
     });

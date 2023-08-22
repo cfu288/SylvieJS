@@ -66,14 +66,8 @@ export interface ReferenceSyncPersistenceAdapter {
 export interface AsyncPersistenceAdapter {
     isAsync: true;
     mode?: "normal";
-    loadDatabaseAsync(dbname: string): Promise<string | Error>;
-    deleteDatabaseAsync(dbname: string): Promise<{
-        success: true;
-    }>;
-    saveDatabaseAsync(dbname: string, dbstring: string): Promise<{
-        success: true;
-    }>;
-    exportDatabaseAsync?(dbname: string, dbref: typeof Sylvie): Promise<{
-        success: true;
-    }>;
+    loadDatabaseAsync(dbname: string): Promise<string>;
+    deleteDatabaseAsync(dbname: string): Promise<void>;
+    saveDatabaseAsync(dbname: string, dbstring: string): Promise<void>;
+    exportDatabaseAsync?(dbname: string, dbref: typeof Sylvie): Promise<void>;
 }
