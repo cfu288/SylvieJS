@@ -1,8 +1,6 @@
 import Sylvie from "../modules/sylvie";
-/** there are two build in persistence adapters for internal use
- * fs             for use in Nodejs type environments
- * localStorage   for use in browser environment
- * defined as helper classes here so its easy and clean to use
+/**
+ * SyncPersistanceAdapter is the interface that will be used for all synchronous persistence adapters and are compatible with LokiJS and SylvieJS
  */
 export type SyncPersistenceAdapter = NormalSyncPersistenceAdapter | ReferenceSyncPersistenceAdapter | IncrementalSyncPersistenceAdapter;
 export interface NormalSyncPersistenceAdapter {
@@ -59,9 +57,15 @@ export interface ReferenceSyncPersistenceAdapter {
         error: Error;
     }) => void): void;
 }
+/**
+ * AsyncPersistenceAdapter is a interface that will be used for all async persistence adapters and are
+ * compatible with only SylvieJS, not LokiJS. Replaces the previous callback API with async/await. Note
+ * that an adapter can choose to implement both SyncPersistenceAdapter and AsyncPersistenceAdapter if
+ * backwards compatibility is desired. Sylvie will choose to use the async version isAsync is set.
+ */
 export interface AsyncPersistenceAdapter {
     isAsync: true;
-    mode?: "normal" | "incremental" | "reference";
+    mode?: "normal";
     loadDatabaseAsync(dbname: string): Promise<string | Error>;
     deleteDatabaseAsync(dbname: string): Promise<{
         success: true;
