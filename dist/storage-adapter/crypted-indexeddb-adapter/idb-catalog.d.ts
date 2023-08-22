@@ -13,7 +13,7 @@ export type ResultType = SuccessResultType | FailResultType;
  */
 export declare class IDBCatalog {
     #private;
-    db: IDBDatabase;
+    db?: IDBDatabase;
     constructor();
     /**
      * Asynchronously initializes the catalog the database after creation. Must be run after the database is constructed but before using the database.

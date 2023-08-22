@@ -1,6 +1,6 @@
 import { IDBCatalog } from "./crypted-indexeddb-adapter/idb-catalog";
 import { AsyncPersistenceAdapter, NormalSyncPersistenceAdapter } from "./persistence-adapter";
-interface CryptedIndexedAdapterOptions {
+interface CryptedIndexedDBAdapterOptions {
     appname: string;
     closeAfterSave: boolean;
     secret: string;
@@ -19,7 +19,7 @@ interface CryptedIndexedAdapterOptions {
  *
  * @constructor SylvieIndexedAdapter
  *
- * @param {CryptedIndexedAdapterOptions} options Configuration options for the adapter
+ * @param {CryptedIndexedDBAdapterOptions} options Configuration options for the adapter
  * @param {string} options.appname - (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  * @param {boolean} options.secret The password to encrypt with.
@@ -28,10 +28,10 @@ export declare class CryptedIndexedDBAdapter implements NormalSyncPersistenceAda
     #private;
     isAsync: true;
     app: string;
-    options: Partial<CryptedIndexedAdapterOptions>;
+    options: Partial<CryptedIndexedDBAdapterOptions>;
     catalog: IDBCatalog;
     mode: "normal";
-    constructor(options?: Partial<CryptedIndexedAdapterOptions>);
+    constructor(options?: Partial<CryptedIndexedDBAdapterOptions>);
     /**
      * Sets a password for use on future load and save of the database.
      * Note that this does not re-encrypt the database with the new password. Use changePassword() for that.
