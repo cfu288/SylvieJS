@@ -5,7 +5,7 @@
  */
 export class SylvieCatalog {
   db: IDBDatabase;
-  constructor(callback: (SylvieCatalog) => void) {
+  constructor(callback?: (SylvieCatalog) => void) {
     this.db = null;
     if (callback) {
       this.#initializeCatalog()

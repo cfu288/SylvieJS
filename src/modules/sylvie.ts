@@ -1950,7 +1950,7 @@ export default class Sylvie extends SylvieEventEmitter {
    * @param {object} options - not currently used (remove or allow overrides?)
    * @param {function=} callback - (Optional) user supplied async callback
    */
-  autosaveEnable(options?: {}, callback?: () => any) {
+  autosaveEnable(options?: Record<string, any>, callback?: () => any) {
     this.autosave = true;
 
     let delay = 5000;

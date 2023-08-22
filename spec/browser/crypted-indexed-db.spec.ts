@@ -142,7 +142,40 @@ describe("CryptedIndexedDBAdapter", function () {
     });
   });
 
-  it("saveDatabase() and loadDatabase() the db using a new instance works", function (done) {
+  it("saveDatabaseAsync() and loadDatabaseAsync() the db works", async function () {
+    const db = new Sylvie("test.db", {
+      adapter: new CryptedIndexedDBAdapter({
+        secret: "password",
+      }),
+    });
+
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+    collection.removeWhere({ customId: 1 });
+    expect(db.collections[0].data.length).toBe(2);
+
+    // Save the database and try reloading it
+    await db.saveDatabaseAsync();
+    collection.clear();
+    await db.loadDatabaseAsync();
+
+    // Verify the database contents
+    const newCollection = db.getCollection("items");
+    const docs = newCollection.find();
+    expect(docs.length).toEqual(2);
+    expect(docs[0].customId).toEqual(0);
+    expect(docs[0].val).toEqual("hello");
+    expect(docs[0].extra).toEqual("world");
+    expect(docs[1].customId).toEqual(2);
+    expect(docs[1].val).toEqual("hello2");
+  });
+
+  it("saveDatabase() and loadDatabase() of a new instance of the db works", function (done) {
     const db = new Sylvie("test.db", {
       adapter: new CryptedIndexedDBAdapter({
         secret: "password",
@@ -184,7 +217,7 @@ describe("CryptedIndexedDBAdapter", function () {
     });
   });
 
-  it("loadDatabase() using the wrong password should throw", function (done) {
+  it("saveDatabaseAsync() and loadDatabaseAsync() of a new instance of the db works", async function () {
     const db = new Sylvie("test.db", {
       adapter: new CryptedIndexedDBAdapter({
         secret: "password",
@@ -198,26 +231,32 @@ describe("CryptedIndexedDBAdapter", function () {
       { customId: 1, val: "hello1" },
       { customId: 2, val: "hello2" },
     ]);
+    collection.removeWhere({ customId: 1 });
+    expect(db.collections[0].data.length).toBe(2);
 
     // Save the database and try reloading it
-    db.saveDatabase(function (errorMessage) {
-      expect(errorMessage).toBeFalsy();
-      // Create a new db instance
-      const newDbWithWrongPass = new Sylvie("test.db", {
-        adapter: new CryptedIndexedDBAdapter({
-          secret: "wrongpassword",
-        }),
-      });
-      newDbWithWrongPass.loadDatabase({}, (error) => {
-        expect(error).toBeTruthy();
-        expect((error as Error).name).toBe("OperationError");
-        done();
-      });
+    await db.saveDatabaseAsync();
+    // Create a new db instance
+    const newDb = new Sylvie("test.db", {
+      adapter: new CryptedIndexedDBAdapter({
+        secret: "password",
+      }),
     });
+    await newDb.loadDatabaseAsync();
+
+    // Verify the database contents
+    const newCollection = newDb.getCollection("items");
+    const docs = newCollection.find();
+    expect(docs.length).toEqual(2);
+    expect(docs[0].customId).toEqual(0);
+    expect(docs[0].val).toEqual("hello");
+    expect(docs[0].extra).toEqual("world");
+    expect(docs[1].customId).toEqual(2);
+    expect(docs[1].val).toEqual("hello2");
   });
 
-  it("saveDatabaseAsync() should work", async function () {
-    // Note that other tests may save dbs as well, can't rely on absolute counts
+  it("saveDatabase() should work", function (done) {
+    // Note that other tests may save dbs concurrently as well, can't rely on absolute db counts
     const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
     const adapter = new CryptedIndexedDBAdapter({
       secret: "password",
@@ -226,11 +265,58 @@ describe("CryptedIndexedDBAdapter", function () {
       adapter,
     });
 
+    // Need to test the lazy load of the db
+    adapter.getDatabaseList((keys) => {
+      expect(keys).not.toContain(TEST_DB_NAME);
+      db.saveDatabase(() => {
+        keys = adapter.getDatabaseList((newKeys) => {
+          expect(newKeys).toContain(TEST_DB_NAME);
+          done();
+        });
+      });
+    });
+  });
+
+  it("saveDatabaseAsync() should work", async function () {
+    // Note that other tests may save dbs concurrently as well, can't rely on absolute db counts
+    const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
+    const adapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+    });
+    const db = new Sylvie(TEST_DB_NAME, {
+      adapter,
+    });
+
+    // Need to test the lazy load of the db
+    let keys = await adapter.getDatabaseListAsync();
+    expect(keys).not.toContain(TEST_DB_NAME);
+
     await db.saveDatabaseAsync();
-    const keys = await adapter.getDatabaseListAsync();
+    keys = await adapter.getDatabaseListAsync();
 
     expect(keys).toContain(TEST_DB_NAME);
   });
+
+  // it("saveDatabaseAsync() with no password set should throw", async () => {
+  //   const db = new Sylvie("test.db", {
+  //     adapter: new CryptedIndexedDBAdapter({}),
+  //   });
+
+  //   // Add some data, manipulate it
+  //   const collection = db.addCollection("items");
+  //   collection.insert([
+  //     { customId: 0, val: "hello", extra: "world" },
+  //     { customId: 1, val: "hello1" },
+  //     { customId: 2, val: "hello2" },
+  //   ]);
+
+  //   // Save the database
+  //   // try {
+  //   await db.saveDatabaseAsync();
+  //   // } catch (error) {
+  //   // expect((error as Error).name).toBe("OperationError");
+  //   // }
+  // });
 
   it("loadDatabaseAsync() should work", async function () {
     // Note that other tests may save dbs as well, can't rely on absolute counts
@@ -278,6 +364,69 @@ describe("CryptedIndexedDBAdapter", function () {
     expect(docs[1].val).toEqual("hello2");
   });
 
+  it("loadDatabase() using the wrong password should throw", function (done) {
+    const db = new Sylvie("test.db", {
+      adapter: new CryptedIndexedDBAdapter({
+        secret: "password",
+      }),
+    });
+
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+
+    // Save the database and try reloading it
+    db.saveDatabase(function (errorMessage) {
+      expect(errorMessage).toBeFalsy();
+      // Create a new db instance
+      const newDbWithWrongPass = new Sylvie("test.db", {
+        adapter: new CryptedIndexedDBAdapter({
+          secret: "wrongpassword",
+        }),
+      });
+      newDbWithWrongPass.loadDatabase({}, (error) => {
+        expect(error).toBeTruthy();
+        expect((error as Error).name).toBe("OperationError");
+        done();
+      });
+    });
+  });
+
+  it("loadDatabaseAsync() using the wrong password should throw", async () => {
+    const db = new Sylvie("test.db", {
+      adapter: new CryptedIndexedDBAdapter({
+        secret: "password",
+      }),
+    });
+
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+
+    // Save the database
+    await db.saveDatabase();
+
+    // Create a new db instance
+    const newDbWithWrongPass = new Sylvie("test.db", {
+      adapter: new CryptedIndexedDBAdapter({
+        secret: "wrongpassword",
+      }),
+    });
+    try {
+      await newDbWithWrongPass.loadDatabaseAsync();
+    } catch (error) {
+      expect((error as Error).name).toBe("OperationError");
+    }
+  });
+
   it("deleteDatabase() the db should work", function (done) {
     // Note that other tests may save dbs as well which are not cleared between test runs, can't rely on absolute counts
     const TEST_DB_NAME = `test_db_to_delete_${self.crypto.randomUUID()}.db`;
@@ -306,7 +455,7 @@ describe("CryptedIndexedDBAdapter", function () {
     });
   });
 
-  it("deleteDatabaseAsync() the db should work", function (done) {
+  it("deleteDatabaseAsync() should work", function (done) {
     // Note that other tests may save dbs as well which are not cleared between test runs, can't rely on absolute counts
     const TEST_DB_NAME = `test_db_to_delete_async_${self.crypto.randomUUID()}.db`;
     const adapter = new CryptedIndexedDBAdapter({
@@ -343,14 +492,14 @@ describe("CryptedIndexedDBAdapter", function () {
       secret: "password",
     });
     const db = new Sylvie("test.db", {
-      adapter,
-    });
-    const db1 = new Sylvie("test1.db", {
-      adapter,
-    });
-    const db2 = new Sylvie("test2.db", {
-      adapter,
-    });
+        adapter,
+      }),
+      db1 = new Sylvie("test1.db", {
+        adapter,
+      }),
+      db2 = new Sylvie("test2.db", {
+        adapter,
+      });
 
     db.saveDatabase(function () {
       db1.saveDatabase(function () {
@@ -366,36 +515,33 @@ describe("CryptedIndexedDBAdapter", function () {
     });
   });
 
-  it("getDatabaseListAsync() should return list of db", function (done) {
+  it("getDatabaseListAsync() should return list of dbs after saveDatabaseAsync()", async () => {
     // Note that other tests may save dbs as well, can't rely on absolute counts
-    const TEST_DB_NAME = `test_db_${self.crypto.randomUUID()}.db`;
-    const TEST_DB1_NAME = `test_db_${self.crypto.randomUUID()}.db`;
-    const TEST_DB2_NAME = `test_db_${self.crypto.randomUUID()}.db`;
+    const TEST_DB_NAME = `test_db_${self.crypto.randomUUID()}.db`,
+      TEST_DB1_NAME = `test_db_${self.crypto.randomUUID()}.db`,
+      TEST_DB2_NAME = `test_db_${self.crypto.randomUUID()}.db`;
     const adapter = new CryptedIndexedDBAdapter({
       secret: "password",
     });
     const db = new Sylvie(TEST_DB_NAME, {
-      adapter,
-    });
-    const db1 = new Sylvie(TEST_DB1_NAME, {
-      adapter,
-    });
-    const db2 = new Sylvie(TEST_DB2_NAME, {
-      adapter,
-    });
-
-    db.saveDatabase(function () {
-      db1.saveDatabase(function () {
-        db2.saveDatabase(function () {
-          adapter.getDatabaseListAsync().then((keys) => {
-            expect(keys).toContain(TEST_DB_NAME);
-            expect(keys).toContain(TEST_DB1_NAME);
-            expect(keys).toContain(TEST_DB2_NAME);
-            done();
-          });
-        });
+        adapter,
+      }),
+      db1 = new Sylvie(TEST_DB1_NAME, {
+        adapter,
+      }),
+      db2 = new Sylvie(TEST_DB2_NAME, {
+        adapter,
       });
-    });
+
+    await db.saveDatabaseAsync();
+    await db1.saveDatabaseAsync();
+    await db2.saveDatabaseAsync();
+
+    const keys = await adapter.getDatabaseListAsync();
+
+    expect(keys).toContain(TEST_DB_NAME);
+    expect(keys).toContain(TEST_DB1_NAME);
+    expect(keys).toContain(TEST_DB2_NAME);
   });
 
   it("getDatabaseListAsync() shows multiple databases after saveDatabaseAsync()", async () => {

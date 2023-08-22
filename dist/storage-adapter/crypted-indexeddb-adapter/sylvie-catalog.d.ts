@@ -6,7 +6,7 @@
 export declare class SylvieCatalog {
     #private;
     db: IDBDatabase;
-    constructor(callback: (SylvieCatalog: any) => void);
+    constructor(callback?: (SylvieCatalog: any) => void);
     /**
      * An alternative to passing a callback to the constructor
      */

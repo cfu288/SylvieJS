@@ -556,29 +556,30 @@ export class CryptedIndexedDBAdapter
   };
 
   getDatabaseListAsync = (): Promise<string[]> => {
-    // lazy open/create db reference so dont -need- callback in constructor
     return new Promise((resolve, reject) => {
+      // lazy open/create db reference
       if (this.catalog === null || this.catalog.db === null) {
-        this.catalog = new SylvieCatalog((cat) => {
-          this.catalog = cat;
-
-          this.getDatabaseListAsync();
+        // catalog not initialized yet
+        new SylvieCatalog()
+          .initialize()
+          .then((catalog) => {
+            this.catalog = catalog;
+            this.catalog.getAppKeys(this.app, (results) => {
+              const names: string[] = results.map((result) => result.key);
+              resolve(names);
+            });
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      } else {
+        // catalog already initialized
+        // get all keys for current appName, and transpose results so just string array
+        this.catalog.getAppKeys(this.app, (results) => {
+          const names: string[] = results.map((result) => result.key);
+          resolve(names);
         });
-
-        return;
       }
-
-      // catalog already initialized
-      // get all keys for current appName, and transpose results so just string array
-      this.catalog.getAppKeys(this.app, (results) => {
-        const names: string[] = [];
-
-        for (let idx = 0; idx < results.length; idx++) {
-          names.push(results[idx].key);
-        }
-
-        resolve(names);
-      });
     });
   };
 
