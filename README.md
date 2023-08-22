@@ -1,10 +1,10 @@
 # SylvieJS
 
-**This repo is a fork of the original [LokiJS repository](https://github.com/techfort/LokiJS) maintained by cfu288.**
+The super fast in-memory javascript document oriented database.
+
+**This repo is a fork of the original [LokiJS repository](https://github.com/techfort/LokiJS)**
 
 The objectives of this fork are to modernize the API and the codebase (ES6, ES Modules, Async/Await + Promises, TypeScript, modern browser test runner for Chrome/Safari/Firefox) while remaining backwards compatible with LokiJS.
-
-The super fast in-memory javascript document oriented database.
 
 [![Node.js CI](https://github.com/cfu288/SylvieJS/actions/workflows/ci.yaml/badge.svg)](https://github.com/cfu288/SylvieJS/actions/workflows/ci.yaml)
 
@@ -12,7 +12,7 @@ The super fast in-memory javascript document oriented database.
 
 SylvieJS is a document oriented database written in javascript, published under MIT License.
 Its purpose is to store javascript objects as documents in a nosql fashion and retrieve them with a similar mechanism.
-Runs in node (including cordova/phonegap and node-webkit), [nativescript](http://www.nativescript.org) and the browser.
+Runs in node and the browser.
 SylvieJS is ideal for the following scenarios:
 
 1. client-side in-memory db is ideal (e.g., a session store)
