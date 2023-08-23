@@ -1,11 +1,12 @@
 {
+  "buildCommand": "npm run build",
   "git": {
     "commitMessage": "chore: release v${version}"
   },
   "github": {
     "release": true
   },
-  "npm": {
-    "publishPath": "dist"
+  "dist": {
+    "baseDir": "dist"
   }
 }
