@@ -1,4 +1,54 @@
 {
-  "entryPoints": ["src/modules/sylvie.ts", "src/storage-adapter/crypted-indexeddb-adapter.ts", "src/storage-adapter/fs-adapter.ts", "src/storage-adapter/memory-adapter.ts", "src/storage-adapter/persistence-adapter.ts", "src/storage-adapter/incremental-indexeddb-adapter.ts"],
-  "out": "docs"
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "SylvieJS",
+  "entryPoints": [
+    "src",
+  ],
+  "entryPointStrategy": "expand",
+  "skipErrorChecking": true,
+  "out": "docs",
+  "pluginPages": {
+    "pages": [
+      {
+        "name": "SylvieJS",
+        "moduleRoot": true,
+        "children": [
+          {
+            "name": "Tutorials",
+            "childrenDir": "tutorials",
+            "children": [
+              {
+                "name": "Autoupdating Collections",
+                "source": "Autoupdating Collections.md"
+              },
+              {
+                "name": "Changes API.md",
+                "source": "Changes API.md"
+              },
+              {
+                "name": "Collection Transforms.md",
+                "source": "Collection Transforms.md"
+              },
+              {
+                "name": "Indexing and Query performance.md",
+                "source": "Indexing and Query performance.md"
+              },
+              {
+                "name": "Loki Angular.md",
+                "source": "Loki Angular.md"
+              },
+              {
+                "name": "Persistence Adapters.md",
+                "source": "Persistence Adapters.md"
+              },
+              {
+                "name": "Query Examples.md",
+                "source": "Query Examples.md"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }

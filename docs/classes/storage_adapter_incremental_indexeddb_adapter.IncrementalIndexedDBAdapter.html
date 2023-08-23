@@ -1,4 +1,4 @@
-<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IncrementalIndexedDBAdapter | sylviejs</title><meta name="description" content="Documentation for sylviejs"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/search.js" id="tsd-search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>IncrementalIndexedDBAdapter | SylvieJS</title><meta name="description" content="Documentation for SylvieJS"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script async src="../assets/search.js" id="search-script"></script><link rel="stylesheet" href="../assets/pages.css"/></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
 <div class="tsd-toolbar-contents container">
 <div class="table-cell" id="tsd-search" data-base="..">
 <div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
@@ -6,13 +6,13 @@
 <div id="tsd-toolbar-links"></div></div>
 <ul class="results">
 <li class="state loading">Preparing search index...</li>
-<li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">sylviejs</a></div>
+<li class="state failure">The search index is not available</li></ul><a href="../index.html" class="title">SylvieJS</a></div>
 <div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="7" width="14" height="2" fill="var(--color-text)"></rect><rect x="1" y="11" width="14" height="2" fill="var(--color-text)"></rect></svg></a></div></div></header>
 <div class="container container-main">
-<div class="col-content">
+<div class="col-8 col-content">
 <div class="tsd-page-title">
 <ul class="tsd-breadcrumb">
-<li><a href="../index.html">sylviejs</a></li>
+<li><a href="../modules.html">SylvieJS</a></li>
 <li><a href="../modules/storage_adapter_incremental_indexeddb_adapter.html">storage-adapter/incremental-indexeddb-adapter</a></li>
 <li><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html">IncrementalIndexedDBAdapter</a></li></ul>
 <h1>Class IncrementalIndexedDBAdapter</h1></div>
@@ -23,37 +23,36 @@
     documents (and database metadata) is saved to IndexedDB. This speeds up small incremental
     saves by an order of magnitude on large (tens of thousands of records) databases. It also
     avoids Safari 13 bug that would cause the database to balloon in size to gigabytes</p>
-<pre><code><span class="hl-0">The</span><span class="hl-1"> </span><span class="hl-5">`appname`</span><span class="hl-1"> </span><span class="hl-0">argument</span><span class="hl-1"> </span><span class="hl-0">is</span><span class="hl-1"> </span><span class="hl-0">not</span><span class="hl-1"> </span><span class="hl-0">provided</span><span class="hl-1"> - </span><span class="hl-0">to</span><span class="hl-1"> </span><span class="hl-0">distinguish</span><span class="hl-1"> </span><span class="hl-0">between</span><span class="hl-1"> </span><span class="hl-0">multiple</span><span class="hl-1"> </span><span class="hl-0">app</span><span class="hl-1"> </span><span class="hl-0">on</span><span class="hl-1"> </span><span class="hl-0">the</span><span class="hl-1"> </span><span class="hl-0">same</span><br/><span class="hl-0">domain</span><span class="hl-1">, </span><span class="hl-0">simply</span><span class="hl-1"> </span><span class="hl-0">use</span><span class="hl-1"> </span><span class="hl-0">a</span><span class="hl-1"> </span><span class="hl-0">different</span><span class="hl-1"> </span><span class="hl-0">Loki</span><span class="hl-1"> </span><span class="hl-0">database</span><span class="hl-1"> </span><span class="hl-0">name</span>
-</code><button>Copy</button></pre>
-</div>
-<div class="tsd-comment tsd-typography">
-<h4>Example</h4><pre><code class="language-ts"><span class="hl-3">var</span><span class="hl-1"> </span><span class="hl-0">adapter</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-2">IncrementalIndexedDBAdapter</span><span class="hl-1">();</span>
-</code><button>Copy</button></pre>
+<pre><code><span class="hl-2">The</span><span class="hl-1"> </span><span class="hl-4">`appname`</span><span class="hl-1"> </span><span class="hl-2">argument</span><span class="hl-1"> </span><span class="hl-2">is</span><span class="hl-1"> </span><span class="hl-2">not</span><span class="hl-1"> </span><span class="hl-2">provided</span><span class="hl-1"> - </span><span class="hl-2">to</span><span class="hl-1"> </span><span class="hl-2">distinguish</span><span class="hl-1"> </span><span class="hl-2">between</span><span class="hl-1"> </span><span class="hl-2">multiple</span><span class="hl-1"> </span><span class="hl-2">app</span><span class="hl-1"> </span><span class="hl-2">on</span><span class="hl-1"> </span><span class="hl-2">the</span><span class="hl-1"> </span><span class="hl-2">same</span><br/><span class="hl-2">domain</span><span class="hl-1">, </span><span class="hl-2">simply</span><span class="hl-1"> </span><span class="hl-2">use</span><span class="hl-1"> </span><span class="hl-2">a</span><span class="hl-1"> </span><span class="hl-2">different</span><span class="hl-1"> </span><span class="hl-2">Loki</span><span class="hl-1"> </span><span class="hl-2">database</span><span class="hl-1"> </span><span class="hl-2">name</span>
+</code></pre>
 
-<h4>Param</h4><p>Configuration options for the adapter</p>
+<h3>Example</h3><pre><code class="language-ts"><span class="hl-0">var</span><span class="hl-1"> </span><span class="hl-2">adapter</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">IncrementalIndexedDBAdapter</span><span class="hl-1">();</span>
+</code></pre>
 
-<h4>Param</h4><p>Function to call on <code>IDBDatabase.onversionchange</code> event
+<h3>Param</h3><p>Configuration options for the adapter</p>
+
+<h3>Param</h3><p>Function to call on <code>IDBDatabase.onversionchange</code> event
     (most likely database deleted from another browser tab)</p>
 
-<h4>Param</h4><p>Function to call once IDB load has begun.
+<h3>Param</h3><p>Function to call once IDB load has begun.
     Use this as an opportunity to execute code concurrently while IDB does work on a separate thread</p>
 
-<h4>Param</h4><p>Called when this adapter is forced to overwrite contents
+<h3>Param</h3><p>Called when this adapter is forced to overwrite contents
     of IndexedDB. This happens if there&#39;s another open tab of the same app that&#39;s making changes.
     You might use it as an opportunity to alert user to the potential loss of data</p>
 
-<h4>Param</h4><p>Called with a chunk (array of Loki documents) before
+<h3>Param</h3><p>Called with a chunk (array of Loki documents) before
     it&#39;s saved to IndexedDB. You can use it to manually compress on-disk representation
     for faster database loads. Hint: Hand-written conversion of objects to arrays is very
     profitable for performance. If you use this, you must also pass options.deserializeChunk.</p>
 
-<h4>Param</h4><p>Called with a chunk serialized with options.serializeChunk
+<h3>Param</h3><p>Called with a chunk serialized with options.serializeChunk
     Expects an array of Loki documents as the return value</p>
 
-<h4>Param</h4><p>Number of parallel requests for data when loading database.
+<h3>Param</h3><p>Number of parallel requests for data when loading database.
     Can be tuned for a specific application</p>
 
-<h4>Param</h4><p>Names of collections that should be deserialized lazily
+<h3>Param</h3><p>Names of collections that should be deserialized lazily
     Only use this for collections that aren&#39;t used at launch</p>
 </div></section>
 <section class="tsd-panel tsd-hierarchy">
@@ -63,9 +62,9 @@
 <section class="tsd-panel">
 <h4>Implements</h4>
 <ul class="tsd-hierarchy">
-<li><a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html" class="tsd-signature-type tsd-kind-interface">IncrementalSyncPersistenceAdapter</a></li></ul></section><aside class="tsd-sources">
+<li><a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html" class="tsd-signature-type" data-tsd-kind="Interface">IncrementalSyncPersistenceAdapter</a></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/00d296d/src/storage-adapter/incremental-indexeddb-adapter.ts#L47">storage-adapter/incremental-indexeddb-adapter.ts:47</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/4f47861/src/storage-adapter/incremental-indexeddb-adapter.ts#L47">src/storage-adapter/incremental-indexeddb-adapter.ts:47</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -73,282 +72,271 @@
 <div class="tsd-accordion-details">
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Constructors</h3>
-<div class="tsd-index-list"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#constructor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-512"><rect fill="var(--color-icon-background)" stroke="#4D7FFF" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12"></rect><path d="M11.898 16.1201C11.098 16.1201 10.466 15.8961 10.002 15.4481C9.53803 15.0001 9.30603 14.3841 9.30603 13.6001V9.64012C9.30603 8.85612 9.53803 8.24012 10.002 7.79212C10.466 7.34412 11.098 7.12012 11.898 7.12012C12.682 7.12012 13.306 7.34812 13.77 7.80412C14.234 8.25212 14.466 8.86412 14.466 9.64012H13.386C13.386 9.14412 13.254 8.76412 12.99 8.50012C12.734 8.22812 12.37 8.09212 11.898 8.09212C11.426 8.09212 11.054 8.22412 10.782 8.48812C10.518 8.75212 10.386 9.13212 10.386 9.62812V13.6001C10.386 14.0961 10.518 14.4801 10.782 14.7521C11.054 15.0161 11.426 15.1481 11.898 15.1481C12.37 15.1481 12.734 15.0161 12.99 14.7521C13.254 14.4801 13.386 14.0961 13.386 13.6001H14.466C14.466 14.3761 14.234 14.9921 13.77 15.4481C13.306 15.8961 12.682 16.1201 11.898 16.1201Z" fill="var(--color-text)"></path></g></svg><span>constructor</span></a>
+<div class="tsd-index-list"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#constructor" class="tsd-index-link tsd-kind-constructor tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#4D7FFF" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-512-path"></rect><path d="M11.898 16.1201C11.098 16.1201 10.466 15.8961 10.002 15.4481C9.53803 15.0001 9.30603 14.3841 9.30603 13.6001V9.64012C9.30603 8.85612 9.53803 8.24012 10.002 7.79212C10.466 7.34412 11.098 7.12012 11.898 7.12012C12.682 7.12012 13.306 7.34812 13.77 7.80412C14.234 8.25212 14.466 8.86412 14.466 9.64012H13.386C13.386 9.14412 13.254 8.76412 12.99 8.50012C12.734 8.22812 12.37 8.09212 11.898 8.09212C11.426 8.09212 11.054 8.22412 10.782 8.48812C10.518 8.75212 10.386 9.13212 10.386 9.62812V13.6001C10.386 14.0961 10.518 14.4801 10.782 14.7521C11.054 15.0161 11.426 15.1481 11.898 15.1481C12.37 15.1481 12.734 15.0161 12.99 14.7521C13.254 14.4801 13.386 14.0961 13.386 13.6001H14.466C14.466 14.3761 14.234 14.9921 13.77 15.4481C13.306 15.8961 12.682 16.1201 11.898 16.1201Z" fill="var(--color-text)" id="icon-512-text"></path></svg><span>constructor</span></a>
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Properties</h3>
-<div class="tsd-index-list"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#mode" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-1024"><rect fill="var(--color-icon-background)" stroke="#FF984D" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12"></rect><path d="M9.354 16V7.24H12.174C12.99 7.24 13.638 7.476 14.118 7.948C14.606 8.412 14.85 9.036 14.85 9.82C14.85 10.604 14.606 11.232 14.118 11.704C13.638 12.168 12.99 12.4 12.174 12.4H10.434V16H9.354ZM10.434 11.428H12.174C12.646 11.428 13.022 11.284 13.302 10.996C13.59 10.7 13.734 10.308 13.734 9.82C13.734 9.324 13.59 8.932 13.302 8.644C13.022 8.356 12.646 8.212 12.174 8.212H10.434V11.428Z" fill="var(--color-text)"></path></g></svg><span>mode</span></a>
+<div class="tsd-index-list"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#mode" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF984D" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-1024-path"></rect><path d="M9.354 16V7.24H12.174C12.99 7.24 13.638 7.476 14.118 7.948C14.606 8.412 14.85 9.036 14.85 9.82C14.85 10.604 14.606 11.232 14.118 11.704C13.638 12.168 12.99 12.4 12.174 12.4H10.434V16H9.354ZM10.434 11.428H12.174C12.646 11.428 13.022 11.284 13.302 10.996C13.59 10.7 13.734 10.308 13.734 9.82C13.734 9.324 13.59 8.932 13.302 8.644C13.022 8.356 12.646 8.212 12.174 8.212H10.434V11.428Z" fill="var(--color-text)" id="icon-1024-text"></path></svg><span>mode</span></a>
 </div></section>
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Methods</h3>
-<div class="tsd-index-list"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#_getAllChunks" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-2048"><rect fill="var(--color-icon-background)" stroke="#FF4DB8" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12"></rect><path d="M9.162 16V7.24H10.578L11.514 10.072C11.602 10.328 11.674 10.584 11.73 10.84C11.794 11.088 11.842 11.28 11.874 11.416C11.906 11.28 11.954 11.088 12.018 10.84C12.082 10.584 12.154 10.324 12.234 10.06L13.122 7.24H14.538V16H13.482V12.82C13.482 12.468 13.49 12.068 13.506 11.62C13.53 11.172 13.558 10.716 13.59 10.252C13.622 9.78 13.654 9.332 13.686 8.908C13.726 8.476 13.762 8.1 13.794 7.78L12.366 12.16H11.334L9.894 7.78C9.934 8.092 9.97 8.456 10.002 8.872C10.042 9.28 10.078 9.716 10.11 10.18C10.142 10.636 10.166 11.092 10.182 11.548C10.206 12.004 10.218 12.428 10.218 12.82V16H9.162Z" fill="var(--color-text)"></path></g></svg><span>_get<wbr/>All<wbr/>Chunks</span></a>
-<a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#_getChunk" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_get<wbr/>Chunk</span></a>
-<a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#_initializeIDB" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_initializeIDB</span></a>
-<a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#_putInChunks" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_put<wbr/>In<wbr/>Chunks</span></a>
-<a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#deleteDatabase" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>delete<wbr/>Database</span></a>
-<a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#loadDatabase" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>load<wbr/>Database</span></a>
-<a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#saveDatabase" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>save<wbr/>Database</span></a>
+<div class="tsd-index-list"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#_getAllChunks" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF4DB8" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-2048-path"></rect><path d="M9.162 16V7.24H10.578L11.514 10.072C11.602 10.328 11.674 10.584 11.73 10.84C11.794 11.088 11.842 11.28 11.874 11.416C11.906 11.28 11.954 11.088 12.018 10.84C12.082 10.584 12.154 10.324 12.234 10.06L13.122 7.24H14.538V16H13.482V12.82C13.482 12.468 13.49 12.068 13.506 11.62C13.53 11.172 13.558 10.716 13.59 10.252C13.622 9.78 13.654 9.332 13.686 8.908C13.726 8.476 13.762 8.1 13.794 7.78L12.366 12.16H11.334L9.894 7.78C9.934 8.092 9.97 8.456 10.002 8.872C10.042 9.28 10.078 9.716 10.11 10.18C10.142 10.636 10.166 11.092 10.182 11.548C10.206 12.004 10.218 12.428 10.218 12.82V16H9.162Z" fill="var(--color-text)" id="icon-2048-text"></path></svg><span>_get<wbr/>All<wbr/>Chunks</span></a>
+<a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#_getChunk" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>_get<wbr/>Chunk</span></a>
+<a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#_initializeIDB" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>_initializeIDB</span></a>
+<a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#_putInChunks" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>_put<wbr/>In<wbr/>Chunks</span></a>
+<a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#deleteDatabase" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>delete<wbr/>Database</span></a>
+<a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#loadDatabase" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>load<wbr/>Database</span></a>
+<a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#saveDatabase" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>save<wbr/>Database</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Constructors</h2>
-<section class="tsd-panel tsd-member"><a id="constructor" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>constructor</span><a href="#constructor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><g stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" id="icon-anchor"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path></g></svg></a></h3>
-<ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="constructor.new_IncrementalIndexedDBAdapter"><span class="tsd-kind-constructor-signature">new <wbr/>Incremental<wbr/>IndexedDBAdapter</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html" class="tsd-signature-type tsd-kind-class">IncrementalIndexedDBAdapter</a><a href="#constructor.new_IncrementalIndexedDBAdapter" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class"><a id="constructor" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>constructor</span><a href="#constructor" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="constructor.new_IncrementalIndexedDBAdapter">new <wbr/>Incremental<wbr/>IndexedDBAdapter<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>deserializeChunk<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>collectionName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, chunk<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>lazyCollections<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>megachunkCount<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>onDidOverwrite<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>onFetchStart<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>onversionchange<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>versionChangeEvent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IDBVersionChangeEvent</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>serializeChunk<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>collectionName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, chunk<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html" class="tsd-signature-type" data-tsd-kind="Class">IncrementalIndexedDBAdapter</a><a href="#constructor.new_IncrementalIndexedDBAdapter" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">deserializeChunk</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">collectionName</span>, <span class="tsd-kind-parameter">chunk</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">lazyCollections</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">megachunkCount</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">onDidOverwrite</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">onFetchStart</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">onversionchange</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">versionChangeEvent</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">serializeChunk</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">collectionName</span>, <span class="tsd-kind-parameter">chunk</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> options: <span class="tsd-signature-symbol">{ </span><br/><span>    </span>deserializeChunk<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>collectionName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, chunk<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>lazyCollections<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>megachunkCount<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>onDidOverwrite<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>onFetchStart<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>onversionchange<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>versionChangeEvent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IDBVersionChangeEvent</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>serializeChunk<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>collectionName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, chunk<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
 <ul class="tsd-parameters">
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">deserialize<wbr/>Chunk</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">collectionName</span>, <span class="tsd-kind-parameter">chunk</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span></h5>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> deserialize<wbr/>Chunk<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>collectionName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, chunk<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span></h5>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-signature">
-<ul class="tsd-signatures">
-<li class="tsd-signature"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">collectionName</span>, <span class="tsd-kind-parameter">chunk</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></li>
+<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
+<li class="tsd-signature"><span class="tsd-signature-symbol">(</span>collectionName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, chunk<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">collectionName</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5>collectionName: <span class="tsd-signature-type">string</span></h5></li>
 <li>
-<h5><span class="tsd-kind-parameter">chunk</span>: <span class="tsd-signature-type">string</span></h5></li></ul></div>
+<h5>chunk: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h4></li></ul></li></ul></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">lazy<wbr/>Collections</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> lazy<wbr/>Collections<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">megachunk<wbr/>Count</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5></li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> megachunk<wbr/>Count<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span></h5></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">on<wbr/>Did<wbr/>Overwrite</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></h5>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> on<wbr/>Did<wbr/>Overwrite<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></h5>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-signature">
-<ul class="tsd-signatures">
+<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
 <li class="tsd-signature"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">on<wbr/>Fetch<wbr/>Start</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></h5>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> on<wbr/>Fetch<wbr/>Start<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></h5>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-signature">
-<ul class="tsd-signatures">
+<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
 <li class="tsd-signature"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">onversionchange</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">versionChangeEvent</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></h5>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> onversionchange<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>versionChangeEvent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IDBVersionChangeEvent</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></h5>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-signature">
-<ul class="tsd-signatures">
-<li class="tsd-signature"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">versionChangeEvent</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
+<li class="tsd-signature"><span class="tsd-signature-symbol">(</span>versionChangeEvent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IDBVersionChangeEvent</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">versionChangeEvent</span>: <span class="tsd-signature-type ">IDBVersionChangeEvent</span></h5></li></ul></div>
+<h5>versionChangeEvent: <span class="tsd-signature-type">IDBVersionChangeEvent</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></li>
 <li class="tsd-parameter">
-<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">serialize<wbr/>Chunk</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">collectionName</span>, <span class="tsd-kind-parameter">chunk</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span></h5>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> serialize<wbr/>Chunk<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>collectionName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, chunk<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span></h5>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-signature">
-<ul class="tsd-signatures">
-<li class="tsd-signature"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">collectionName</span>, <span class="tsd-kind-parameter">chunk</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
+<li class="tsd-signature"><span class="tsd-signature-symbol">(</span>collectionName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, chunk<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">collectionName</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5>collectionName: <span class="tsd-signature-type">string</span></h5></li>
 <li>
-<h5><span class="tsd-kind-parameter">chunk</span>: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
+<h5>chunk: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4></li></ul></li></ul></li></ul></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html" class="tsd-signature-type tsd-kind-class">IncrementalIndexedDBAdapter</a></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html" class="tsd-signature-type" data-tsd-kind="Class">IncrementalIndexedDBAdapter</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/00d296d/src/storage-adapter/incremental-indexeddb-adapter.ts#L51">storage-adapter/incremental-indexeddb-adapter.ts:51</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/4f47861/src/storage-adapter/incremental-indexeddb-adapter.ts#L51">src/storage-adapter/incremental-indexeddb-adapter.ts:51</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
-<section class="tsd-panel tsd-member"><a id="mode" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>mode</span><a href="#mode" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">mode</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;incremental&quot;</span></div><aside class="tsd-sources">
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="mode" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>mode</span><a href="#mode" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">mode<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;incremental&quot;</span></div><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html">IncrementalSyncPersistenceAdapter</a>.<a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html#mode">mode</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/00d296d/src/storage-adapter/incremental-indexeddb-adapter.ts#L50">storage-adapter/incremental-indexeddb-adapter.ts:50</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/4f47861/src/storage-adapter/incremental-indexeddb-adapter.ts#L50">src/storage-adapter/incremental-indexeddb-adapter.ts:50</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
-<section class="tsd-panel tsd-member"><a id="_getAllChunks" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>_get<wbr/>All<wbr/>Chunks</span><a href="#_getAllChunks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="_getAllChunks._getAllChunks-1"><span class="tsd-kind-call-signature">_get<wbr/>All<wbr/>Chunks</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">dbname</span>, <span class="tsd-kind-parameter">callback</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#_getAllChunks._getAllChunks-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_getAllChunks" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>_get<wbr/>All<wbr/>Chunks</span><a href="#_getAllChunks" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="_getAllChunks._getAllChunks-1">_get<wbr/>All<wbr/>Chunks<span class="tsd-signature-symbol">(</span>dbname<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#_getAllChunks._getAllChunks-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">dbname</span>: <span class="tsd-signature-type">any</span></h5></li>
+<h5>dbname: <span class="tsd-signature-type">any</span></h5></li>
 <li>
-<h5><span class="tsd-kind-parameter">callback</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
+<h5>callback: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/00d296d/src/storage-adapter/incremental-indexeddb-adapter.ts#L554">storage-adapter/incremental-indexeddb-adapter.ts:554</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member"><a id="_getChunk" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>_get<wbr/>Chunk</span><a href="#_getChunk" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="_getChunk._getChunk-1"><span class="tsd-kind-call-signature">_get<wbr/>Chunk</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">collection</span>, <span class="tsd-kind-parameter">chunkId</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#_getChunk._getChunk-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/4f47861/src/storage-adapter/incremental-indexeddb-adapter.ts#L554">src/storage-adapter/incremental-indexeddb-adapter.ts:554</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_getChunk" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>_get<wbr/>Chunk</span><a href="#_getChunk" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="_getChunk._getChunk-1">_get<wbr/>Chunk<span class="tsd-signature-symbol">(</span>collection<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, chunkId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><a href="#_getChunk._getChunk-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">collection</span>: <span class="tsd-signature-type">any</span></h5></li>
+<h5>collection: <span class="tsd-signature-type">any</span></h5></li>
 <li>
-<h5><span class="tsd-kind-parameter">chunkId</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
+<h5>chunkId: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/00d296d/src/storage-adapter/incremental-indexeddb-adapter.ts#L75">storage-adapter/incremental-indexeddb-adapter.ts:75</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member"><a id="_initializeIDB" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>_initializeIDB</span><a href="#_initializeIDB" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="_initializeIDB._initializeIDB-1"><span class="tsd-kind-call-signature">_initializeIDB</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">dbname</span>, <span class="tsd-kind-parameter">onError</span>, <span class="tsd-kind-parameter">onSuccess</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#_initializeIDB._initializeIDB-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/4f47861/src/storage-adapter/incremental-indexeddb-adapter.ts#L75">src/storage-adapter/incremental-indexeddb-adapter.ts:75</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_initializeIDB" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>_initializeIDB</span><a href="#_initializeIDB" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="_initializeIDB._initializeIDB-1">_initializeIDB<span class="tsd-signature-symbol">(</span>dbname<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, onError<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, onSuccess<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#_initializeIDB._initializeIDB-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">dbname</span>: <span class="tsd-signature-type">any</span></h5></li>
+<h5>dbname: <span class="tsd-signature-type">any</span></h5></li>
 <li>
-<h5><span class="tsd-kind-parameter">onError</span>: <span class="tsd-signature-type">any</span></h5></li>
+<h5>onError: <span class="tsd-signature-type">any</span></h5></li>
 <li>
-<h5><span class="tsd-kind-parameter">onSuccess</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
+<h5>onSuccess: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/00d296d/src/storage-adapter/incremental-indexeddb-adapter.ts#L477">storage-adapter/incremental-indexeddb-adapter.ts:477</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member"><a id="_putInChunks" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>_put<wbr/>In<wbr/>Chunks</span><a href="#_putInChunks" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="_putInChunks._putInChunks-1"><span class="tsd-kind-call-signature">_put<wbr/>In<wbr/>Chunks</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">idbStore</span>, <span class="tsd-kind-parameter">loki</span>, <span class="tsd-kind-parameter">incremental</span>, <span class="tsd-kind-parameter">maxChunkIds</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">collectionVersionIds</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">lokiVersionId</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><a href="#_putInChunks._putInChunks-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/4f47861/src/storage-adapter/incremental-indexeddb-adapter.ts#L477">src/storage-adapter/incremental-indexeddb-adapter.ts:477</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_putInChunks" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>_put<wbr/>In<wbr/>Chunks</span><a href="#_putInChunks" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="_putInChunks._putInChunks-1">_put<wbr/>In<wbr/>Chunks<span class="tsd-signature-symbol">(</span>idbStore<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, loki<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, incremental<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, maxChunkIds<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>collectionVersionIds<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>lokiVersionId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><a href="#_putInChunks._putInChunks-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">idbStore</span>: <span class="tsd-signature-type">any</span></h5></li>
+<h5>idbStore: <span class="tsd-signature-type">any</span></h5></li>
 <li>
-<h5><span class="tsd-kind-parameter">loki</span>: <span class="tsd-signature-type">any</span></h5></li>
+<h5>loki: <span class="tsd-signature-type">any</span></h5></li>
 <li>
-<h5><span class="tsd-kind-parameter">incremental</span>: <span class="tsd-signature-type">any</span></h5></li>
+<h5>incremental: <span class="tsd-signature-type">any</span></h5></li>
 <li>
-<h5><span class="tsd-kind-parameter">maxChunkIds</span>: <span class="tsd-signature-type">any</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">collectionVersionIds</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">lokiVersionId</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h4>
+<h5>maxChunkIds: <span class="tsd-signature-type">any</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span>collectionVersionIds<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span><br/><span>    </span>lokiVersionId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h4>
 <ul class="tsd-parameters">
 <li class="tsd-parameter">
-<h5><span class="tsd-kind-property">collection<wbr/>Version<wbr/>Ids</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5></li>
+<h5>collection<wbr/>Version<wbr/>Ids<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5></li>
 <li class="tsd-parameter">
-<h5><span class="tsd-kind-property">loki<wbr/>Version<wbr/>Id</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5></li></ul><aside class="tsd-sources">
+<h5>loki<wbr/>Version<wbr/>Id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5></li></ul><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/00d296d/src/storage-adapter/incremental-indexeddb-adapter.ts#L306">storage-adapter/incremental-indexeddb-adapter.ts:306</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member"><a id="deleteDatabase" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>delete<wbr/>Database</span><a href="#deleteDatabase" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="deleteDatabase.deleteDatabase-1"><span class="tsd-kind-call-signature">delete<wbr/>Database</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">dbname</span>, <span class="tsd-kind-parameter">callback</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#deleteDatabase.deleteDatabase-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/4f47861/src/storage-adapter/incremental-indexeddb-adapter.ts#L306">src/storage-adapter/incremental-indexeddb-adapter.ts:306</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="deleteDatabase" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>delete<wbr/>Database</span><a href="#deleteDatabase" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="deleteDatabase.deleteDatabase-1">delete<wbr/>Database<span class="tsd-signature-symbol">(</span>dbname<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#deleteDatabase.deleteDatabase-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Deletes a database from IndexedDB</p>
+
+<h3>Example</h3><pre><code class="language-ts"><span class="hl-6">// DELETE DATABASE</span><br/><span class="hl-6">// delete &#39;finance&#39;/&#39;test&#39; value from catalog</span><br/><span class="hl-2">idbAdapter</span><span class="hl-1">.</span><span class="hl-3">deleteDatabase</span><span class="hl-1">(</span><span class="hl-4">&#39;test&#39;</span><span class="hl-1">, </span><span class="hl-0">function</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-6">// database deleted</span><br/><span class="hl-1">});</span>
+</code></pre>
+
+<h3>Memberof</h3><p>IncrementalIndexedDBAdapter</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">dbname</span>: <span class="tsd-signature-type">any</span></h5>
+<h5>dbname: <span class="tsd-signature-type">any</span></h5>
 <div class="tsd-comment tsd-typography"><p>the name of the database to delete from IDB</p>
-</div>
-<div class="tsd-comment tsd-typography"></div></li>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">callback</span>: <span class="tsd-signature-type">any</span></h5>
+<h5>callback: <span class="tsd-signature-type">any</span></h5>
 <div class="tsd-comment tsd-typography"><p>(Optional) executed on database delete</p>
-</div>
-<div class="tsd-comment tsd-typography"></div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-<div class="tsd-comment tsd-typography">
-<h4>Example</h4><pre><code class="language-ts"><span class="hl-6">// DELETE DATABASE</span><br/><span class="hl-6">// delete &#39;finance&#39;/&#39;test&#39; value from catalog</span><br/><span class="hl-0">idbAdapter</span><span class="hl-1">.</span><span class="hl-2">deleteDatabase</span><span class="hl-1">(</span><span class="hl-5">&#39;test&#39;</span><span class="hl-1">, </span><span class="hl-3">function</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-6">// database deleted</span><br/><span class="hl-1">});</span>
-</code><button>Copy</button></pre>
-
-<h4>Memberof</h4><p>IncrementalIndexedDBAdapter</p>
-</div><aside class="tsd-sources">
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html">IncrementalSyncPersistenceAdapter</a>.<a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html#deleteDatabase">deleteDatabase</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/00d296d/src/storage-adapter/incremental-indexeddb-adapter.ts#L687">storage-adapter/incremental-indexeddb-adapter.ts:687</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member"><a id="loadDatabase" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>load<wbr/>Database</span><a href="#loadDatabase" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="loadDatabase.loadDatabase-1"><span class="tsd-kind-call-signature">load<wbr/>Database</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">dbname</span>, <span class="tsd-kind-parameter">callback</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#loadDatabase.loadDatabase-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/4f47861/src/storage-adapter/incremental-indexeddb-adapter.ts#L687">src/storage-adapter/incremental-indexeddb-adapter.ts:687</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="loadDatabase" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>load<wbr/>Database</span><a href="#loadDatabase" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="loadDatabase.loadDatabase-1">load<wbr/>Database<span class="tsd-signature-symbol">(</span>dbname<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#loadDatabase.loadDatabase-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Retrieves a serialized db string from the catalog.</p>
+
+<h3>Example</h3><pre><code class="language-ts"><span class="hl-6">// LOAD</span><br/><span class="hl-0">var</span><span class="hl-1"> </span><span class="hl-2">idbAdapter</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">IncrementalIndexedDBAdapter</span><span class="hl-1">();</span><br/><span class="hl-0">var</span><span class="hl-1"> </span><span class="hl-2">db</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">loki</span><span class="hl-1">(</span><span class="hl-4">&#39;test&#39;</span><span class="hl-1">, { </span><span class="hl-2">adapter:</span><span class="hl-1"> </span><span class="hl-2">idbAdapter</span><span class="hl-1"> });</span><br/><span class="hl-2">db</span><span class="hl-1">.</span><span class="hl-3">loadDatabase</span><span class="hl-1">(</span><span class="hl-0">function</span><span class="hl-1">(</span><span class="hl-2">result</span><span class="hl-1">) {</span><br/><span class="hl-1">  </span><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-3">log</span><span class="hl-1">(</span><span class="hl-4">&#39;done&#39;</span><span class="hl-1">);</span><br/><span class="hl-1">});</span>
+</code></pre>
+
+<h3>Memberof</h3><p>IncrementalIndexedDBAdapter</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">dbname</span>: <span class="tsd-signature-type">any</span></h5>
+<h5>dbname: <span class="tsd-signature-type">any</span></h5>
 <div class="tsd-comment tsd-typography"><p>the name of the database to retrieve.</p>
-</div>
-<div class="tsd-comment tsd-typography"></div></li>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">callback</span>: <span class="tsd-signature-type">any</span></h5>
+<h5>callback: <span class="tsd-signature-type">any</span></h5>
 <div class="tsd-comment tsd-typography"><p>callback should accept string param containing serialized db string.</p>
-</div>
-<div class="tsd-comment tsd-typography"></div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-<div class="tsd-comment tsd-typography">
-<h4>Example</h4><pre><code class="language-ts"><span class="hl-6">// LOAD</span><br/><span class="hl-3">var</span><span class="hl-1"> </span><span class="hl-0">idbAdapter</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-2">IncrementalIndexedDBAdapter</span><span class="hl-1">();</span><br/><span class="hl-3">var</span><span class="hl-1"> </span><span class="hl-0">db</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-2">loki</span><span class="hl-1">(</span><span class="hl-5">&#39;test&#39;</span><span class="hl-1">, { </span><span class="hl-0">adapter:</span><span class="hl-1"> </span><span class="hl-0">idbAdapter</span><span class="hl-1"> });</span><br/><span class="hl-0">db</span><span class="hl-1">.</span><span class="hl-2">loadDatabase</span><span class="hl-1">(</span><span class="hl-3">function</span><span class="hl-1">(</span><span class="hl-0">result</span><span class="hl-1">) {</span><br/><span class="hl-1">  </span><span class="hl-0">console</span><span class="hl-1">.</span><span class="hl-2">log</span><span class="hl-1">(</span><span class="hl-5">&#39;done&#39;</span><span class="hl-1">);</span><br/><span class="hl-1">});</span>
-</code><button>Copy</button></pre>
-
-<h4>Memberof</h4><p>IncrementalIndexedDBAdapter</p>
-</div><aside class="tsd-sources">
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html">IncrementalSyncPersistenceAdapter</a>.<a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html#loadDatabase">loadDatabase</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/00d296d/src/storage-adapter/incremental-indexeddb-adapter.ts#L415">storage-adapter/incremental-indexeddb-adapter.ts:415</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member"><a id="saveDatabase" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>save<wbr/>Database</span><a href="#saveDatabase" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<ul class="tsd-signatures">
-<li class="tsd-signature tsd-anchor-link" id="saveDatabase.saveDatabase-1"><span class="tsd-kind-call-signature">save<wbr/>Database</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">dbname</span>, <span class="tsd-kind-parameter">getLokiCopy</span>, <span class="tsd-kind-parameter">callback</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#saveDatabase.saveDatabase-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/4f47861/src/storage-adapter/incremental-indexeddb-adapter.ts#L415">src/storage-adapter/incremental-indexeddb-adapter.ts:415</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="saveDatabase" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>save<wbr/>Database</span><a href="#saveDatabase" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="saveDatabase.saveDatabase-1">save<wbr/>Database<span class="tsd-signature-symbol">(</span>dbname<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, getLokiCopy<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#saveDatabase.saveDatabase-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Incrementally saves the database to IndexedDB</p>
+
+<h3>Example</h3><pre><code class="language-ts"><span class="hl-0">var</span><span class="hl-1"> </span><span class="hl-2">idbAdapter</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">IncrementalIndexedDBAdapter</span><span class="hl-1">();</span><br/><span class="hl-0">var</span><span class="hl-1"> </span><span class="hl-2">db</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">loki</span><span class="hl-1">(</span><span class="hl-4">&#39;test&#39;</span><span class="hl-1">, { </span><span class="hl-2">adapter:</span><span class="hl-1"> </span><span class="hl-2">idbAdapter</span><span class="hl-1"> });</span><br/><span class="hl-0">var</span><span class="hl-1"> </span><span class="hl-2">coll</span><span class="hl-1"> = </span><span class="hl-2">db</span><span class="hl-1">.</span><span class="hl-3">addCollection</span><span class="hl-1">(</span><span class="hl-4">&#39;testColl&#39;</span><span class="hl-1">);</span><br/><span class="hl-2">coll</span><span class="hl-1">.</span><span class="hl-3">insert</span><span class="hl-1">({</span><span class="hl-2">test:</span><span class="hl-1"> </span><span class="hl-4">&#39;val&#39;</span><span class="hl-1">});</span><br/><span class="hl-2">db</span><span class="hl-1">.</span><span class="hl-3">saveDatabase</span><span class="hl-1">();</span>
+</code></pre>
+
+<h3>Memberof</h3><p>IncrementalIndexedDBAdapter</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">dbname</span>: <span class="tsd-signature-type">any</span></h5>
+<h5>dbname: <span class="tsd-signature-type">any</span></h5>
 <div class="tsd-comment tsd-typography"><p>the name to give the serialized database</p>
-</div>
-<div class="tsd-comment tsd-typography"></div></li>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">getLokiCopy</span>: <span class="tsd-signature-type">any</span></h5>
+<h5>getLokiCopy: <span class="tsd-signature-type">any</span></h5>
 <div class="tsd-comment tsd-typography"><p>returns copy of the Loki database</p>
-</div>
-<div class="tsd-comment tsd-typography"></div></li>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">callback</span>: <span class="tsd-signature-type">any</span></h5>
+<h5>callback: <span class="tsd-signature-type">any</span></h5>
 <div class="tsd-comment tsd-typography"><p>(Optional) callback passed obj.success with true or false</p>
-</div>
-<div class="tsd-comment tsd-typography"></div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-<div class="tsd-comment tsd-typography">
-<h4>Example</h4><pre><code class="language-ts"><span class="hl-3">var</span><span class="hl-1"> </span><span class="hl-0">idbAdapter</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-2">IncrementalIndexedDBAdapter</span><span class="hl-1">();</span><br/><span class="hl-3">var</span><span class="hl-1"> </span><span class="hl-0">db</span><span class="hl-1"> = </span><span class="hl-3">new</span><span class="hl-1"> </span><span class="hl-2">loki</span><span class="hl-1">(</span><span class="hl-5">&#39;test&#39;</span><span class="hl-1">, { </span><span class="hl-0">adapter:</span><span class="hl-1"> </span><span class="hl-0">idbAdapter</span><span class="hl-1"> });</span><br/><span class="hl-3">var</span><span class="hl-1"> </span><span class="hl-0">coll</span><span class="hl-1"> = </span><span class="hl-0">db</span><span class="hl-1">.</span><span class="hl-2">addCollection</span><span class="hl-1">(</span><span class="hl-5">&#39;testColl&#39;</span><span class="hl-1">);</span><br/><span class="hl-0">coll</span><span class="hl-1">.</span><span class="hl-2">insert</span><span class="hl-1">({</span><span class="hl-0">test:</span><span class="hl-1"> </span><span class="hl-5">&#39;val&#39;</span><span class="hl-1">});</span><br/><span class="hl-0">db</span><span class="hl-1">.</span><span class="hl-2">saveDatabase</span><span class="hl-1">();</span>
-</code><button>Copy</button></pre>
-
-<h4>Memberof</h4><p>IncrementalIndexedDBAdapter</p>
-</div><aside class="tsd-sources">
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html">IncrementalSyncPersistenceAdapter</a>.<a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html#saveDatabase">saveDatabase</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/00d296d/src/storage-adapter/incremental-indexeddb-adapter.ts#L173">storage-adapter/incremental-indexeddb-adapter.ts:173</a></li></ul></aside></li></ul></section></section></div>
-<div class="col-sidebar">
-<div class="page-menu">
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/4f47861/src/storage-adapter/incremental-indexeddb-adapter.ts#L173">src/storage-adapter/incremental-indexeddb-adapter.ts:173</a></li></ul></aside></li></ul></section></section></div>
+<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
-<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)" id="icon-chevronDown"></path></svg>Settings</h3></summary>
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Settings</h3></summary>
 <div class="tsd-accordion-details">
 <div class="tsd-filter-visibility">
 <h4 class="uppercase">Member Visibility</h4><form>
@@ -358,33 +346,72 @@
 <li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li>
 <li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div>
 <div class="tsd-theme-toggle">
-<h4 class="uppercase">Theme</h4><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
-<details open class="tsd-index-accordion tsd-page-navigation"><summary class="tsd-accordion-summary">
-<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="#icon-chevronDown"></use></svg>On This Page</h3></summary>
+<h4 class="uppercase">Theme</h4><select id="theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div>
+<nav class="tsd-navigation primary">
+<details class="tsd-index-accordion" open><summary class="tsd-accordion-summary">
+<h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4.93896 8.531L12 15.591L19.061 8.531L16.939 6.409L12 11.349L7.06098 6.409L4.93896 8.531Z" fill="var(--color-text)"></path></svg> Modules</h3></summary>
 <div class="tsd-accordion-details">
 <ul>
-<li><a href="#constructor" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-512"></use></svg><span>constructor</span></a></li>
-<li><a href="#mode" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>mode</span></a></li>
-<li><a href="#_getAllChunks" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_get<wbr/>All<wbr/>Chunks</span></a></li>
-<li><a href="#_getChunk" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_get<wbr/>Chunk</span></a></li>
-<li><a href="#_initializeIDB" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_initializeIDB</span></a></li>
-<li><a href="#_putInChunks" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>_put<wbr/>In<wbr/>Chunks</span></a></li>
-<li><a href="#deleteDatabase" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>delete<wbr/>Database</span></a></li>
-<li><a href="#loadDatabase" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>load<wbr/>Database</span></a></li>
-<li><a href="#saveDatabase" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>save<wbr/>Database</span></a></li></ul></div></details></div>
-<div class="site-menu">
-<nav class="tsd-navigation"><a href="../index.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-4"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-namespace)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6"></rect><path d="M9.33 16V7.24H10.77L13.446 14.74C13.43 14.54 13.41 14.296 13.386 14.008C13.37 13.712 13.354 13.404 13.338 13.084C13.33 12.756 13.326 12.448 13.326 12.16V7.24H14.37V16H12.93L10.266 8.5C10.282 8.692 10.298 8.936 10.314 9.232C10.33 9.52 10.342 9.828 10.35 10.156C10.366 10.476 10.374 10.784 10.374 11.08V16H9.33Z" fill="var(--color-text)"></path></g></svg><span>sylviejs</span></a>
-<ul class="tsd-small-nested-navigation">
-<li><a href="../modules/modules_sylvie.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>modules/sylvie</span></a></li>
-<li><a href="../modules/storage_adapter_crypted_indexeddb_adapter.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>storage-<wbr/>adapter/crypted-<wbr/>indexeddb-<wbr/>adapter</span></a></li>
-<li><a href="../modules/storage_adapter_fs_adapter.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>storage-<wbr/>adapter/fs-<wbr/>adapter</span></a></li>
-<li>
-<details class="tsd-index-accordion" open data-key="storage-adapter/incremental-indexeddb-adapter"><summary class="tsd-accordion-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="#icon-chevronDown"></use></svg><a href="../modules/storage_adapter_incremental_indexeddb_adapter.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>storage-<wbr/>adapter/incremental-<wbr/>indexeddb-<wbr/>adapter</span></a></summary>
-<div class="tsd-accordion-details">
-<ul class="tsd-nested-navigation">
-<li><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-128"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-class)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6"></rect><path d="M11.898 16.1201C11.098 16.1201 10.466 15.8961 10.002 15.4481C9.53803 15.0001 9.30603 14.3841 9.30603 13.6001V9.64012C9.30603 8.85612 9.53803 8.24012 10.002 7.79212C10.466 7.34412 11.098 7.12012 11.898 7.12012C12.682 7.12012 13.306 7.34812 13.77 7.80412C14.234 8.25212 14.466 8.86412 14.466 9.64012H13.386C13.386 9.14412 13.254 8.76412 12.99 8.50012C12.734 8.22812 12.37 8.09212 11.898 8.09212C11.426 8.09212 11.054 8.22412 10.782 8.48812C10.518 8.75212 10.386 9.13212 10.386 9.62812V13.6001C10.386 14.0961 10.518 14.4801 10.782 14.7521C11.054 15.0161 11.426 15.1481 11.898 15.1481C12.37 15.1481 12.734 15.0161 12.99 14.7521C13.254 14.4801 13.386 14.0961 13.386 13.6001H14.466C14.466 14.3761 14.234 14.9921 13.77 15.4481C13.306 15.8961 12.682 16.1201 11.898 16.1201Z" fill="var(--color-text)"></path></g></svg><span>Incremental<wbr/>IndexedDBAdapter</span></a></li></ul></div></details></li>
-<li><a href="../modules/storage_adapter_memory_adapter.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>storage-<wbr/>adapter/memory-<wbr/>adapter</span></a></li>
-<li><a href="../modules/storage_adapter_persistence_adapter.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-4"></use></svg><span>storage-<wbr/>adapter/persistence-<wbr/>adapter</span></a></li></ul></nav></div></div></div>
-<div class="tsd-generator">
+<li class="current"><a href="../modules.html">SylvieJS</a>
+<ul>
+<li class="pages-entry pages-entry-menu pages-entry-depth-1"><a>Tutorials</a>
+<ul>
+<li class="pages-entry pages-entry-page pages-entry-depth-2"><a href="../pages/tutorials/Autoupdating Collections.html">Autoupdating <wbr/>Collections</a></li>
+<li class="pages-entry pages-entry-page pages-entry-depth-2"><a href="../pages/tutorials/Changes API.html">Changes API.md</a></li>
+<li class="pages-entry pages-entry-page pages-entry-depth-2"><a href="../pages/tutorials/Collection Transforms.html">Collection <wbr/>Transforms.md</a></li>
+<li class="pages-entry pages-entry-page pages-entry-depth-2"><a href="../pages/tutorials/Indexing and Query performance.html">Indexing and <wbr/>Query performance.md</a></li>
+<li class="pages-entry pages-entry-page pages-entry-depth-2"><a href="../pages/tutorials/Loki Angular.html">Loki <wbr/>Angular.md</a></li>
+<li class="pages-entry pages-entry-page pages-entry-depth-2"><a href="../pages/tutorials/Persistence Adapters.html">Persistence <wbr/>Adapters.md</a></li>
+<li class="pages-entry pages-entry-page pages-entry-depth-2"><a href="../pages/tutorials/Query Examples.html">Query <wbr/>Examples.md</a></li></ul></li>
+<li class="tsd-kind-module"><a href="../modules/index.html">index</a></li>
+<li class="tsd-kind-module"><a href="../modules/modules_collection.html">modules/collection</a></li>
+<li class="tsd-kind-module"><a href="../modules/modules_dynamic_view.html">modules/dynamic-<wbr/>view</a></li>
+<li class="tsd-kind-module"><a href="../modules/modules_index_exact_index.html">modules/index/exact-<wbr/>index</a></li>
+<li class="tsd-kind-module"><a href="../modules/modules_index_sorted_index.html">modules/index/sorted-<wbr/>index</a></li>
+<li class="tsd-kind-module"><a href="../modules/modules_index_unique_index.html">modules/index/unique-<wbr/>index</a></li>
+<li class="tsd-kind-module"><a href="../modules/modules_key_value_store.html">modules/key-<wbr/>value-<wbr/>store</a></li>
+<li class="tsd-kind-module"><a href="../modules/modules_result_set.html">modules/result-<wbr/>set</a></li>
+<li class="tsd-kind-module"><a href="../modules/modules_sylvie.html">modules/sylvie</a></li>
+<li class="tsd-kind-module"><a href="../modules/modules_sylvie_event_emitter.html">modules/sylvie-<wbr/>event-<wbr/>emitter</a></li>
+<li class="tsd-kind-module"><a href="../modules/storage_adapter_crypted_indexeddb_adapter.html">storage-<wbr/>adapter/crypted-<wbr/>indexeddb-<wbr/>adapter</a></li>
+<li class="tsd-kind-module"><a href="../modules/storage_adapter_crypted_indexeddb_adapter_idb_catalog.html">storage-<wbr/>adapter/crypted-<wbr/>indexeddb-<wbr/>adapter/idb-<wbr/>catalog</a></li>
+<li class="tsd-kind-module"><a href="../modules/storage_adapter_crypted_indexeddb_adapter_string_encryption_utils.html">storage-<wbr/>adapter/crypted-<wbr/>indexeddb-<wbr/>adapter/string-<wbr/>encryption-<wbr/>utils</a></li>
+<li class="tsd-kind-module"><a href="../modules/storage_adapter_fs_adapter.html">storage-<wbr/>adapter/fs-<wbr/>adapter</a></li>
+<li class="current tsd-kind-module"><a href="../modules/storage_adapter_incremental_indexeddb_adapter.html">storage-<wbr/>adapter/incremental-<wbr/>indexeddb-<wbr/>adapter</a></li>
+<li class="tsd-kind-module"><a href="../modules/storage_adapter_indexeddb_adapter.html">storage-<wbr/>adapter/indexeddb-<wbr/>adapter</a></li>
+<li class="tsd-kind-module"><a href="../modules/storage_adapter_local_storage_adapter.html">storage-<wbr/>adapter/local-<wbr/>storage-<wbr/>adapter</a></li>
+<li class="tsd-kind-module"><a href="../modules/storage_adapter_memory_adapter.html">storage-<wbr/>adapter/memory-<wbr/>adapter</a></li>
+<li class="tsd-kind-module"><a href="../modules/storage_adapter_partitioning_adapter.html">storage-<wbr/>adapter/partitioning-<wbr/>adapter</a></li>
+<li class="tsd-kind-module"><a href="../modules/storage_adapter_persistence_adapter.html">storage-<wbr/>adapter/persistence-<wbr/>adapter</a></li>
+<li class="tsd-kind-module"><a href="../modules/sylviejs.html">sylviejs</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils.html">utils</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_binary_search.html">utils/binary-<wbr/>search</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_clone.html">utils/clone</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_clone_object_array.html">utils/clone-<wbr/>object-<wbr/>array</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_containsCheckFn.html">utils/contains<wbr/>Check<wbr/>Fn</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_deep_property.html">utils/deep-<wbr/>property</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_dotSubScan.html">utils/dot<wbr/>Sub<wbr/>Scan</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_icebox.html">utils/icebox</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_localStorageAvailable.html">utils/local<wbr/>Storage<wbr/>Available</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_math.html">utils/math</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_ops.html">utils/ops</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_parse_base_10.html">utils/parse-<wbr/>base-<wbr/>10</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_precompile_query.html">utils/precompile-<wbr/>query</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_sort.html">utils/sort</a></li>
+<li class="tsd-kind-module"><a href="../modules/utils_utils.html">utils/utils</a></li></ul></li></ul></div></details></nav>
+<nav class="tsd-navigation secondary menu-sticky">
+<ul>
+<li class="current tsd-kind-class tsd-parent-kind-module"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-class)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-128-path"></rect><path d="M11.898 16.1201C11.098 16.1201 10.466 15.8961 10.002 15.4481C9.53803 15.0001 9.30603 14.3841 9.30603 13.6001V9.64012C9.30603 8.85612 9.53803 8.24012 10.002 7.79212C10.466 7.34412 11.098 7.12012 11.898 7.12012C12.682 7.12012 13.306 7.34812 13.77 7.80412C14.234 8.25212 14.466 8.86412 14.466 9.64012H13.386C13.386 9.14412 13.254 8.76412 12.99 8.50012C12.734 8.22812 12.37 8.09212 11.898 8.09212C11.426 8.09212 11.054 8.22412 10.782 8.48812C10.518 8.75212 10.386 9.13212 10.386 9.62812V13.6001C10.386 14.0961 10.518 14.4801 10.782 14.7521C11.054 15.0161 11.426 15.1481 11.898 15.1481C12.37 15.1481 12.734 15.0161 12.99 14.7521C13.254 14.4801 13.386 14.0961 13.386 13.6001H14.466C14.466 14.3761 14.234 14.9921 13.77 15.4481C13.306 15.8961 12.682 16.1201 11.898 16.1201Z" fill="var(--color-text)" id="icon-128-text"></path></svg><span>Incremental<wbr/>IndexedDBAdapter</span></a>
+<ul>
+<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#constructor" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-512-path"></use><use href="#icon-512-text"></use></svg>constructor</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#mode" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>mode</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#_getAllChunks" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_get<wbr/>All<wbr/>Chunks</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#_getChunk" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_get<wbr/>Chunk</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#_initializeIDB" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_initializeIDB</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#_putInChunks" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_put<wbr/>In<wbr/>Chunks</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#deleteDatabase" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>delete<wbr/>Database</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#loadDatabase" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>load<wbr/>Database</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html#saveDatabase" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>save<wbr/>Database</a></li></ul></li></ul></nav></div></div>
+<div class="container tsd-generator">
 <p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></div>
-<div class="overlay"></div></body></html>
+<div class="overlay"></div><script src="../assets/main.js"></script></body></html>

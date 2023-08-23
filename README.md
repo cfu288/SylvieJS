@@ -2,6 +2,8 @@
 
 The super fast in-memory javascript document oriented database.
 
+See our [Documentation](cfu288.github.io/SylvieJS/)
+
 **This repo is a fork of the original [LokiJS repository](https://github.com/techfort/LokiJS)**
 
 The objectives of this fork are to modernize the API and the codebase:
