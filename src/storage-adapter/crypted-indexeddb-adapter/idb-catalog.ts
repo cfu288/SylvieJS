@@ -170,6 +170,41 @@ export class IDBCatalog {
     });
   }
 
+  async getAppKeysAsync(app): Promise<{ key: string }[]> {
+    const transaction = this.db.transaction(["IDBAKV"], "readonly");
+    const store = transaction.objectStore("IDBAKV");
+    const index = store.index("app");
+
+    // We want cursor to all values matching our (single) app param
+    const singleKeyRange = IDBKeyRange.only(app);
+
+    // To use one of the key ranges, pass it in as the first argument of openCursor()/openKeyCursor()
+    const cursor = index.openCursor(singleKeyRange);
+
+    // cursor internally, pushing results into this.data[] and return
+    // this.data[] when done (similar to service)
+    const localdata = [];
+
+    return new Promise((resolve, reject) => {
+      cursor.onsuccess = () => {
+        const cur = cursor.result;
+        if (cur) {
+          const currObject = cur.value;
+
+          localdata.push(currObject);
+
+          cur.continue();
+        } else {
+          resolve(localdata);
+        }
+      };
+
+      cursor.onerror = (e) => {
+        reject(e);
+      };
+    });
+  }
+
   getAppKeys(app, callback) {
     const transaction = this.db.transaction(["IDBAKV"], "readonly");
     const store = transaction.objectStore("IDBAKV");
@@ -209,36 +244,6 @@ export class IDBCatalog {
         console.error("IDBCatalog.getAppKeys raised onerror");
         console.error(e);
       }
-    })(callback);
-  }
-
-  // Hide 'cursoring' and return array of { id: id, key: key }
-  getAllKeys(callback) {
-    const transaction = this.db.transaction(["IDBAKV"], "readonly");
-    const store = transaction.objectStore("IDBAKV");
-    const cursor = store.openCursor();
-
-    const localdata = [];
-
-    cursor.onsuccess = ((data, callback) => () => {
-      const cur = cursor.result;
-      if (cur) {
-        const currObject = cur.value;
-
-        data.push(currObject);
-
-        cur.continue();
-      } else {
-        if (typeof callback === "function") {
-          callback(data);
-        } else {
-          console.log(data);
-        }
-      }
-    })(localdata, callback);
-
-    cursor.onerror = ((usercallback) => (e) => {
-      if (typeof usercallback === "function") usercallback(null);
     })(callback);
   }
 }

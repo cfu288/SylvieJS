@@ -13,14 +13,12 @@ import {
   decryptData,
   encryptData,
 } from "./crypted-indexeddb-adapter/string-encryption-utils";
-import {
-  IDBCatalog,
-  SuccessResultType,
-} from "./crypted-indexeddb-adapter/idb-catalog";
+import { IDBCatalog } from "./crypted-indexeddb-adapter/idb-catalog";
 import {
   AsyncPersistenceAdapter,
   NormalSyncPersistenceAdapter,
 } from "./persistence-adapter";
+
 // @ts-ignore
 const DEBUG = typeof window !== "undefined" && !!window.__loki_idb_debug;
 
@@ -29,8 +27,8 @@ if (DEBUG) {
 }
 
 if (!window.crypto.subtle) {
-  alert("Required crypto lib is not availible, are you using SSL?");
-  throw new Error("Required crypto lib is not availible");
+  alert("Required crypto lib is not available, are you using SSL?");
+  throw new Error("Required crypto lib is not available");
 }
 
 interface CryptedIndexedDBAdapterOptions {
@@ -540,7 +538,7 @@ export class CryptedIndexedDBAdapter
    * @param {function} callback - should accept array of database names in the catalog for current app.
    * @memberof SylvieIndexedAdapter
    */
-  getDatabaseList = (callback: (_: any) => any) => {
+  getDatabaseList = (callback: (_: string[] | Error) => void) => {
     // lazy open/create db reference so dont -need- callback in constructor
     if (this.catalog === null || this.catalog.db === null) {
       new IDBCatalog()
@@ -584,10 +582,15 @@ export class CryptedIndexedDBAdapter
           .initialize()
           .then((catalog) => {
             this.catalog = catalog;
-            this.catalog.getAppKeys(this.app, (results) => {
-              const names: string[] = results.map((result) => result.key);
-              resolve(names);
-            });
+            this.catalog
+              .getAppKeysAsync(this.app)
+              .then((results) => {
+                const names: string[] = results.map((result) => result.key);
+                resolve(names);
+              })
+              .catch((err) => {
+                reject(err);
+              });
           })
           .catch((err) => {
             reject(err);
@@ -595,10 +598,15 @@ export class CryptedIndexedDBAdapter
       } else {
         // catalog already initialized
         // get all keys for current appName, and transpose results so just string array
-        this.catalog.getAppKeys(this.app, (results) => {
-          const names: string[] = results.map((result) => result.key);
-          resolve(names);
-        });
+        this.catalog
+          .getAppKeysAsync(this.app)
+          .then((results) => {
+            const names: string[] = results.map((result) => result.key);
+            resolve(names);
+          })
+          .catch((err) => {
+            reject(err);
+          });
       }
     });
   };
@@ -606,7 +614,6 @@ export class CryptedIndexedDBAdapter
 
 if (typeof window !== "undefined") {
   Object.assign(window, {
-    IndexedDBAdapter: CryptedIndexedDBAdapter,
     CryptedIndexedDBAdapter: CryptedIndexedDBAdapter,
   });
 }
