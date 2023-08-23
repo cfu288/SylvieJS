@@ -1,23 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <title>LokiJS Examples</title>
-  <script src="../src/lokijs.js"></script>
-  <script src="example.js"></script>
-</head>
-<body>
-<h1>LokiJS Examples</h1>
-
-Load up the console and see it happen!
-<script type="text/javascript">
-try {
-  runExample();  
-} catch(err){
-  trace(err);
-}
-
-
-</script>
-
-</body>
+  <head>
+    <title>SylvieJS Examples</title>
+    <script id="sylvie" type="module" src="../dist/sylviejs.js"></script>
+    <script src="example.js"></script>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+  </head>
+  <body>
+    <h1>SylvieJS Examples</h1>
+    <p>You can serve this page using <pre>npx serve examples</pre></p>
+    <p>Open up the console and see it happen!</p>
+    <script type="text/javascript">
+      var script = document.querySelector("#sylvie");
+      script.addEventListener("load", function () {
+        try {
+          runExample();
+        } catch (err) {
+          trace(err);
+        }
+      });
+    </script>
+  </body>
 </html>
