@@ -22,6 +22,7 @@ The objectives of this fork are to modernize the API and the codebase:
 SylvieJS is a document oriented database written in javascript, published under MIT License.
 Its purpose is to store javascript objects as documents in a nosql fashion and retrieve them with a similar mechanism.
 Runs in node and the browser.
+
 SylvieJS is ideal for the following scenarios:
 
 1. client-side in-memory db is ideal (e.g., a session store)

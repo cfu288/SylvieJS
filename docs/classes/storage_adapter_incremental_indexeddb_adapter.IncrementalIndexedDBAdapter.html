@@ -23,10 +23,10 @@
     documents (and database metadata) is saved to IndexedDB. This speeds up small incremental
     saves by an order of magnitude on large (tens of thousands of records) databases. It also
     avoids Safari 13 bug that would cause the database to balloon in size to gigabytes</p>
-<pre><code><span class="hl-2">The</span><span class="hl-1"> </span><span class="hl-4">`appname`</span><span class="hl-1"> </span><span class="hl-2">argument</span><span class="hl-1"> </span><span class="hl-2">is</span><span class="hl-1"> </span><span class="hl-2">not</span><span class="hl-1"> </span><span class="hl-2">provided</span><span class="hl-1"> - </span><span class="hl-2">to</span><span class="hl-1"> </span><span class="hl-2">distinguish</span><span class="hl-1"> </span><span class="hl-2">between</span><span class="hl-1"> </span><span class="hl-2">multiple</span><span class="hl-1"> </span><span class="hl-2">app</span><span class="hl-1"> </span><span class="hl-2">on</span><span class="hl-1"> </span><span class="hl-2">the</span><span class="hl-1"> </span><span class="hl-2">same</span><br/><span class="hl-2">domain</span><span class="hl-1">, </span><span class="hl-2">simply</span><span class="hl-1"> </span><span class="hl-2">use</span><span class="hl-1"> </span><span class="hl-2">a</span><span class="hl-1"> </span><span class="hl-2">different</span><span class="hl-1"> </span><span class="hl-2">Loki</span><span class="hl-1"> </span><span class="hl-2">database</span><span class="hl-1"> </span><span class="hl-2">name</span>
+<pre><code><span class="hl-3">The</span><span class="hl-2"> </span><span class="hl-5">`appname`</span><span class="hl-2"> </span><span class="hl-3">argument</span><span class="hl-2"> </span><span class="hl-3">is</span><span class="hl-2"> </span><span class="hl-3">not</span><span class="hl-2"> </span><span class="hl-3">provided</span><span class="hl-2"> - </span><span class="hl-3">to</span><span class="hl-2"> </span><span class="hl-3">distinguish</span><span class="hl-2"> </span><span class="hl-3">between</span><span class="hl-2"> </span><span class="hl-3">multiple</span><span class="hl-2"> </span><span class="hl-3">app</span><span class="hl-2"> </span><span class="hl-3">on</span><span class="hl-2"> </span><span class="hl-3">the</span><span class="hl-2"> </span><span class="hl-3">same</span><br/><span class="hl-3">domain</span><span class="hl-2">, </span><span class="hl-3">simply</span><span class="hl-2"> </span><span class="hl-3">use</span><span class="hl-2"> </span><span class="hl-3">a</span><span class="hl-2"> </span><span class="hl-3">different</span><span class="hl-2"> </span><span class="hl-3">Loki</span><span class="hl-2"> </span><span class="hl-3">database</span><span class="hl-2"> </span><span class="hl-3">name</span>
 </code></pre>
 
-<h3>Example</h3><pre><code class="language-ts"><span class="hl-0">var</span><span class="hl-1"> </span><span class="hl-2">adapter</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">IncrementalIndexedDBAdapter</span><span class="hl-1">();</span>
+<h3>Example</h3><pre><code class="language-ts"><span class="hl-1">var</span><span class="hl-2"> </span><span class="hl-3">adapter</span><span class="hl-2"> = </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-4">IncrementalIndexedDBAdapter</span><span class="hl-2">();</span>
 </code></pre>
 
 <h3>Param</h3><p>Configuration options for the adapter</p>
@@ -64,7 +64,7 @@
 <ul class="tsd-hierarchy">
 <li><a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html" class="tsd-signature-type" data-tsd-kind="Interface">IncrementalSyncPersistenceAdapter</a></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/3635ce3/src/storage-adapter/incremental-indexeddb-adapter.ts#L47">src/storage-adapter/incremental-indexeddb-adapter.ts:47</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/61ded0f/src/storage-adapter/incremental-indexeddb-adapter.ts#L47">src/storage-adapter/incremental-indexeddb-adapter.ts:47</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -166,7 +166,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4></li></ul></li></ul></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="storage_adapter_incremental_indexeddb_adapter.IncrementalIndexedDBAdapter.html" class="tsd-signature-type" data-tsd-kind="Class">IncrementalIndexedDBAdapter</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/3635ce3/src/storage-adapter/incremental-indexeddb-adapter.ts#L51">src/storage-adapter/incremental-indexeddb-adapter.ts:51</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/61ded0f/src/storage-adapter/incremental-indexeddb-adapter.ts#L51">src/storage-adapter/incremental-indexeddb-adapter.ts:51</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="mode" class="tsd-anchor"></a>
@@ -174,7 +174,7 @@
 <div class="tsd-signature">mode<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;incremental&quot;</span></div><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html">IncrementalSyncPersistenceAdapter</a>.<a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html#mode">mode</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/3635ce3/src/storage-adapter/incremental-indexeddb-adapter.ts#L50">src/storage-adapter/incremental-indexeddb-adapter.ts:50</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/61ded0f/src/storage-adapter/incremental-indexeddb-adapter.ts#L50">src/storage-adapter/incremental-indexeddb-adapter.ts:50</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_getAllChunks" class="tsd-anchor"></a>
@@ -191,7 +191,7 @@
 <h5>callback: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/3635ce3/src/storage-adapter/incremental-indexeddb-adapter.ts#L554">src/storage-adapter/incremental-indexeddb-adapter.ts:554</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/61ded0f/src/storage-adapter/incremental-indexeddb-adapter.ts#L554">src/storage-adapter/incremental-indexeddb-adapter.ts:554</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_getChunk" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_get<wbr/>Chunk</span><a href="#_getChunk" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -206,7 +206,7 @@
 <h5>chunkId: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/3635ce3/src/storage-adapter/incremental-indexeddb-adapter.ts#L75">src/storage-adapter/incremental-indexeddb-adapter.ts:75</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/61ded0f/src/storage-adapter/incremental-indexeddb-adapter.ts#L75">src/storage-adapter/incremental-indexeddb-adapter.ts:75</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_initializeIDB" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_initializeIDB</span><a href="#_initializeIDB" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -223,7 +223,7 @@
 <h5>onSuccess: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/3635ce3/src/storage-adapter/incremental-indexeddb-adapter.ts#L477">src/storage-adapter/incremental-indexeddb-adapter.ts:477</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/61ded0f/src/storage-adapter/incremental-indexeddb-adapter.ts#L477">src/storage-adapter/incremental-indexeddb-adapter.ts:477</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_putInChunks" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_put<wbr/>In<wbr/>Chunks</span><a href="#_putInChunks" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -247,7 +247,7 @@
 <li class="tsd-parameter">
 <h5>loki<wbr/>Version<wbr/>Id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></h5></li></ul><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/3635ce3/src/storage-adapter/incremental-indexeddb-adapter.ts#L306">src/storage-adapter/incremental-indexeddb-adapter.ts:306</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/61ded0f/src/storage-adapter/incremental-indexeddb-adapter.ts#L306">src/storage-adapter/incremental-indexeddb-adapter.ts:306</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="deleteDatabase" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>delete<wbr/>Database</span><a href="#deleteDatabase" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -255,7 +255,7 @@
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Deletes a database from IndexedDB</p>
 
-<h3>Example</h3><pre><code class="language-ts"><span class="hl-6">// DELETE DATABASE</span><br/><span class="hl-6">// delete &#39;finance&#39;/&#39;test&#39; value from catalog</span><br/><span class="hl-2">idbAdapter</span><span class="hl-1">.</span><span class="hl-3">deleteDatabase</span><span class="hl-1">(</span><span class="hl-4">&#39;test&#39;</span><span class="hl-1">, </span><span class="hl-0">function</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-6">// database deleted</span><br/><span class="hl-1">});</span>
+<h3>Example</h3><pre><code class="language-ts"><span class="hl-0">// DELETE DATABASE</span><br/><span class="hl-0">// delete &#39;finance&#39;/&#39;test&#39; value from catalog</span><br/><span class="hl-3">idbAdapter</span><span class="hl-2">.</span><span class="hl-4">deleteDatabase</span><span class="hl-2">(</span><span class="hl-5">&#39;test&#39;</span><span class="hl-2">, </span><span class="hl-1">function</span><span class="hl-2"> {</span><br/><span class="hl-2">  </span><span class="hl-0">// database deleted</span><br/><span class="hl-2">});</span>
 </code></pre>
 
 <h3>Memberof</h3><p>IncrementalIndexedDBAdapter</p>
@@ -274,7 +274,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html">IncrementalSyncPersistenceAdapter</a>.<a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html#deleteDatabase">deleteDatabase</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/3635ce3/src/storage-adapter/incremental-indexeddb-adapter.ts#L687">src/storage-adapter/incremental-indexeddb-adapter.ts:687</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/61ded0f/src/storage-adapter/incremental-indexeddb-adapter.ts#L687">src/storage-adapter/incremental-indexeddb-adapter.ts:687</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="loadDatabase" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>load<wbr/>Database</span><a href="#loadDatabase" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -282,7 +282,7 @@
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Retrieves a serialized db string from the catalog.</p>
 
-<h3>Example</h3><pre><code class="language-ts"><span class="hl-6">// LOAD</span><br/><span class="hl-0">var</span><span class="hl-1"> </span><span class="hl-2">idbAdapter</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">IncrementalIndexedDBAdapter</span><span class="hl-1">();</span><br/><span class="hl-0">var</span><span class="hl-1"> </span><span class="hl-2">db</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">loki</span><span class="hl-1">(</span><span class="hl-4">&#39;test&#39;</span><span class="hl-1">, { </span><span class="hl-2">adapter:</span><span class="hl-1"> </span><span class="hl-2">idbAdapter</span><span class="hl-1"> });</span><br/><span class="hl-2">db</span><span class="hl-1">.</span><span class="hl-3">loadDatabase</span><span class="hl-1">(</span><span class="hl-0">function</span><span class="hl-1">(</span><span class="hl-2">result</span><span class="hl-1">) {</span><br/><span class="hl-1">  </span><span class="hl-2">console</span><span class="hl-1">.</span><span class="hl-3">log</span><span class="hl-1">(</span><span class="hl-4">&#39;done&#39;</span><span class="hl-1">);</span><br/><span class="hl-1">});</span>
+<h3>Example</h3><pre><code class="language-ts"><span class="hl-0">// LOAD</span><br/><span class="hl-1">var</span><span class="hl-2"> </span><span class="hl-3">idbAdapter</span><span class="hl-2"> = </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-4">IncrementalIndexedDBAdapter</span><span class="hl-2">();</span><br/><span class="hl-1">var</span><span class="hl-2"> </span><span class="hl-3">db</span><span class="hl-2"> = </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-4">loki</span><span class="hl-2">(</span><span class="hl-5">&#39;test&#39;</span><span class="hl-2">, { </span><span class="hl-3">adapter:</span><span class="hl-2"> </span><span class="hl-3">idbAdapter</span><span class="hl-2"> });</span><br/><span class="hl-3">db</span><span class="hl-2">.</span><span class="hl-4">loadDatabase</span><span class="hl-2">(</span><span class="hl-1">function</span><span class="hl-2">(</span><span class="hl-3">result</span><span class="hl-2">) {</span><br/><span class="hl-2">  </span><span class="hl-3">console</span><span class="hl-2">.</span><span class="hl-4">log</span><span class="hl-2">(</span><span class="hl-5">&#39;done&#39;</span><span class="hl-2">);</span><br/><span class="hl-2">});</span>
 </code></pre>
 
 <h3>Memberof</h3><p>IncrementalIndexedDBAdapter</p>
@@ -301,7 +301,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html">IncrementalSyncPersistenceAdapter</a>.<a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html#loadDatabase">loadDatabase</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/3635ce3/src/storage-adapter/incremental-indexeddb-adapter.ts#L415">src/storage-adapter/incremental-indexeddb-adapter.ts:415</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/61ded0f/src/storage-adapter/incremental-indexeddb-adapter.ts#L415">src/storage-adapter/incremental-indexeddb-adapter.ts:415</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="saveDatabase" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>save<wbr/>Database</span><a href="#saveDatabase" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -309,7 +309,7 @@
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Incrementally saves the database to IndexedDB</p>
 
-<h3>Example</h3><pre><code class="language-ts"><span class="hl-0">var</span><span class="hl-1"> </span><span class="hl-2">idbAdapter</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">IncrementalIndexedDBAdapter</span><span class="hl-1">();</span><br/><span class="hl-0">var</span><span class="hl-1"> </span><span class="hl-2">db</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">loki</span><span class="hl-1">(</span><span class="hl-4">&#39;test&#39;</span><span class="hl-1">, { </span><span class="hl-2">adapter:</span><span class="hl-1"> </span><span class="hl-2">idbAdapter</span><span class="hl-1"> });</span><br/><span class="hl-0">var</span><span class="hl-1"> </span><span class="hl-2">coll</span><span class="hl-1"> = </span><span class="hl-2">db</span><span class="hl-1">.</span><span class="hl-3">addCollection</span><span class="hl-1">(</span><span class="hl-4">&#39;testColl&#39;</span><span class="hl-1">);</span><br/><span class="hl-2">coll</span><span class="hl-1">.</span><span class="hl-3">insert</span><span class="hl-1">({</span><span class="hl-2">test:</span><span class="hl-1"> </span><span class="hl-4">&#39;val&#39;</span><span class="hl-1">});</span><br/><span class="hl-2">db</span><span class="hl-1">.</span><span class="hl-3">saveDatabase</span><span class="hl-1">();</span>
+<h3>Example</h3><pre><code class="language-ts"><span class="hl-1">var</span><span class="hl-2"> </span><span class="hl-3">idbAdapter</span><span class="hl-2"> = </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-4">IncrementalIndexedDBAdapter</span><span class="hl-2">();</span><br/><span class="hl-1">var</span><span class="hl-2"> </span><span class="hl-3">db</span><span class="hl-2"> = </span><span class="hl-1">new</span><span class="hl-2"> </span><span class="hl-4">loki</span><span class="hl-2">(</span><span class="hl-5">&#39;test&#39;</span><span class="hl-2">, { </span><span class="hl-3">adapter:</span><span class="hl-2"> </span><span class="hl-3">idbAdapter</span><span class="hl-2"> });</span><br/><span class="hl-1">var</span><span class="hl-2"> </span><span class="hl-3">coll</span><span class="hl-2"> = </span><span class="hl-3">db</span><span class="hl-2">.</span><span class="hl-4">addCollection</span><span class="hl-2">(</span><span class="hl-5">&#39;testColl&#39;</span><span class="hl-2">);</span><br/><span class="hl-3">coll</span><span class="hl-2">.</span><span class="hl-4">insert</span><span class="hl-2">({</span><span class="hl-3">test:</span><span class="hl-2"> </span><span class="hl-5">&#39;val&#39;</span><span class="hl-2">});</span><br/><span class="hl-3">db</span><span class="hl-2">.</span><span class="hl-4">saveDatabase</span><span class="hl-2">();</span>
 </code></pre>
 
 <h3>Memberof</h3><p>IncrementalIndexedDBAdapter</p>
@@ -332,7 +332,7 @@
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html">IncrementalSyncPersistenceAdapter</a>.<a href="../interfaces/storage_adapter_persistence_adapter.IncrementalSyncPersistenceAdapter.html#saveDatabase">saveDatabase</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/3635ce3/src/storage-adapter/incremental-indexeddb-adapter.ts#L173">src/storage-adapter/incremental-indexeddb-adapter.ts:173</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/cfu288/SylvieJS/blob/61ded0f/src/storage-adapter/incremental-indexeddb-adapter.ts#L173">src/storage-adapter/incremental-indexeddb-adapter.ts:173</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">

@@ -1,88 +1,100 @@
-# LokiJS
+# SylvieJS
 
-[LokiJS.org web site](http://lokijs.org) | 
-[LokiJS GitHub page](https://github.com/techfort/LokiJS) | 
-[Sandbox / Playground](https://rawgit.com/techfort/LokiJS/master/examples/sandbox/LokiSandbox.htm)
+[SylvieJS GitHub page](https://github.com/cfu288/SylvieJS)
 
 ## Documentation Overview
 
-This is an early effort to provide a more accurate and up-to-date version of LokiJS documentation by using jsdoc.  Since modifications arise from various contributors, this should allow distributed effort toward 
-maintaining this documentation.  
+SylvieJS is a document oriented database written in javascript, published under MIT License.
+Its purpose is to store javascript objects as documents in a nosql fashion and retrieve them with a similar mechanism.
+Runs in node and the browser.
+
+SylvieJS is a fork of [LokiJS repository](https://github.com/techfort/LokiJS)
 
 ## Getting Started
 
 Creating a database :
 
 ```javascript
-var db = new loki('example.db');
+/**
+ * Note: Sylvie exports loki as well for backwards compatibility.
+ * let db = new loki("example.db");
+ */
+let db = new Sylvie("example.db");
 ```
 
 Add a collection :
 
 ```javascript
-var users = db.addCollection('users');
+let users = db.addCollection("users");
 ```
 
 Insert documents :
 
 ```javascript
 users.insert({
-	name: 'Odin',
-	age: 50,
-	address: 'Asgard'
+  name: "Odin",
+  age: 50,
+  address: "Asgard",
 });
 
 // alternatively, insert array of documents
-users.insert([{ name: 'Thor', age: 35}, { name: 'Loki', age: 30}]);
+users.insert([
+  { name: "Thor", age: 35 },
+  { name: "Loki", age: 30 },
+]);
 ```
 
 Simple find query :
 
 ```javascript
-var results = users.find({ age: {'$gte': 35} });
+let results = users.find({ age: { $gte: 35 } });
 
-var odin = users.findOne({ name:'Odin' });
+let odin = users.findOne({ name: "Odin" });
 ```
 
 Simple where query :
 
 ```javascript
-var results = users.where(function(obj) {
-	return (obj.age >= 35);
+let results = users.where(function (obj) {
+  return obj.age >= 35;
 });
 ```
 
 Simple Chaining :
 
 ```javascript
-var results = users.chain().find({ age: {'$gte': 35} }).simplesort('name').data();
+let results = users
+  .chain()
+  .find({ age: { $gte: 35 } })
+  .simplesort("name")
+  .data();
 ```
 
 Simple named transform :
 
 ```javascript
-users.addTransform('progeny', [
+users.addTransform("progeny", [
   {
-    type: 'find',
+    type: "find",
     value: {
-      'age': {'$lte': 40}
-    }
-  }
+      age: { $lte: 40 },
+    },
+  },
 ]);
 
-var results = users.chain('progeny').data();
+let results = users.chain("progeny").data();
 ```
 
 Simple Dynamic View :
 
 ```javascript
-var pview = users.addDynamicView('progeny');
+let pview = users.addDynamicView("progeny");
 
 pview.applyFind({
-	'age': {'$lte': 40}
+  age: { $lte: 40 },
 });
 
-pview.applySimpleSort('name');
+pview.applySimpleSort("name");
 
-var results = pview.data();
+let results = pview.data();
 ```

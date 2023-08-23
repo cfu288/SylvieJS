@@ -1,12 +1,11 @@
 {
   "$schema": "https://typedoc.org/schema.json",
   "name": "SylvieJS",
-  "entryPoints": [
-    "src",
-  ],
+  "entryPoints": ["src"],
   "entryPointStrategy": "expand",
   "skipErrorChecking": true,
   "out": "docs",
+  "readme": "OVERVIEW.md",
   "pluginPages": {
     "pages": [
       {
