@@ -516,6 +516,9 @@ export class CryptedIndexedDBAdapter
    */
   deleteDatabasePartitions = (dbname) => {
     this.getDatabaseList((result) => {
+      if (result instanceof Error) {
+        throw result;
+      }
       result.forEach((str) => {
         if (str.startsWith(dbname)) {
           this.deleteDatabase(str);

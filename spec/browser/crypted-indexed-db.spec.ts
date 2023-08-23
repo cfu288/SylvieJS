@@ -280,7 +280,7 @@ describe("CryptedIndexedDBAdapter", function () {
     adapter.getDatabaseList((keys) => {
       expect(keys).not.toContain(TEST_DB_NAME);
       db.saveDatabase(() => {
-        keys = adapter.getDatabaseList((newKeys) => {
+        adapter.getDatabaseList((newKeys) => {
           expect(newKeys).toContain(TEST_DB_NAME);
           done();
         });
@@ -533,12 +533,18 @@ describe("CryptedIndexedDBAdapter", function () {
     // need to save db in order to delete
     db.saveDatabase(function () {
       adapter.getDatabaseList(function (keys) {
+        if (keys instanceof Error) {
+          throw keys;
+        }
         const currentDbInstances = keys.length;
         expect(keys).toContain(TEST_DB_NAME);
         // Delete the database
         db.deleteDatabase(function (err) {
           expect((err as { success: true }).success).toBe(true);
           adapter.getDatabaseList(function (keys) {
+            if (keys instanceof Error) {
+              throw keys;
+            }
             expect(keys.length).toBe(currentDbInstances - 1);
             expect(keys).not.toContain(TEST_DB_NAME);
             done();
@@ -561,12 +567,18 @@ describe("CryptedIndexedDBAdapter", function () {
     // need to save db in order to delete
     db.saveDatabase(function () {
       adapter.getDatabaseList(function (keys) {
+        if (keys instanceof Error) {
+          throw keys;
+        }
         const currentDbInstances = keys.length;
         expect(keys).toContain(TEST_DB_NAME);
         // Delete the database
         db.deleteDatabaseAsync()
           .then(() => {
             adapter.getDatabaseList(function (keys) {
+              if (keys instanceof Error) {
+                throw keys;
+              }
               expect(keys.length).toBe(currentDbInstances - 1);
               expect(keys).not.toContain(TEST_DB_NAME);
               done();
