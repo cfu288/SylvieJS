@@ -8,13 +8,9 @@
   },
   "npm": {
     "publish": true,
-    "publishPath": "dist/"
+    "publishPath": "./dist/"
   },
-  "plugins": {
-    "@release-it/bumper": {
-      "out": [
-        "dist/package.json"
-      ]
-    }
+  "hooks": {
+    "before:release": "cp package.json dist/package.json"
   }
 }
