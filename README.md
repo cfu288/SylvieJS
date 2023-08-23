@@ -6,7 +6,7 @@ See our [Documentation](https://cfu288.github.io/SylvieJS/).
 
 **This repo is a fork of the original [LokiJS repository](https://github.com/techfort/LokiJS)**
 
-The objectives of this fork are to modernize the API and the codebase:
+SylvieJS aims to be a drop-in replacement for LokiJS. The objectives of this fork are to modernize the API and the codebase:
 
 - Migrate codebase to ES6
 - Export SylvieJS as an ES Module
