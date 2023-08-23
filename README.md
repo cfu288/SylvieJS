@@ -43,7 +43,8 @@ The following demos are available:
 
 ## Wiki
 
-Example usage can be found on the [wiki](https://github.com/techfort/LokiJS/wiki)
+Example usage can be found in our [documentation](https://cfu288.github.io/SylvieJS/).
+
 
 ## Main Features
 
