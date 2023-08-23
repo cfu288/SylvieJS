@@ -65,23 +65,9 @@ interface ConfigOptions {
     throttledSaves: boolean;
 }
 /**
-   * Loki: The main database class
-   * @constructor Loki
-   * @implements SylvieEventEmitter
-   * @param {string} filename - name of the file to be saved to
-   * @param {object=} options - (Optional) config options object
-   * @param {string} options.env - override environment detection as 'NODEJS', 'BROWSER', 'CORDOVA'
-   * @param {boolean} [options.verbose=false] - enable console output
-   * @param {boolean} [options.autosave=false] - enables autosave
-   * @param {int} [options.autosaveInterval=5000] - time interval (in milliseconds) between saves (if dirty)
-   * @param {boolean} [options.autoload=false] - enables autoload on loki instantiation
-   * @param {function} options.autoloadCallback - user callback called after database load
-   * @param {adapter} options.adapter - an instance of a loki persistence adapter
-   * @param {string} [options.serializationMethod='normal'] - ['normal', 'pretty', 'destructured']
-   * @param {string} options.destructureDelimiter - string delimiter used for destructured serialization
-   * @param {boolean} [options.throttledSaves=true] - debounces multiple calls to to saveDatabase reducing number of disk I/O operations
-                                              and guaranteeing proper serialization of the calls.
-   */
+ * Sylvie: The main database class
+ * @implements SylvieEventEmitter
+ */
 export default class Sylvie extends SylvieEventEmitter {
     filename: string;
     collections: Collection<Partial<CollectionDocument>>[];
@@ -163,6 +149,22 @@ export default class Sylvie extends SylvieEventEmitter {
         gt: (prop1: any, prop2: any, equal: any) => any;
     };
     toJson: (options?: Partial<ConfigOptions>) => any;
+    /**
+     * Create a instance of the SylvieJS database.
+     * @param {string} filename - name of the file to be saved to
+     * @param {object=} options - (Optional) config options object
+     * @param {string} options.env - override environment detection as 'NODEJS', 'BROWSER', 'CORDOVA'
+     * @param {boolean} [options.verbose=false] - enable console output
+     * @param {boolean} [options.autosave=false] - enables autosave
+     * @param {int} [options.autosaveInterval=5000] - time interval (in milliseconds) between saves (if dirty)
+     * @param {boolean} [options.autoload=false] - enables autoload on loki instantiation
+     * @param {function} options.autoloadCallback - user callback called after database load
+     * @param {adapter} options.adapter - an instance of a loki persistence adapter
+     * @param {string} [options.serializationMethod='normal'] - ['normal', 'pretty', 'destructured']
+     * @param {string} options.destructureDelimiter - string delimiter used for destructured serialization
+     * @param {boolean} [options.throttledSaves=true] - debounces multiple calls to to saveDatabase reducing number of disk I/O operations
+     *                                           and guaranteeing proper serialization of the calls.
+     */
     constructor(filename?: string, options?: Partial<ConfigOptions & ConstructorOptions>);
     getIndexedAdapter(): any;
     /**

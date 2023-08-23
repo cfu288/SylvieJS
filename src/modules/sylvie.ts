@@ -91,9 +91,9 @@ interface ConfigOptions {
 }
 
 /**
-   * Sylvie: The main database class
-   * @implements SylvieEventEmitter
-   */
+ * Sylvie: The main database class
+ * @implements SylvieEventEmitter
+ */
 export default class Sylvie extends SylvieEventEmitter {
   filename: string;
   collections: Collection<Partial<CollectionDocument>>[];
