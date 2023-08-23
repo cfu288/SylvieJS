@@ -38,7 +38,7 @@ SylvieJS supports indexing and views and achieves high-performance through maint
 
 The following demos are available:
 
-- [Sandbox / Playground](https://rawgit.com/techfort/LokiJS/master/examples/sandbox/LokiSandbox.htm)
+- [Sandbox / Playground](https://replit.com/@cfu288/sylviejs-sandbox)
 - a node-webkit small demo in the folder demos/desktop_app. You can launch it by running `/path/to/nw demos/desktop_app/`
 
 ## Wiki
