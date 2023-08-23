@@ -20,7 +20,7 @@ export var Comparators = {
  */
 export function aeqHelper(
   prop1: boolean | string | number,
-  prop2: boolean | string | number
+  prop2: boolean | string | number,
 ) {
   var cv1, cv2, t1, t2;
 
@@ -108,7 +108,7 @@ export function aeqHelper(
 export function ltHelper(
   prop1: number | boolean | string,
   prop2: number | boolean | string,
-  equal: boolean
+  equal: boolean,
 ): boolean {
   var cv1, cv2, t1, t2;
 
@@ -211,7 +211,7 @@ export function ltHelper(
 export function gtHelper(
   prop1: number | boolean | string,
   prop2: number | boolean | string,
-  equal: boolean
+  equal: boolean,
 ): boolean {
   var cv1, cv2, t1, t2;
 
@@ -317,7 +317,7 @@ export function gtHelper(
 export function sortHelper(
   prop1: string | number | boolean,
   prop2: string | number | boolean,
-  desc: boolean
+  desc: boolean,
 ) {
   if (Comparators.aeq(prop1, prop2)) return 0;
 
@@ -344,7 +344,7 @@ export function sortHelper(
 export function compoundeval(
   properties: Array<any>,
   obj1: object,
-  obj2: object
+  obj2: object,
 ): number {
   var res = 0;
   var prop, field, val1, val2, arr;

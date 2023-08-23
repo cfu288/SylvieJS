@@ -14,15 +14,15 @@ export interface NormalSyncPersistenceAdapter {
   deleteDatabase(
     dbname: string,
     callback: (
-      result: Error | { success: true } | { success: false; error: Error }
-    ) => void
+      result: Error | { success: true } | { success: false; error: Error },
+    ) => void,
   ): void;
   saveDatabase(
     dbname: string,
     dbstring: any,
     callback?: (
-      result: Error | { success: true } | { success: false; error: Error }
-    ) => void
+      result: Error | { success: true } | { success: false; error: Error },
+    ) => void,
   ): void;
 }
 
@@ -32,15 +32,15 @@ export interface IncrementalSyncPersistenceAdapter {
   deleteDatabase(
     dbname: string,
     callback: (
-      result: Error | { success: true } | { success: false; error: Error }
-    ) => void
+      result: Error | { success: true } | { success: false; error: Error },
+    ) => void,
   ): void;
   saveDatabase(
     dbname: string,
     dbstring: any,
     callback?: (
-      result: Error | { success: true } | { success: false; error: Error }
-    ) => void
+      result: Error | { success: true } | { success: false; error: Error },
+    ) => void,
   ): void;
 }
 
@@ -50,22 +50,22 @@ export interface ReferenceSyncPersistenceAdapter {
   deleteDatabase(
     dbname: string,
     callback: (
-      result: Error | { success: true } | { success: false; error: Error }
-    ) => void
+      result: Error | { success: true } | { success: false; error: Error },
+    ) => void,
   ): void;
   saveDatabase(
     dbname: string,
     dbstring: any,
     callback?: (
-      result: Error | { success: true } | { success: false; error: Error }
-    ) => void
+      result: Error | { success: true } | { success: false; error: Error },
+    ) => void,
   ): void;
   exportDatabase(
     dbname: string,
     dbref: typeof Sylvie,
     callback?: (
-      result: Error | { success: true } | { success: false; error: Error }
-    ) => void
+      result: Error | { success: true } | { success: false; error: Error },
+    ) => void,
   ): void;
 }
 

@@ -34,7 +34,7 @@ export interface DynamicViewOptions {
 }
 
 export class DynamicView<
-  DT extends Partial<CollectionDocument>
+  DT extends Partial<CollectionDocument>,
 > extends SylvieEventEmitter {
   collection: Collection<DT>;
   name: string;
@@ -68,7 +68,7 @@ export class DynamicView<
   constructor(
     collection: Collection<DT>,
     name: string,
-    options?: Partial<DynamicViewOptions>
+    options?: Partial<DynamicViewOptions>,
   ) {
     super();
     this.collection = collection;
@@ -340,7 +340,7 @@ export class DynamicView<
       disableIndexIntersect: boolean;
       forceIndexIntersect: boolean;
       useJavascriptSorting: boolean;
-    }>
+    }>,
   ) {
     this.sortCriteriaSimple = {
       propname,
@@ -703,7 +703,7 @@ export class DynamicView<
       } else if (this.sortCriteriaSimple) {
         this.resultset.simplesort(
           this.sortCriteriaSimple.propname,
-          this.sortCriteriaSimple.options
+          this.sortCriteriaSimple.options,
         );
       }
 
@@ -874,7 +874,7 @@ export class DynamicView<
     if (Object.keys(fxo).length > 0) {
       // remove them from filtered rows
       this.resultset.filteredrows = this.resultset.filteredrows.filter(
-        (di, idx) => !fxo[idx]
+        (di, idx) => !fxo[idx],
       );
       // if persistent...
       if (this.options.persistent) {

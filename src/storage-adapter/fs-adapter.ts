@@ -41,7 +41,7 @@ export class FsAdapter implements NormalSyncPersistenceAdapter {
             } else {
               callback(data);
             }
-          }
+          },
         );
       } else {
         callback(null);

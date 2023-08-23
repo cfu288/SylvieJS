@@ -29,7 +29,7 @@ export interface PartitioningAdapterOptions {
  */
 export function PartitioningAdapter(
   adapter,
-  options?: Partial<PartitioningAdapterOptions>
+  options?: Partial<PartitioningAdapterOptions>,
 ) {
   this.mode = "reference";
   this.adapter = null;
@@ -42,14 +42,14 @@ export function PartitioningAdapter(
   if (adapter) {
     if (adapter.mode === "reference") {
       throw new Error(
-        "LokiPartitioningAdapter cannot be instantiated with a reference mode adapter"
+        "LokiPartitioningAdapter cannot be instantiated with a reference mode adapter",
       );
     } else {
       this.adapter = adapter;
     }
   } else {
     throw new Error(
-      "LokiPartitioningAdapter requires a (non-reference mode) adapter on construction"
+      "LokiPartitioningAdapter requires a (non-reference mode) adapter on construction",
     );
   }
 
@@ -94,8 +94,8 @@ PartitioningAdapter.prototype.loadDatabase = function (dbname, callback) {
     if (typeof result !== "string") {
       callback(
         new Error(
-          "LokiPartitioningAdapter received an unexpected response from inner adapter loadDatabase()"
-        )
+          "LokiPartitioningAdapter received an unexpected response from inner adapter loadDatabase()",
+        ),
       );
     }
 
@@ -128,7 +128,7 @@ PartitioningAdapter.prototype.loadDatabase = function (dbname, callback) {
  */
 PartitioningAdapter.prototype.loadNextPartition = function (
   partition,
-  callback
+  callback,
 ) {
   var keyname = this.dbname + "." + partition;
   var self = this;
@@ -191,7 +191,7 @@ PartitioningAdapter.prototype.loadNextPage = function (callback) {
     // convert stringified array elements to object instances and push to collection data
     for (idx = 0; idx < dlen; idx++) {
       self.dbref.collections[self.pageIterator.collection].data.push(
-        JSON.parse(data[idx])
+        JSON.parse(data[idx]),
       );
       data[idx] = null;
     }
@@ -225,7 +225,7 @@ PartitioningAdapter.prototype.loadNextPage = function (callback) {
 PartitioningAdapter.prototype.exportDatabase = function (
   dbname,
   dbref,
-  callback
+  callback,
 ) {
   var idx,
     clen = dbref.collections.length;
@@ -302,7 +302,7 @@ PartitioningAdapter.prototype.saveNextPartition = function (callback) {
  * @param {function} callback - adapter callback to return load result to caller
  */
 PartitioningAdapter.prototype.saveNextPage = function (
-  callback: (err?: Error) => void
+  callback: (err?: Error) => void,
 ): void {
   var self = this;
   var coll = this.dbref.collections[this.pageIterator.collection];

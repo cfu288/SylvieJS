@@ -12,7 +12,7 @@ export const copyProperties = function (src, dest) {
 export const resolveTransformObject = function (
   subObj,
   params,
-  depth?: number
+  depth?: number,
 ) {
   var prop, pname;
 
@@ -80,7 +80,7 @@ export const resolveTransformParams = function (transform, params) {
 export const getIn = function (
   object: object,
   path: string | string[],
-  usingDotNotation?: boolean
+  usingDotNotation?: boolean,
 ) {
   if (object == null) {
     return undefined;

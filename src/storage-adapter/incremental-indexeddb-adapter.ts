@@ -145,7 +145,7 @@ export class IncrementalIndexedDBAdapter
     // will have holes when data is deleted)
     const chunkData = collection.data.slice(
       firstDataPosition,
-      lastDataPosition + 1
+      lastDataPosition + 1,
     );
 
     if (chunkData.length > this.chunkSize) {
@@ -182,7 +182,7 @@ export class IncrementalIndexedDBAdapter
 
     if (this.operationInProgress) {
       throw new Error(
-        "Error while saving to database - another operation is already in progress. Please use throttledSaves=true option on Loki object"
+        "Error while saving to database - another operation is already in progress. Please use throttledSaves=true option on Loki object",
       );
     }
     this.operationInProgress = true;
@@ -202,7 +202,7 @@ export class IncrementalIndexedDBAdapter
     try {
       let updatePrevVersionIds = () => {
         console.error(
-          "Unexpected successful tx - cannot update previous version ids"
+          "Unexpected successful tx - cannot update previous version ids",
         );
       };
       let didOverwrite = false;
@@ -233,7 +233,7 @@ export class IncrementalIndexedDBAdapter
             store,
             getLokiCopy(),
             incremental,
-            maxChunkIds
+            maxChunkIds,
           );
           // Update last seen version IDs, but only after the transaction is successful
           updatePrevVersionIds = () => {
@@ -271,7 +271,7 @@ export class IncrementalIndexedDBAdapter
           (e) => {
             console.error("Getting all keys failed: ", e);
             tx.abort();
-          }
+          },
         );
       };
 
@@ -284,7 +284,7 @@ export class IncrementalIndexedDBAdapter
             } else {
               DEBUG &&
                 console.warn(
-                  "Another writer changed Loki IDB, using slow path..."
+                  "Another writer changed Loki IDB, using slow path...",
                 );
               didOverwrite = true;
               getAllKeysThenSave();
@@ -293,7 +293,7 @@ export class IncrementalIndexedDBAdapter
           (e) => {
             console.error("Getting loki chunk failed: ", e);
             tx.abort();
-          }
+          },
         );
       };
 
@@ -417,7 +417,7 @@ export class IncrementalIndexedDBAdapter
 
     if (this.operationInProgress) {
       throw new Error(
-        "Error while loading database - another operation is already in progress. Please use throttledSaves=true option on Loki object"
+        "Error while loading database - another operation is already in progress. Please use throttledSaves=true option on Loki object",
       );
     }
 
@@ -454,7 +454,7 @@ export class IncrementalIndexedDBAdapter
           loki,
           chunks.chunkMap,
           that.options.deserializeChunk,
-          that.lazyCollections
+          that.lazyCollections,
         );
         chunks = null; // gc
 
@@ -480,7 +480,7 @@ export class IncrementalIndexedDBAdapter
 
     if (this.idbInitInProgress) {
       throw new Error(
-        "Cannot open IndexedDB because open is already in progress"
+        "Cannot open IndexedDB because open is already in progress",
       );
     }
     this.idbInitInProgress = true;
@@ -497,7 +497,7 @@ export class IncrementalIndexedDBAdapter
       } else {
         // Unknown version
         throw new Error(
-          `Invalid old version ${oldVersion} for IndexedDB upgrade`
+          `Invalid old version ${oldVersion} for IndexedDB upgrade`,
         );
       }
     };
@@ -617,7 +617,7 @@ export class IncrementalIndexedDBAdapter
           },
           (e) => {
             callback(e);
-          }
+          },
         );
       }
 
@@ -638,7 +638,7 @@ export class IncrementalIndexedDBAdapter
         },
         (e) => {
           callback(e);
-        }
+        },
       );
     }
 
@@ -659,7 +659,7 @@ export class IncrementalIndexedDBAdapter
         },
         (e) => {
           callback(e);
-        }
+        },
       );
 
       if (that.options.onFetchStart) {
@@ -687,7 +687,7 @@ export class IncrementalIndexedDBAdapter
   deleteDatabase(dbname, callback) {
     if (this.operationInProgress) {
       throw new Error(
-        "Error while deleting database - another operation is already in progress. Please use throttledSaves=true option on Loki object"
+        "Error while deleting database - another operation is already in progress. Please use throttledSaves=true option on Loki object",
       );
     }
 
@@ -724,7 +724,7 @@ export class IncrementalIndexedDBAdapter
       // succeed in just a moment
       console.error(
         "Deleting database failed because it's blocked by another connection",
-        e
+        e,
       );
     };
   }
@@ -807,7 +807,7 @@ function populateLoki(
   { collections },
   chunkMap,
   deserializeChunk,
-  lazyCollections
+  lazyCollections,
 ) {
   collections.forEach(function populateCollection(collectionStub, i) {
     const name = collectionStub.name;
@@ -815,7 +815,7 @@ function populateLoki(
     if (chunkCollection) {
       if (!chunkCollection.metadata) {
         throw new Error(
-          `Corrupted database - missing metadata chunk for ${name}`
+          `Corrupted database - missing metadata chunk for ${name}`,
         );
       }
       const collection = chunkCollection.metadata;

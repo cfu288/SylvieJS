@@ -1,0 +1,4 @@
+{
+  "entryPoints": ["src/modules/sylvie.ts", "src/storage-adapter/crypted-indexeddb-adapter.ts", "src/storage-adapter/fs-adapter.ts", "src/storage-adapter/memory-adapter.ts", "src/storage-adapter/persistence-adapter.ts", "src/storage-adapter/incremental-indexeddb-adapter.ts"],
+  "out": "docs"
+}

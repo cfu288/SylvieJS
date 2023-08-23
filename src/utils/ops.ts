@@ -157,7 +157,7 @@ export const LokiOps = {
               property.split("."),
               doQueryOp,
               b[property],
-              item
+              item,
             );
           }
           return doQueryOp(item[property], filter, item);

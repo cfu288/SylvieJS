@@ -25,7 +25,7 @@ describe("Constraints", function () {
     expect(function () {
       coll.update(joe);
     }).toThrow(
-      new Error("Duplicate key for property username: " + joe.username)
+      new Error("Duplicate key for property username: " + joe.username),
     );
     joe.username = "jim";
     coll.update(joe);
@@ -58,7 +58,7 @@ describe("Constraints", function () {
       name: "Jack",
     });
     expect(
-      Object.keys(coll3.constraints.unique.username.keyMap).length
+      Object.keys(coll3.constraints.unique.username.keyMap).length,
     ).toEqual(1);
   });
 
@@ -80,7 +80,7 @@ describe("Constraints", function () {
       name: "Jake",
     });
     expect(
-      Object.keys(coll4.constraints.unique.username.keyMap).length
+      Object.keys(coll4.constraints.unique.username.keyMap).length,
     ).toEqual(1);
   });
 
@@ -92,7 +92,7 @@ describe("Constraints", function () {
     coll.insert({ username: "jack", name: "Jack" });
     coll.insert({ username: "jake", name: "Jake" });
     expect(Object.keys(coll.constraints.unique.username.keyMap).length).toEqual(
-      3
+      3,
     );
     expect(coll.uniqueNames.length).toEqual(1);
     coll.clear();
@@ -100,11 +100,11 @@ describe("Constraints", function () {
     coll.insert({ username: "joe", name: "Joe" });
     coll.insert({ username: "jack", name: "Jack" });
     expect(Object.keys(coll.constraints.unique.username.keyMap).length).toEqual(
-      2
+      2,
     );
     coll.insert({ username: "jake", name: "Jake" });
     expect(Object.keys(coll.constraints.unique.username.keyMap).length).toEqual(
-      3
+      3,
     );
     expect(coll.uniqueNames.length).toEqual(1);
 
@@ -115,7 +115,7 @@ describe("Constraints", function () {
     coll.insert({ username: "jack", name: "Jack" });
     coll.insert({ username: "jake", name: "Jake" });
     expect(Object.keys(coll.constraints.unique.username.keyMap).length).toEqual(
-      3
+      3,
     );
     expect(coll.uniqueNames.length).toEqual(1);
     coll.clear({ removeIndices: true });
@@ -157,18 +157,18 @@ describe("Constraints", function () {
     // seems we don't delete the key but set its value to undefined
     expect(keys[0]).toEqual("Hel");
     expect(
-      typeof collection.constraints.unique.name.keyMap["Hel"] === "undefined"
+      typeof collection.constraints.unique.name.keyMap["Hel"] === "undefined",
     ).toEqual(true);
     // the rest were re-added so they should not only exist but be undefined
     expect(keys[1]).toEqual("Jormungandr");
     expect(
       typeof collection.constraints.unique.name.keyMap["Jormungandr"] ===
-        "undefined"
+        "undefined",
     ).toEqual(false);
     expect(keys[2]).toEqual("Sleipnir");
     expect(
       typeof collection.constraints.unique.name.keyMap["Sleipnir"] ===
-        "undefined"
+        "undefined",
     ).toEqual(false);
   });
 

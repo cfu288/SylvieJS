@@ -22,7 +22,7 @@ export class SylvieEventEmitter {
    */
   on<F extends (...args: any[]) => any>(
     eventName: string | string[],
-    listener: F
+    listener: F,
   ): F {
     let event;
     var self = this;
@@ -91,7 +91,7 @@ export class SylvieEventEmitter {
    */
   removeListener(
     eventName: string | string[],
-    listener: (...args: any[]) => any
+    listener: (...args: any[]) => any,
   ): void {
     if (Array.isArray(eventName)) {
       eventName.forEach((currentEventName) => {

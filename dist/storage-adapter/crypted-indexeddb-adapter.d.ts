@@ -17,12 +17,6 @@ interface CryptedIndexedDBAdapterOptions {
  *  secret: "pass"
  * });
  *
- * @constructor SylvieIndexedAdapter
- *
- * @param {CryptedIndexedDBAdapterOptions} options Configuration options for the adapter
- * @param {string} options.appname - (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
- * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
- * @param {boolean} options.secret The password to encrypt with.
  */
 export declare class CryptedIndexedDBAdapter implements NormalSyncPersistenceAdapter, AsyncPersistenceAdapter {
     #private;
@@ -31,6 +25,13 @@ export declare class CryptedIndexedDBAdapter implements NormalSyncPersistenceAda
     options: Partial<CryptedIndexedDBAdapterOptions>;
     catalog: IDBCatalog;
     mode: "normal";
+    /**
+     * Create a CryptedIndexedDBAdapter.
+     * @param {CryptedIndexedDBAdapterOptions} options Configuration options for the adapter
+     * @param {string} options.appname - (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
+     * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
+     * @param {boolean} options.secret The password to encrypt with.
+     */
     constructor(options?: Partial<CryptedIndexedDBAdapterOptions>);
     /**
      * Sets a password for use on future load and save of the database.
@@ -162,7 +163,7 @@ export declare class CryptedIndexedDBAdapter implements NormalSyncPersistenceAda
      * @param {function} callback - should accept array of database names in the catalog for current app.
      * @memberof SylvieIndexedAdapter
      */
-    getDatabaseList: (callback: (_: any) => any) => void;
+    getDatabaseList: (callback: (_: string[] | Error) => void) => void;
     getDatabaseListAsync: () => Promise<string[]>;
 }
 export {};

@@ -33,7 +33,7 @@ describe("autoupdate", function () {
     function change2() {
       coll.on("error", function (err) {
         expect(err).toEqual(
-          new Error("Duplicate key for property name: " + doc.name)
+          new Error("Duplicate key for property name: " + doc.name),
         );
         done();
       });
@@ -87,7 +87,7 @@ describe("autoupdate", function () {
     function change2() {
       coll.on("error", function (err) {
         expect(err).toEqual(
-          new Error("Duplicate key for property name: " + doc.name)
+          new Error("Duplicate key for property name: " + doc.name),
         );
         done();
       });

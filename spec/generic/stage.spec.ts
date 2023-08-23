@@ -47,7 +47,7 @@ describe("Staging and commits", function () {
     expect(
       directors.commitLog.filter(function (entry) {
         return entry.message === message;
-      }).length
+      }).length,
     ).toBe(1);
   });
 });

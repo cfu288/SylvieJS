@@ -156,7 +156,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    */
   transform(
     transform: ChainTransform,
-    parameters?: Record<string, any>
+    parameters?: Record<string, any>,
   ): ResultSet<RST> | any {
     let idx;
     let step;
@@ -212,7 +212,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
             step.leftJoinKey,
             step.rightJoinKey,
             step.mapFun,
-            step.dataOptions
+            step.dataOptions,
           );
           break;
         // following cases break chain by returning array data so make any of these last in transform steps
@@ -287,7 +287,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
           forceIndexIntersect: boolean;
           useJavascriptSorting: boolean;
         }>
-      | boolean
+      | boolean,
   ): ResultSet<RST> {
     let eff;
     let targetEff = 10;
@@ -295,7 +295,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
     const frl = this.filteredrows.length;
     const hasBinaryIndex = Object.hasOwn(
       this.collection.binaryIndices,
-      propname
+      propname,
     );
 
     if (typeof options === "undefined" || options === false) {
@@ -423,7 +423,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
   compoundsort(properties: (string | [string, boolean])[]): ResultSet<RST> {
     if (properties.length === 0) {
       throw new Error(
-        "Invalid call to compoundsort, need at least one property"
+        "Invalid call to compoundsort, need at least one property",
       );
     }
 
@@ -759,7 +759,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
               if (
                 indexedOps[operator](
                   Utils.getIn(t[index.values[i]], property, usingDotNotation),
-                  value
+                  value,
                 )
               ) {
                 result.push(index.values[i]);
@@ -951,7 +951,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    */
   mapReduce<U>(
     mapFunction: (value: RST, index: number, array: RST[]) => U,
-    reduceFunction: (_: U[]) => U
+    reduceFunction: (_: U[]) => U,
   ) {
     return reduceFunction(this.data().map(mapFunction));
   }
@@ -1013,7 +1013,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
       removeMeta: boolean;
       forceClones: boolean;
       forceCloneMethod: CloneMethods;
-    }
+    },
   ): ResultSet<RST> {
     let leftData = [];
     let rightData = [];
@@ -1180,7 +1180,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    */
   map<U>(
     mapFun: (value: RST, index: number, array: RST[]) => U,
-    dataOptions?: Partial<ResultSetDataOptions>
+    dataOptions?: Partial<ResultSetDataOptions>,
   ) {
     const data = this.data(dataOptions).map(mapFun);
     //return return a new resultset with no filters

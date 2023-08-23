@@ -18,7 +18,7 @@ export function dotSubScan(
   fun: (_0, _1, _2) => boolean,
   value,
   extra,
-  poffset?: number
+  poffset?: number,
 ) {
   const pathOffset = poffset || 0;
   const path = paths[pathOffset];
@@ -39,7 +39,7 @@ export function dotSubScan(
         fun,
         value,
         extra,
-        pathOffset + 1
+        pathOffset + 1,
       );
       if (valueFound === true) {
         break;

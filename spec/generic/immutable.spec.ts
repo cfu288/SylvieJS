@@ -285,7 +285,7 @@ describe("immutable", function () {
         obj = deepUnfreeze(obj);
         obj.name += "u";
         return obj;
-      }
+      },
     );
     const docs = collection.find();
     expect(removeMeta(docs)).toEqual([
@@ -323,7 +323,7 @@ describe("immutable", function () {
     expect(
       collection.commitLog.filter(function (entry) {
         return entry.message === commitMessage;
-      }).length
+      }).length,
     ).toBe(2);
   });
 
@@ -334,7 +334,7 @@ describe("immutable", function () {
       expect(isFrozen(obj)).toBe(true);
     });
     const inserted = collection.insert(
-      deepFreeze([{ name: "n1" }, { name: "n2" }])
+      deepFreeze([{ name: "n1" }, { name: "n2" }]),
     );
     const removed = collection.remove(inserted[0]);
     expect(removeMeta(removed)).toEqual({ name: "n1" });
@@ -921,7 +921,7 @@ describe("immutable", function () {
 
       expect(userChanges.length).toEqual(2);
       expect(db.serializeChanges(["users"])).toEqual(
-        JSON.stringify(userChanges)
+        JSON.stringify(userChanges),
       );
 
       const someChanges = db.generateChangesNotification(["users", "test2"]);
@@ -1157,7 +1157,7 @@ describe("immutable", function () {
               meta?: any;
               onlyInflater?: any;
               customInflater: boolean;
-            }
+            },
           ) {
             dest.$loki = src.$loki;
             dest.meta = src.meta;

@@ -1,13 +1,5 @@
-/* eslint-disable @typescript-eslint/no-empty-interface */
-/* eslint-disable @typescript-eslint/no-this-alias */
-/*
+/**
   Sylvie IndexedDb Adapter (need to include this script to use it)
-
-  Console Usage can be used for management/diagnostic, here are a few examples :
-  adapter.getDatabaseList(); // with no callback passed, this method will log results to console
-  adapter.saveDatabase('UserDatabase', JSON.stringify(myDb));
-  adapter.loadDatabase('UserDatabase'); // will log the serialized db to console
-  adapter.deleteDatabase('UserDatabase');
 */
 import {
   decryptData,
@@ -36,6 +28,7 @@ interface CryptedIndexedDBAdapterOptions {
   closeAfterSave: boolean;
   secret: string;
 }
+
 /**
  * Loki/Sylvie encrypted persistence adapter class for indexedDb.
  *     This class fulfills abstract adapter interface which can be applied to other storage methods.
@@ -48,12 +41,6 @@ interface CryptedIndexedDBAdapterOptions {
  *  secret: "pass"
  * });
  *
- * @constructor SylvieIndexedAdapter
- *
- * @param {CryptedIndexedDBAdapterOptions} options Configuration options for the adapter
- * @param {string} options.appname - (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
- * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
- * @param {boolean} options.secret The password to encrypt with.
  */
 export class CryptedIndexedDBAdapter
   implements NormalSyncPersistenceAdapter, AsyncPersistenceAdapter
@@ -65,6 +52,13 @@ export class CryptedIndexedDBAdapter
   mode: "normal";
   #secret: string;
 
+  /**
+   * Create a CryptedIndexedDBAdapter.
+   * @param {CryptedIndexedDBAdapterOptions} options Configuration options for the adapter
+   * @param {string} options.appname - (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
+   * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
+   * @param {boolean} options.secret The password to encrypt with.
+   */
   constructor(options?: Partial<CryptedIndexedDBAdapterOptions>) {
     DEBUG && console.log("Initialized crypted-indexeddb-adapter");
     this.app = "sylvie";
@@ -79,7 +73,7 @@ export class CryptedIndexedDBAdapter
 
     if (!this.#checkIDBAvailability()) {
       throw new Error(
-        "IndexedDB does not seem to be supported for your environment"
+        "IndexedDB does not seem to be supported for your environment",
       );
     }
 
@@ -262,8 +256,8 @@ export class CryptedIndexedDBAdapter
     dbname: string,
     dbstring: string,
     callback?: (
-      err: Error | { success: true } | { success: false; error: Error }
-    ) => void
+      err: Error | { success: true } | { success: false; error: Error },
+    ) => void,
   ) => {
     DEBUG &&
       console.debug(`in saveDatabase(${dbname}, ${dbstring}, ${callback})`);
@@ -385,8 +379,8 @@ export class CryptedIndexedDBAdapter
   deleteDatabase = (
     dbname: string,
     callback?: (
-      _: Error | { success: true } | { success: false; error: Error }
-    ) => any
+      _: Error | { success: true } | { success: false; error: Error },
+    ) => any,
   ) => {
     // lazy open/create db reference and pass callback ahead
     if (this.catalog === null || this.catalog.db === null) {

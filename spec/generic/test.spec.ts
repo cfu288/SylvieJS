@@ -83,7 +83,7 @@ describe("loki", function () {
           name: {
             $regex: /o/,
           },
-        }).length
+        }).length,
       ).toEqual(2);
 
       // case insensitive regex with array of ["pattern", "options"]
@@ -92,7 +92,7 @@ describe("loki", function () {
           name: {
             $regex: ["abcd", "i"],
           },
-        }).length
+        }).length,
       ).toEqual(3);
 
       // regex with single encoded string pattern (no options)
@@ -101,7 +101,7 @@ describe("loki", function () {
           name: {
             $regex: "cd",
           },
-        }).length
+        }).length,
       ).toEqual(2);
 
       // $contains
@@ -110,7 +110,7 @@ describe("loki", function () {
           name: {
             $contains: "jo",
           },
-        }).length
+        }).length,
       ).toEqual(2);
 
       // $contains using array element
@@ -119,7 +119,7 @@ describe("loki", function () {
           name: {
             $contains: ["jo"],
           },
-        }).length
+        }).length,
       ).toEqual(2);
 
       // $contains any with one value
@@ -128,7 +128,7 @@ describe("loki", function () {
           name: {
             $containsAny: "nas",
           },
-        }).length
+        }).length,
       ).toEqual(1);
 
       // $contains any with multiple values
@@ -137,7 +137,7 @@ describe("loki", function () {
           name: {
             $containsAny: ["nas", "dave"],
           },
-        }).length
+        }).length,
       ).toEqual(2);
 
       // insert() : try inserting existing document (should fail), try adding doc with legacy id column
@@ -866,12 +866,12 @@ describe("loki", function () {
           .where(function (obj) {
             return obj.lang === "Swedish";
           })
-          .data().length
+          .data().length,
       ).toEqual(1);
 
       // Resultset offset
       expect(users.chain().offset(1).data().length).toEqual(
-        users.data.length - 1
+        users.data.length - 1,
       );
 
       // Resultset limit
@@ -935,7 +935,7 @@ describe("loki", function () {
               testString: "bbb",
             },
           ],
-        }).length
+        }).length,
       ).toEqual(1);
 
       // coll.find implicit '$and'
@@ -943,7 +943,7 @@ describe("loki", function () {
         eic.find({
           testid: 1,
           testString: "bbb",
-        }).length
+        }).length,
       ).toEqual(1);
 
       // resultset.find explicit $and
@@ -960,7 +960,7 @@ describe("loki", function () {
               },
             ],
           })
-          .data().length
+          .data().length,
       ).toEqual(1);
 
       // resultset.find implicit $and
@@ -971,7 +971,7 @@ describe("loki", function () {
             testid: 1,
             testString: "bbb",
           })
-          .data().length
+          .data().length,
       ).toEqual(1);
 
       // resultset.find explicit operators
@@ -992,7 +992,7 @@ describe("loki", function () {
               },
             ],
           })
-          .data().length
+          .data().length,
       ).toEqual(1);
 
       // coll.find $or
@@ -1006,7 +1006,7 @@ describe("loki", function () {
               testString: "bbb",
             },
           ],
-        }).length
+        }).length,
       ).toEqual(3);
 
       // resultset.find $or
@@ -1023,7 +1023,7 @@ describe("loki", function () {
               },
             ],
           })
-          .data().length
+          .data().length,
       ).toEqual(3);
 
       // resultset.find explicit operators
@@ -1042,7 +1042,7 @@ describe("loki", function () {
               },
             ],
           })
-          .data().length
+          .data().length,
       ).toEqual(5);
 
       // add index and repeat final test
@@ -1065,7 +1065,7 @@ describe("loki", function () {
               },
             ],
           })
-          .data().length
+          .data().length,
       ).toEqual(1);
 
       expect(
@@ -1083,7 +1083,7 @@ describe("loki", function () {
               },
             ],
           })
-          .data().length
+          .data().length,
       ).toEqual(5);
 
       db.removeCollection("eic");
@@ -1156,14 +1156,14 @@ describe("loki", function () {
       expect(
         typeof eic.findOne({
           testid: 1,
-        })
+        }),
       ).toEqual("object");
 
       // coll.findOne return matches 7.2
       expect(
         eic.findOne({
           testid: 5,
-        }).testFloat
+        }).testFloat,
       ).toEqual(7.2);
 
       // findOne with $and op
@@ -1177,7 +1177,7 @@ describe("loki", function () {
               testString: "bbb",
             },
           ],
-        }).testFloat
+        }).testFloat,
       ).toEqual(6.2);
 
       // findOne with $or op
@@ -1191,7 +1191,7 @@ describe("loki", function () {
               testString: "zzz",
             },
           ],
-        }).testFloat
+        }).testFloat,
       ).toEqual(7.2);
 
       db.removeCollection("eic");
@@ -1431,12 +1431,12 @@ describe("loki", function () {
 
       // Strict Equality
       expect(
-        JSON.stringify(users.find(query)) === JSON.stringify(view.data())
+        JSON.stringify(users.find(query)) === JSON.stringify(view.data()),
       ).toBeTruthy();
 
       // View data equality
       expect(JSON.stringify(view.resultset)).toEqual(
-        JSON.stringify(view.resultset.copy())
+        JSON.stringify(view.resultset.copy()),
       );
 
       // View data copy strict equality
@@ -1500,7 +1500,7 @@ describe("loki", function () {
       // verify filteredrows logically matches resultdata (irrelevant of sort)
       for (let idxFR = 0; idxFR < frcopy2.length; idxFR++) {
         expect(pview.resultdata[idxFR]).toEqual(
-          pview.collection.data[frcopy2[idxFR]]
+          pview.collection.data[frcopy2[idxFR]],
         );
       }
 

@@ -544,7 +544,7 @@ describe("binary indices", function () {
       newDatabase.loadJSON(jsonString);
 
       expect(newDatabase.getCollection("users").adaptiveBinaryIndices).toBe(
-        true
+        true,
       );
 
       // repeat without option set
@@ -560,7 +560,7 @@ describe("binary indices", function () {
       newDatabase.loadJSON(jsonString);
 
       expect(newDatabase.getCollection("users").adaptiveBinaryIndices).toBe(
-        false
+        false,
       );
     });
   });

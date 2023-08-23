@@ -82,7 +82,7 @@ describe("joins", function () {
             filmTitle: left.title,
             directorName: right.name,
           };
-        }
+        },
       )
       .data();
     expect(joined.length).toEqual(films.data.length);
@@ -118,7 +118,7 @@ describe("joins", function () {
             filmTitle: left.title,
             directorName: right.name,
           };
-        }
+        },
       );
     expect(joined.data().length).toEqual(3);
 
@@ -138,7 +138,7 @@ describe("joins", function () {
         },
         function (film) {
           return film.directorId - 1;
-        }
+        },
       )
       .data();
 

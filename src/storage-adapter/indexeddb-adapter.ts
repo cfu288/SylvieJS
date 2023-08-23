@@ -63,7 +63,7 @@ class IndexedDBAdapter implements SyncPersistenceAdapter {
 
     if (!this.checkAvailability()) {
       throw new Error(
-        "IndexedDB does not seem to be supported for your environment"
+        "IndexedDB does not seem to be supported for your environment",
       );
     }
   }
@@ -149,7 +149,7 @@ class IndexedDBAdapter implements SyncPersistenceAdapter {
   saveDatabase(
     dbname: string,
     dbstring: string,
-    callback?: (err: Error) => void
+    callback?: (err: Error) => void,
   ) {
     const appName = this.app;
     const adapter = this;

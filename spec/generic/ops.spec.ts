@@ -532,7 +532,7 @@ describe("Individual operator tests", function () {
         .chain()
         .find({ a: { $gte: "7.2" } })
         .find({ a: { $finite: true } })
-        .data().length
+        .data().length,
     ).toEqual(3); // 7.2, "11", "18.1"
     expect(coll.find({ a: { $gt: "7.2" } }).length).toEqual(3); // "11", "18.1", "asdf"
     expect(coll.find({ a: { $lte: "7.2" } }).length).toEqual(7); // 7.2, "5", "4", 4, 2, 1, null
@@ -552,7 +552,7 @@ describe("Individual operator tests", function () {
         .chain()
         .find({ a: { $gte: "7.2" } })
         .find({ a: { $finite: true } })
-        .data().length
+        .data().length,
     ).toEqual(3); // 7.2, "11", "18.1"
     expect(coll.find({ a: { $gt: "7.2" } }).length).toEqual(3); // "11", "18.1", "asdf"
     expect(coll.find({ a: { $lte: "7.2" } }).length).toEqual(7); // 7.2, "5", "4", 4, 2, 1, null
@@ -594,7 +594,7 @@ describe("Individual operator tests", function () {
     expect(coll.find({ name: { $regex: "NIR" } }).length).toEqual(0);
     expect(coll.find({ name: { $regex: ["NIR", "i"] } }).length).toEqual(3);
     expect(
-      coll.find({ name: { $not: { $regex: ["NIR", "i"] } } }).length
+      coll.find({ name: { $not: { $regex: ["NIR", "i"] } } }).length,
     ).toEqual(1);
 
     expect(coll.find({ name: { $regex: /NIR/i } }).length).toEqual(3);
@@ -680,13 +680,13 @@ describe("Individual operator tests", function () {
     expect(
       coll.find({
         entries: { $elemMatch: { name: "bar" } },
-      }).length
+      }).length,
     ).toBe(2);
 
     expect(
       coll.find({
         entries: { $elemMatch: { name: "bar", count: 2 } },
-      }).length
+      }).length,
     ).toBe(1);
 
     expect(
@@ -694,14 +694,14 @@ describe("Individual operator tests", function () {
         entries: {
           $elemMatch: { name: { $eq: "bar" }, count: { $between: [2, 3] } },
         },
-      }).length
+      }).length,
     ).toBe(2);
 
     expect(
       coll.find({
         entries: { $elemMatch: { name: "bar" } },
         "entries.count": 1,
-      }).length
+      }).length,
     ).toBe(1);
 
     expect(
@@ -709,7 +709,7 @@ describe("Individual operator tests", function () {
         "entries.nested": {
           $elemMatch: { "foo.bar": { $contains: 1 } },
         },
-      }).length
+      }).length,
     ).toBe(2);
 
     expect(
@@ -717,7 +717,7 @@ describe("Individual operator tests", function () {
         "entries.nested": {
           $elemMatch: { "foo.bar": { $contains: 1 }, baz: false },
         },
-      }).length
+      }).length,
     ).toBe(1);
   });
 
@@ -747,7 +747,7 @@ describe("Individual operator tests", function () {
             return record.b - 1;
           },
         },
-      }).length
+      }).length,
     ).toEqual(4);
 
     // comparison on filtered rows
@@ -760,10 +760,10 @@ describe("Individual operator tests", function () {
     // $not, $and, $or
     expect(coll.find({ a: { $not: { $$type: "b" } } }).length).toEqual(5);
     expect(
-      coll.find({ a: { $and: [{ $type: "number" }, { $$gte: "b" }] } }).length
+      coll.find({ a: { $and: [{ $type: "number" }, { $$gte: "b" }] } }).length,
     ).toEqual(2);
     expect(
-      coll.find({ a: { $or: [{ $eq: null }, { $$gt: "b" }] } }).length
+      coll.find({ a: { $or: [{ $eq: null }, { $$gt: "b" }] } }).length,
     ).toEqual(2);
 
     // $len
@@ -778,10 +778,10 @@ describe("Individual operator tests", function () {
     coll.insert({ array1: [1, 2], size: 3 });
     coll.insert({ array1: [1, 2, 3, 4], size: 5 });
     expect(coll.find({ array1: { $size: { $$eq: "size" } } }).length).toEqual(
-      0
+      0,
     );
     expect(coll.find({ array1: { $size: { $$lt: "size" } } }).length).toEqual(
-      2
+      2,
     );
 
     // $elemMatch
@@ -793,7 +793,7 @@ describe("Individual operator tests", function () {
       ],
     });
     expect(
-      coll.find({ els: { $elemMatch: { a: { $$eq: "b" } } } }).length
+      coll.find({ els: { $elemMatch: { a: { $$eq: "b" } } } }).length,
     ).toEqual(1);
 
     // $elemMatch - dot scan
@@ -805,7 +805,7 @@ describe("Individual operator tests", function () {
       ],
     });
     expect(
-      coll.find({ els2: { $elemMatch: { "a.val": { $$eq: "b" } } } }).length
+      coll.find({ els2: { $elemMatch: { "a.val": { $$eq: "b" } } } }).length,
     ).toEqual(1);
 
     // dot notation
@@ -816,7 +816,7 @@ describe("Individual operator tests", function () {
 
     // dot notation - on filtered rows
     expect(coll.find({ b: { $gt: 0 }, "c.val": { $$gt: "b" } }).length).toEqual(
-      2
+      2,
     );
   });
 });

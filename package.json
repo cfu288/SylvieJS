@@ -37,7 +37,7 @@
     "prebuild": "npm run format && npm run typecheck",
     "clean": "rimraf dist/* coverage/* benchmark/benchmark_incrementalidb/dist/* benchmark/benchmark_web/dist/*",
     "pour:beer": "echo New npm version published, one beer for you !",
-    "jsdoc": "./node_modules/.bin/jsdoc -c jsdoc-conf.json",
+    "typedoc": "npx typedoc",
     "benchmark": "jest --projects jest-bench.config.ts && mv benchmarks/result.txt benchmark/result.txt && rm -rf benchmarks/",
     "benchmark:incrementalidb": "npm run clean && npm run build:only && mkdir -p benchmark/benchmark_incrementalidb/dist/ && cp dist/storage-adapter/incremental-indexeddb-adapter.js benchmark/benchmark_incrementalidb/dist && cp -r dist/ benchmark/benchmark_incrementalidb/dist && serve benchmark/benchmark_incrementalidb",
     "benchmark:web": "npm run clean && npm run build:only && mkdir -p benchmark/benchmark_web/dist/ && cp -r dist/ benchmark/benchmark_web/dist && serve benchmark/benchmark_web",
@@ -86,6 +86,7 @@
     "should": "^4.6.5",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
+    "typedoc": "^0.24.8",
     "typescript": "^5.0.4"
   }
 }

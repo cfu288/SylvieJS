@@ -91,22 +91,8 @@ interface ConfigOptions {
 }
 
 /**
-   * Loki: The main database class
-   * @constructor Loki
+   * Sylvie: The main database class
    * @implements SylvieEventEmitter
-   * @param {string} filename - name of the file to be saved to
-   * @param {object=} options - (Optional) config options object
-   * @param {string} options.env - override environment detection as 'NODEJS', 'BROWSER', 'CORDOVA'
-   * @param {boolean} [options.verbose=false] - enable console output
-   * @param {boolean} [options.autosave=false] - enables autosave
-   * @param {int} [options.autosaveInterval=5000] - time interval (in milliseconds) between saves (if dirty)
-   * @param {boolean} [options.autoload=false] - enables autoload on loki instantiation
-   * @param {function} options.autoloadCallback - user callback called after database load
-   * @param {adapter} options.adapter - an instance of a loki persistence adapter
-   * @param {string} [options.serializationMethod='normal'] - ['normal', 'pretty', 'destructured']
-   * @param {string} options.destructureDelimiter - string delimiter used for destructured serialization
-   * @param {boolean} [options.throttledSaves=true] - debounces multiple calls to to saveDatabase reducing number of disk I/O operations
-                                              and guaranteeing proper serialization of the calls.
    */
 export default class Sylvie extends SylvieEventEmitter {
   filename: string;
@@ -175,7 +161,7 @@ export default class Sylvie extends SylvieEventEmitter {
   static LokiMemoryAdapter: typeof MemoryAdapter;
   static LokiPartitioningAdapter: (
     adapter: any,
-    options?: Partial<PartitioningAdapterOptions>
+    options?: Partial<PartitioningAdapterOptions>,
   ) => void;
   static LokiLocalStorageAdapter: typeof LocalStorageAdapter;
   static LokiFsAdapter: typeof FsAdapter;
@@ -193,9 +179,25 @@ export default class Sylvie extends SylvieEventEmitter {
   };
   toJson: (options?: Partial<ConfigOptions>) => any;
 
+  /**
+   * Create a instance of the SylvieJS database.
+   * @param {string} filename - name of the file to be saved to
+   * @param {object=} options - (Optional) config options object
+   * @param {string} options.env - override environment detection as 'NODEJS', 'BROWSER', 'CORDOVA'
+   * @param {boolean} [options.verbose=false] - enable console output
+   * @param {boolean} [options.autosave=false] - enables autosave
+   * @param {int} [options.autosaveInterval=5000] - time interval (in milliseconds) between saves (if dirty)
+   * @param {boolean} [options.autoload=false] - enables autoload on loki instantiation
+   * @param {function} options.autoloadCallback - user callback called after database load
+   * @param {adapter} options.adapter - an instance of a loki persistence adapter
+   * @param {string} [options.serializationMethod='normal'] - ['normal', 'pretty', 'destructured']
+   * @param {string} options.destructureDelimiter - string delimiter used for destructured serialization
+   * @param {boolean} [options.throttledSaves=true] - debounces multiple calls to to saveDatabase reducing number of disk I/O operations
+   *                                           and guaranteeing proper serialization of the calls.
+   */
   constructor(
     filename?: string,
-    options?: Partial<ConfigOptions & ConstructorOptions>
+    options?: Partial<ConfigOptions & ConstructorOptions>,
   ) {
     super();
     this.filename = filename || "loki.db";
@@ -385,7 +387,7 @@ export default class Sylvie extends SylvieEventEmitter {
         this.autosaveDisable();
         this.autosaveInterval = parseInt(
           this.options.autosaveInterval as string,
-          10
+          10,
         );
       }
 
@@ -483,7 +485,7 @@ export default class Sylvie extends SylvieEventEmitter {
    */
   addCollection(
     name,
-    options?: Record<string, any>
+    options?: Record<string, any>,
   ): Collection<Partial<CollectionDocument>> {
     let i;
     const len = this.collections.length;
@@ -491,17 +493,17 @@ export default class Sylvie extends SylvieEventEmitter {
     if (options && options.disableMeta === true) {
       if (options.disableChangesApi === false) {
         throw new Error(
-          "disableMeta option cannot be passed as true when disableChangesApi is passed as false"
+          "disableMeta option cannot be passed as true when disableChangesApi is passed as false",
         );
       }
       if (options.disableDeltaChangesApi === false) {
         throw new Error(
-          "disableMeta option cannot be passed as true when disableDeltaChangesApi is passed as false"
+          "disableMeta option cannot be passed as true when disableDeltaChangesApi is passed as false",
         );
       }
       if (typeof options.ttl === "number" && options.ttl > 0) {
         throw new Error(
-          "disableMeta option cannot be passed as true when ttl is enabled"
+          "disableMeta option cannot be passed as true when ttl is enabled",
         );
       }
     }
@@ -728,7 +730,7 @@ export default class Sylvie extends SylvieEventEmitter {
     reconstruct.push(
       dbcopy.serialize({
         serializationMethod: "normal",
-      })
+      }),
     );
 
     dbcopy = null;
@@ -745,7 +747,7 @@ export default class Sylvie extends SylvieEventEmitter {
       if (options.partitioned === false && options.delimited === false) {
         if (!Array.isArray(result)) {
           throw new Error(
-            "a nondelimited, non partitioned collection serialization did not return an expected array"
+            "a nondelimited, non partitioned collection serialization did not return an expected array",
           );
         }
 
@@ -822,7 +824,7 @@ export default class Sylvie extends SylvieEventEmitter {
 
     if (!options.hasOwnProperty("collectionIndex")) {
       throw new Error(
-        "serializeCollection called without 'collectionIndex' option"
+        "serializeCollection called without 'collectionIndex' option",
       );
     }
 
@@ -832,7 +834,7 @@ export default class Sylvie extends SylvieEventEmitter {
 
     for (docidx = 0; docidx < doccount; docidx++) {
       resultlines.push(
-        JSON.stringify(this.collections[options.collectionIndex].data[docidx])
+        JSON.stringify(this.collections[options.collectionIndex].data[docidx]),
       );
     }
 
@@ -866,7 +868,7 @@ export default class Sylvie extends SylvieEventEmitter {
    */
   deserializeDestructured(
     destructuredSource,
-    options?: Partial<SerializationOptions>
+    options?: Partial<SerializationOptions>,
   ) {
     let workarray = [];
     let len;
@@ -909,7 +911,7 @@ export default class Sylvie extends SylvieEventEmitter {
         // single collection, return doc array
         return this.deserializeCollection(
           destructuredSource[options.partition + 1],
-          options
+          options,
         );
       }
 
@@ -920,7 +922,7 @@ export default class Sylvie extends SylvieEventEmitter {
         // attach each collection docarray to container collection data, add 1 to collection array index since db is at 0
         cdb.collections[collIndex].data = this.deserializeCollection(
           destructuredSource[collIndex + 1],
-          options
+          options,
         );
       }
 
@@ -989,7 +991,7 @@ export default class Sylvie extends SylvieEventEmitter {
       partitioned: boolean;
       delimited: boolean;
       delimiter: string;
-    }>
+    }>,
   ) {
     let workarray = [];
     let idx;
@@ -1064,7 +1066,7 @@ export default class Sylvie extends SylvieEventEmitter {
    */
   loadJSONObject(
     dbObject,
-    options?: { throttledSaves?: boolean; retainDirtyFlags?: boolean }
+    options?: { throttledSaves?: boolean; retainDirtyFlags?: boolean },
   ) {
     let i = 0;
     const len = dbObject.collections ? dbObject.collections.length : 0;
@@ -1118,7 +1120,7 @@ export default class Sylvie extends SylvieEventEmitter {
       });
 
       copyColl.adaptiveBinaryIndices = coll.hasOwnProperty(
-        "adaptiveBinaryIndices"
+        "adaptiveBinaryIndices",
       )
         ? coll.adaptiveBinaryIndices === true
         : false;
@@ -1143,7 +1145,7 @@ export default class Sylvie extends SylvieEventEmitter {
           copyColl.autoupdate
         ) {
           throw new Error(
-            `this collection cannot be loaded lazily: ${coll.name}`
+            `this collection cannot be loaded lazily: ${coll.name}`,
           );
         }
         copyColl.getData = coll.getData;
@@ -1292,7 +1294,7 @@ export default class Sylvie extends SylvieEventEmitter {
    * @memberof Loki
    */
   generateChangesNotification(
-    arrayOfCollectionNames?: string[] | string
+    arrayOfCollectionNames?: string[] | string,
   ): ChangeOps[] {
     function getCollName({ name }) {
       return name;
@@ -1317,7 +1319,7 @@ export default class Sylvie extends SylvieEventEmitter {
    */
   serializeChanges(collectionNamesArray?): string {
     return JSON.stringify(
-      this.generateChangesNotification(collectionNamesArray)
+      this.generateChangesNotification(collectionNamesArray),
     );
   }
 
@@ -1360,7 +1362,7 @@ export default class Sylvie extends SylvieEventEmitter {
       recursiveWaitLimitDelay?: boolean;
       recursiveWaitLimitDuration?: number;
       started?: number;
-    }
+    },
   ) {
     const self = this;
     const now = new Date().getTime();
@@ -1437,8 +1439,8 @@ export default class Sylvie extends SylvieEventEmitter {
   loadDatabaseInternal = (
     options,
     callback?: (
-      _: Error | { success: true } | { success: false; error: Error }
-    ) => void
+      _: Error | { success: true } | { success: false; error: Error },
+    ) => void,
   ) => {
     const cFun =
       callback ||
@@ -1491,7 +1493,7 @@ export default class Sylvie extends SylvieEventEmitter {
     };
 
     const loadDatabaseCallback = (
-      dbString: string | undefined | Error | object
+      dbString: string | undefined | Error | object,
     ) => {
       if (typeof dbString === "string") {
         handleValidDbString(dbString);
@@ -1510,7 +1512,7 @@ export default class Sylvie extends SylvieEventEmitter {
       } else {
         this.persistenceAdapter.loadDatabase(
           this.filename,
-          loadDatabaseCallback
+          loadDatabaseCallback,
         );
       }
     } else {
@@ -1549,8 +1551,8 @@ export default class Sylvie extends SylvieEventEmitter {
       recursiveWaitLimitDelay?: boolean;
     },
     callback?: (
-      _: Error | { success: true } | { success: false; error: Error }
-    ) => void
+      _: Error | { success: true } | { success: false; error: Error },
+    ) => void,
   ) {
     const self = this;
 
@@ -1585,8 +1587,8 @@ export default class Sylvie extends SylvieEventEmitter {
         if (typeof callback === "function") {
           callback(
             new Error(
-              "Unable to pause save throttling long enough to read database"
-            )
+              "Unable to pause save throttling long enough to read database",
+            ),
           );
         }
       }
@@ -1632,8 +1634,8 @@ export default class Sylvie extends SylvieEventEmitter {
         } else {
           rejectCallback(
             new Error(
-              "Unable to pause save throttling long enough to read database"
-            )
+              "Unable to pause save throttling long enough to read database",
+            ),
           );
         }
       }, options);
@@ -1673,7 +1675,7 @@ export default class Sylvie extends SylvieEventEmitter {
             self.ignoreAutosave = false;
             if (cachedDirty) {
               cFun(
-                new Error("adapter error - getLokiCopy called more than once")
+                new Error("adapter error - getLokiCopy called more than once"),
               );
               return;
             }
@@ -1702,14 +1704,14 @@ export default class Sylvie extends SylvieEventEmitter {
               });
             }
             cFun(err);
-          }
+          },
         );
       } else {
         // TODO: figure out the intended behavior of incremental and reference modes
         cFun(
           new Error(
-            "Async incremental persistenceAdapter handling not implemented in SylvieJS"
-          )
+            "Async incremental persistenceAdapter handling not implemented in SylvieJS",
+          ),
         );
         return;
       }
@@ -1728,13 +1730,13 @@ export default class Sylvie extends SylvieEventEmitter {
           function exportDatabaseCallback(err) {
             self.autosaveClearFlags();
             cFun(err);
-          }
+          },
         );
       } else {
         cFun(
           new Error(
-            "Async reference persistenceAdapter handling not implemented in SylvieJS"
-          )
+            "Async reference persistenceAdapter handling not implemented in SylvieJS",
+          ),
         );
         return;
       }
@@ -1757,7 +1759,7 @@ export default class Sylvie extends SylvieEventEmitter {
         this.persistenceAdapter.saveDatabase(
           this.filename,
           this.serialize(),
-          afterSaveCallback
+          afterSaveCallback,
         );
       }
     }
@@ -1866,8 +1868,8 @@ export default class Sylvie extends SylvieEventEmitter {
    */
   deleteDatabase(
     callback?: (
-      _: Error | { success: true } | { success: false; error: Error }
-    ) => void
+      _: Error | { success: true } | { success: false; error: Error },
+    ) => void,
   ) {
     const cFun =
       callback ||
@@ -1894,7 +1896,7 @@ export default class Sylvie extends SylvieEventEmitter {
       } else {
         this.persistenceAdapter.deleteDatabase(
           this.filename,
-          afterDeleteCallback
+          afterDeleteCallback,
         );
       }
     } else {
@@ -1905,7 +1907,7 @@ export default class Sylvie extends SylvieEventEmitter {
   async deleteDatabaseAsync(): Promise<{ success: true }> {
     return new Promise((resolve, reject) => {
       const afterDeleteCallback = (
-        res: Error | { success: true } | { success: false; error: Error }
+        res: Error | { success: true } | { success: false; error: Error },
       ) => {
         if (res instanceof Error) {
           reject(res);
@@ -1928,7 +1930,7 @@ export default class Sylvie extends SylvieEventEmitter {
         } else {
           this.persistenceAdapter.deleteDatabase(
             this.filename,
-            afterDeleteCallback
+            afterDeleteCallback,
           );
         }
       } else {

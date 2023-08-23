@@ -154,7 +154,7 @@ describe("collection", function () {
       function (obj) {
         obj.b += 1;
         return obj;
-      }
+      },
     );
     const result = coll.chain().find({ a: 6 }).simplesort("b").data();
     expect(result.length).toEqual(2);

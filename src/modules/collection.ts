@@ -94,7 +94,7 @@ export type BinaryIndex = Record<
  */
 
 export class Collection<
-  ColT extends Partial<CollectionDocument>
+  ColT extends Partial<CollectionDocument>,
 > extends SylvieEventEmitter {
   data: ColT[];
   isIncremental: boolean;
@@ -246,7 +246,7 @@ export class Collection<
     // disable delta update object style on changes
     this.disableDeltaChangesApi = Object.hasOwn(
       options,
-      "disableDeltaChangesApi"
+      "disableDeltaChangesApi",
     )
       ? options.disableDeltaChangesApi!
       : true;
@@ -315,7 +315,7 @@ export class Collection<
         indices = [options.indices];
       } else {
         throw new TypeError(
-          "Indices needs to be a string or an array of strings"
+          "Indices needs to be a string or an array of strings",
         );
       }
     }
@@ -385,7 +385,7 @@ export class Collection<
             } else {
               const propertyDelta = getObjectDelta(
                 oldObject[propertyName],
-                newObject[propertyName]
+                newObject[propertyName],
               );
               if (typeof propertyDelta !== "undefined") {
                 delta[propertyName] = propertyDelta;
@@ -437,7 +437,7 @@ export class Collection<
     name: string,
     op: "U" | "I" | "R",
     obj: T,
-    old?: T
+    old?: T,
   ) {
     this.changes.push({
       name,
@@ -551,7 +551,7 @@ export class Collection<
    */
   addTransform(
     name: string,
-    transform: (Record<string, any> & { type: string })[]
+    transform: (Record<string, any> & { type: string })[],
   ) {
     if (name in this.transforms) {
       throw new Error("a transform by that name already exists");
@@ -576,7 +576,7 @@ export class Collection<
    */
   setTransform(
     name: string,
-    transform: (Record<string, any> & { type: string })[]
+    transform: (Record<string, any> & { type: string })[],
   ) {
     this.transforms[name] = transform;
   }
@@ -625,7 +625,7 @@ export class Collection<
           const timestamp = member.meta.updated || member.meta.created;
           const diff = now - timestamp;
           return age < diff;
-        }
+        },
       );
       toRemove.remove();
     };
@@ -811,7 +811,7 @@ export class Collection<
       randomSampling?: boolean;
       randomSamplingFactor?: number;
       repair?: boolean;
-    } = {}
+    } = {},
   ): boolean {
     // if 'randomSamplingFactor' specified but not 'randomSampling', assume true
     if (options.randomSamplingFactor && options.randomSampling !== false) {
@@ -830,7 +830,7 @@ export class Collection<
     // make sure we are passed a valid binary index name
     if (!(property in this.binaryIndices)) {
       throw new Error(
-        `called checkIndex on property without an index: ${property}`
+        `called checkIndex on property without an index: ${property}`,
       );
     }
 
@@ -864,7 +864,7 @@ export class Collection<
         if (
           !LokiOps.$lte(
             Utils.getIn(this.data[biv[0]], property, usingDotNotation),
-            Utils.getIn(this.data[biv[1]], property, usingDotNotation)
+            Utils.getIn(this.data[biv[1]], property, usingDotNotation),
           )
         ) {
           valid = false;
@@ -872,7 +872,7 @@ export class Collection<
         if (
           !LokiOps.$lte(
             Utils.getIn(this.data[biv[len - 2]], property, usingDotNotation),
-            Utils.getIn(this.data[biv[len - 1]], property, usingDotNotation)
+            Utils.getIn(this.data[biv[len - 1]], property, usingDotNotation),
           )
         ) {
           valid = false;
@@ -892,7 +892,11 @@ export class Collection<
             if (
               !LokiOps.$lte(
                 Utils.getIn(this.data[biv[pos]], property, usingDotNotation),
-                Utils.getIn(this.data[biv[pos + 1]], property, usingDotNotation)
+                Utils.getIn(
+                  this.data[biv[pos + 1]],
+                  property,
+                  usingDotNotation,
+                ),
               )
             ) {
               valid = false;
@@ -906,7 +910,7 @@ export class Collection<
           if (
             !LokiOps.$lte(
               Utils.getIn(this.data[biv[idx]], property, usingDotNotation),
-              Utils.getIn(this.data[biv[idx + 1]], property, usingDotNotation)
+              Utils.getIn(this.data[biv[idx + 1]], property, usingDotNotation),
             )
           ) {
             valid = false;
@@ -1129,7 +1133,7 @@ export class Collection<
    */
   insert<T extends CollectionDocument | CollectionDocument[]>(
     doc: T,
-    overrideAdaptiveIndices?: boolean
+    overrideAdaptiveIndices?: boolean,
   ): T {
     if (!Array.isArray(doc)) {
       return this.insertOne(doc as CollectionDocument) as T;
@@ -1184,7 +1188,7 @@ export class Collection<
    */
   insertOne<T extends CollectionDocument>(
     doc: T,
-    bulkInsert?: boolean
+    bulkInsert?: boolean,
   ): T | undefined {
     let err = null;
 
@@ -1330,7 +1334,7 @@ export class Collection<
     // verify object is a properly formed document
     if (!hasOwnProperty.call(doc, "$loki")) {
       throw new Error(
-        "Trying to update unsynced document. Please save the document first by using insert() or addMany()"
+        "Trying to update unsynced document. Please save the document first by using insert() or addMany()",
       );
     }
     try {
@@ -1692,7 +1696,7 @@ export class Collection<
    * @returns CollectionDocument | null - null if document not found, otherwise removed document. Array of new documents is not returned
    */
   remove(
-    docOrId: CollectionDocument | number | CollectionDocument[]
+    docOrId: CollectionDocument | number | CollectionDocument[],
   ): CollectionDocument {
     let doc: CollectionDocument;
     if (typeof docOrId === "number") {
@@ -1869,7 +1873,7 @@ export class Collection<
     let val = Utils.getIn(
       this.data[dataPosition],
       binaryIndexName,
-      usingDotNotation
+      usingDotNotation,
     );
 
     // If you are inserting a javascript Date value into a binary index, convert to epoch time
@@ -1886,7 +1890,7 @@ export class Collection<
             binaryIndexName,
             val,
             true,
-            usingDotNotation
+            usingDotNotation,
           );
 
     // insert new data index into our binary index at the proper sorted location for relevant property calculated by idxPos.
@@ -1926,7 +1930,7 @@ export class Collection<
   adaptiveBinaryIndexRemove(
     dataPosition: number | number[],
     binaryIndexName: string,
-    removedFromIndexOnly?: boolean
+    removedFromIndexOnly?: boolean,
   ) {
     const bi = this.binaryIndices[binaryIndexName];
     let len;
@@ -2030,7 +2034,7 @@ export class Collection<
     prop: string,
     val: any,
     adaptive: boolean | null,
-    usingDotNotation?: boolean
+    usingDotNotation?: boolean,
   ) {
     const rcd = this.data;
     const index = this.binaryIndices[prop].values;
@@ -2050,7 +2054,7 @@ export class Collection<
         Comparators.lt(
           Utils.getIn(rcd[index[mid]], prop, usingDotNotation),
           val,
-          false
+          false,
         )
       ) {
         min = mid + 1;
@@ -2065,7 +2069,7 @@ export class Collection<
     if (
       Comparators.aeq(
         val,
-        Utils.getIn(rcd[index[lbound]], prop, usingDotNotation)
+        Utils.getIn(rcd[index[lbound]], prop, usingDotNotation),
       )
     ) {
       return lbound;
@@ -2076,7 +2080,7 @@ export class Collection<
       Comparators.lt(
         val,
         Utils.getIn(rcd[index[lbound]], prop, usingDotNotation),
-        false
+        false,
       )
     ) {
       return adaptive ? lbound : lbound - 1;
@@ -2109,7 +2113,7 @@ export class Collection<
         Comparators.lt(
           val,
           Utils.getIn(rcd[index[mid]], prop, usingDotNotation),
-          false
+          false,
         )
       ) {
         max = mid;
@@ -2124,7 +2128,7 @@ export class Collection<
     if (
       Comparators.aeq(
         val,
-        Utils.getIn(rcd[index[ubound]], prop, usingDotNotation)
+        Utils.getIn(rcd[index[ubound]], prop, usingDotNotation),
       )
     ) {
       return ubound;
@@ -2135,7 +2139,7 @@ export class Collection<
       Comparators.gt(
         val,
         Utils.getIn(rcd[index[ubound]], prop, usingDotNotation),
-        false
+        false,
       )
     ) {
       return ubound + 1;
@@ -2145,7 +2149,7 @@ export class Collection<
     if (
       Comparators.aeq(
         val,
-        Utils.getIn(rcd[index[ubound - 1]], prop, usingDotNotation)
+        Utils.getIn(rcd[index[ubound - 1]], prop, usingDotNotation),
       )
     ) {
       return ubound - 1;
@@ -2168,7 +2172,7 @@ export class Collection<
   calculateRange(
     op: string,
     prop: string,
-    val: any
+    val: any,
   ): [start: number, end: number] {
     const rcd = this.data;
     const index = this.binaryIndices[prop].values;
@@ -2262,7 +2266,7 @@ export class Collection<
           prop,
           val[0],
           false,
-          usingDotNotation
+          usingDotNotation,
         );
         ubound = this.calculateRangeEnd(prop, val[1], usingDotNotation);
 
@@ -2273,7 +2277,7 @@ export class Collection<
           !Comparators.gt(
             Utils.getIn(rcd[index[lbound]], prop, usingDotNotation),
             val[0],
-            true
+            true,
           )
         )
           lbound++;
@@ -2281,7 +2285,7 @@ export class Collection<
           !Comparators.lt(
             Utils.getIn(rcd[index[ubound]], prop, usingDotNotation),
             val[1],
-            true
+            true,
           )
         )
           ubound--;
@@ -2351,7 +2355,7 @@ export class Collection<
         if (
           !Comparators.aeq(
             Utils.getIn(rcd[index[ubound]], prop, usingDotNotation),
-            val
+            val,
           )
         ) {
           return [ubound, max];
@@ -2364,7 +2368,7 @@ export class Collection<
         if (
           !Comparators.aeq(
             Utils.getIn(rcd[index[lbound]], prop, usingDotNotation),
-            val
+            val,
           )
         ) {
           return [lbound + 1, max];
@@ -2377,7 +2381,7 @@ export class Collection<
         if (
           !Comparators.aeq(
             Utils.getIn(rcd[index[lbound]], prop, usingDotNotation),
-            val
+            val,
           )
         ) {
           return [min, lbound];
@@ -2390,7 +2394,7 @@ export class Collection<
         if (
           !Comparators.aeq(
             Utils.getIn(rcd[index[ubound]], prop, usingDotNotation),
-            val
+            val,
           )
         ) {
           return [min, ubound - 1];
@@ -2457,7 +2461,7 @@ export class Collection<
    */
   chain(
     transform?: ChainTransform,
-    parameters?: any | any[]
+    parameters?: any | any[],
   ): ResultSet<ColT> | any {
     const rs = new ResultSet<ColT>(this);
 
@@ -2554,7 +2558,7 @@ export class Collection<
         callback();
       } else {
         throw new TypeError(
-          "Argument passed for async execution is not a function"
+          "Argument passed for async execution is not a function",
         );
       }
     }, 0);
@@ -2610,7 +2614,7 @@ export class Collection<
       removeMeta: boolean;
       forceClones: boolean;
       forceCloneMethod: CloneMethods;
-    }
+    },
   ) {
     // logic in Resultset class
     return new ResultSet(this).eqJoin(
@@ -2618,7 +2622,7 @@ export class Collection<
       leftJoinProp,
       rightJoinProp,
       mapFun,
-      dataOptions
+      dataOptions,
     );
   }
 

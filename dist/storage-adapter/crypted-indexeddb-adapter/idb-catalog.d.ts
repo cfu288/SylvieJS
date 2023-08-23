@@ -32,6 +32,8 @@ export declare class IDBCatalog {
     }>;
     setAppKeyAsync(app: any, key: any, val: any): Promise<ResultType>;
     deleteAppKeyAsync(id: any): Promise<ResultType>;
+    getAppKeysAsync(app: any): Promise<{
+        key: string;
+    }[]>;
     getAppKeys(app: any, callback: any): void;
-    getAllKeys(callback: any): void;
 }

@@ -53,9 +53,7 @@ Example usage can be found on the [wiki](https://github.com/techfort/LokiJS/wiki
 
 ## Current state
 
-This fork is undergoing a rework and has not been released on npm yet.
-
-As SylvieJS is written in JavaScript it can be run on any environment supporting JavaScript such as browsers, node.js/node-webkit, nativescript mobile framework and hybrid mobile apps (such as phonegap/cordova).
+This fork is currently undergoing a rework.
 
 Currently maintained by cfu288. Originally made by [@techfort](http://twitter.com/tech_fort), with the precious help of Dave Easterday.
 

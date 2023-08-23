@@ -87,7 +87,7 @@ describe("testing destructured serialization/deserialization", function () {
     expect(cddb.collections.length).toEqual(2);
     expect(cddb.collections[0].data.length).toEqual(3);
     expect(cddb.collections[0].data[0].val).toEqual(
-      ddb.collections[0].data[0].val
+      ddb.collections[0].data[0].val,
     );
     expect(cddb.collections[1].data.length).toEqual(1);
     expect(cddb.collections[1].data[0].a).toEqual(ddb.collections[1].data[0].a);
@@ -155,17 +155,17 @@ describe("testing destructured serialization/deserialization", function () {
       expect(cddb.collections.length).toEqual(2);
       expect(cddb.collections[0].data.length).toEqual(3);
       expect(cddb.collections[0].data[0].val).toEqual(
-        ddb.collections[0].data[0].val
+        ddb.collections[0].data[0].val,
       );
       expect(cddb.collections[0].data[0].$loki).toEqual(
-        ddb.collections[0].data[0].$loki
+        ddb.collections[0].data[0].$loki,
       );
       expect(cddb.collections[0].data[2].$loki).toEqual(
-        ddb.collections[0].data[2].$loki
+        ddb.collections[0].data[2].$loki,
       );
       expect(cddb.collections[1].data.length).toEqual(1);
       expect(cddb.collections[1].data[0].a).toEqual(
-        ddb.collections[1].data[0].a
+        ddb.collections[1].data[0].a,
       );
     }
   });
@@ -280,7 +280,7 @@ describe("testing adapter functionality", function () {
       cdb.loadDatabase({}, function () {
         expect(cdb.collections.length).toEqual(2);
         expect(
-          cdb.getCollection("testcoll").findOne({ name: "test2" }).val
+          cdb.getCollection("testcoll").findOne({ name: "test2" }).val,
         ).toEqual(101);
         expect(cdb.collections[0].data.length).toEqual(3);
         expect(cdb.collections[1].data.length).toEqual(1);
@@ -364,7 +364,7 @@ describe("testing adapter functionality", function () {
           expect(db2.collections[0].data.length).toEqual(4);
           expect(db2.collections[1].data.length).toEqual(1);
           expect(
-            db2.getCollection("items").findOne({ name: "gungnir" }).owner
+            db2.getCollection("items").findOne({ name: "gungnir" }).owner,
           ).toEqual("odin");
           expect(db2.getCollection("another").findOne({ a: 1 }).b).toEqual(3);
 
@@ -454,7 +454,7 @@ describe("testing adapter functionality", function () {
         expect(db2.collections[0].data.length).toEqual(4);
         expect(db2.collections[1].data.length).toEqual(1);
         expect(
-          db2.getCollection("items").findOne({ name: "tyrfing" }).maker
+          db2.getCollection("items").findOne({ name: "tyrfing" }).maker,
         ).toEqual("elves");
         expect(db2.getCollection("another").findOne({ a: 1 }).b).toEqual(3);
 
@@ -495,7 +495,7 @@ describe("testing adapter functionality", function () {
 
     MyFakeReferenceAdapter.prototype.loadDatabase = function (
       dbname,
-      callback
+      callback,
     ) {
       expect(typeof dbname).toEqual("string");
       expect(typeof callback).toEqual("function");
@@ -512,7 +512,7 @@ describe("testing adapter functionality", function () {
     MyFakeReferenceAdapter.prototype.exportDatabase = function (
       dbname,
       dbref,
-      callback
+      callback,
     ) {
       expect(typeof dbname).toEqual("string");
       expect(dbref.constructor.name).toEqual("Sylvie");
@@ -616,10 +616,10 @@ describe("async adapter tests", function () {
         // verify the saved database contains all expected changes
         expect(db2.getCollection("another").findOne({ a: 1 }).b).toEqual(3);
         expect(
-          db2.getCollection("items").findOne({ name: "tyrfing" }).owner
+          db2.getCollection("items").findOne({ name: "tyrfing" }).owner,
         ).toEqual("arngrim");
         expect(
-          db2.getCollection("items").findOne({ name: "draupnir" }).maker
+          db2.getCollection("items").findOne({ name: "draupnir" }).maker,
         ).toEqual("dwarves");
         done();
       });
@@ -688,7 +688,7 @@ describe("async adapter tests", function () {
         expect(success).toEqual(false);
         done();
       },
-      { recursiveWaitLimit: true, recursiveWaitLimitDuration: 200 }
+      { recursiveWaitLimit: true, recursiveWaitLimitDuration: 200 },
     );
   });
 
@@ -751,10 +751,10 @@ describe("async adapter tests", function () {
       db2.loadDatabase({}, function () {
         expect(db2.getCollection("another").findOne({ a: 1 }).b).toEqual(3);
         expect(
-          db2.getCollection("items").findOne({ name: "tyrfing" }).owner
+          db2.getCollection("items").findOne({ name: "tyrfing" }).owner,
         ).toEqual("arngrim");
         expect(
-          db2.getCollection("items").findOne({ name: "draupnir" }).maker
+          db2.getCollection("items").findOne({ name: "draupnir" }).maker,
         ).toEqual("dwarves");
         done();
       });
@@ -830,7 +830,7 @@ describe("async adapter tests", function () {
             expect(db2.collections[0].data.length).toEqual(4);
             expect(db2.collections[1].data.length).toEqual(1);
             expect(
-              db2.getCollection("items").findOne({ name: "tyrfing" }).maker
+              db2.getCollection("items").findOne({ name: "tyrfing" }).maker,
             ).toEqual("elves");
             expect(db2.getCollection("another").findOne({ a: 1 }).b).toEqual(3);
 
@@ -955,10 +955,10 @@ describe("async adapter tests", function () {
     db.loadDatabase({}, function (success) {
       expect(db.getCollection("another").findOne({ a: 1 }).b).toEqual(3);
       expect(
-        db.getCollection("items").findOne({ name: "tyrfing" }).owner
+        db.getCollection("items").findOne({ name: "tyrfing" }).owner,
       ).toEqual("arngrim");
       expect(
-        db.getCollection("items").findOne({ name: "draupnir" }).maker
+        db.getCollection("items").findOne({ name: "draupnir" }).maker,
       ).toEqual("dwarves");
       done();
     });
@@ -1026,7 +1026,7 @@ describe("verify serializereplacer", function () {
 
     expect(ndb.collections[0].lokiConsoleWrapper === null).toEqual(false);
     expect(typeof ndb.collections[0].lokiConsoleWrapper.log).toEqual(
-      "function"
+      "function",
     );
   });
 });
