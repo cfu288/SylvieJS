@@ -78,7 +78,7 @@
     "jest-bench": "^29.4.1",
     "jest-browser-globals": "^25.1.0-beta",
     "jsdoc": "^3.5.5",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.2",
     "puppeteer": "^20.4.0",
     "release-it": "^16.1.5",
     "rimraf": "^2.5.4",
