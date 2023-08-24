@@ -20,59 +20,30 @@ SylvieJS aims to be a drop-in replacement for LokiJS. The objectives of this for
 ## Overview
 
 SylvieJS is a document oriented database written in javascript, published under MIT License.
-Its purpose is to store javascript objects as documents in a NoSQL fashion and retrieve them with a similar mechanism.
+Its purpose is to store javascript objects as documents in a nosql fashion and retrieve them with a similar mechanism.
 Runs in node and the browser.
 
 SylvieJS is ideal for the following scenarios:
 
 1. client-side in-memory db is ideal (e.g., a session store)
 2. performance critical applications
-3. Ionic/Capacitor mobile apps where you can leverage the power of javascript and avoid interacting with native databases
-4. Data sets loaded into a browser page and synchronised at the end of the work session
-5. Electron desktop apps
+3. cordova/phonegap mobile apps where you can leverage the power of javascript and avoid interacting with native databases
+4. data sets loaded into a browser page and synchronised at the end of the work session
+5. node-webkit desktop apps
+6. nativescript mobile apps that mix the power and ubiquity of javascript with native performance and ui
 
 SylvieJS supports indexing and views and achieves high-performance through maintaining unique and binary indexes (indices) for data.
-
-## Quickstart
-
-### Install via npm
-
-```bash
-npm install sylviejs
-```
-
-### Example usage with default IndexedDB adapter
-
-```ts
-import Sylvie from "sylviejs";
-
-let db = new Sylvie("example.db");
-let users = db.addCollection("users");
-
-users.insert([
-  {
-    name: "Odin",
-    age: 50,
-    address: "Asgard",
-  },
-  { name: "Thor", age: 35 },
-  { name: "Loki", age: 30 },
-  { name: "Sylvie", age: 25 },
-]);
-
-console.group("Search by find() with mongo-like query")
-let results = users.find({ age: { $gte: 35 } });
-console.log(results);
-console.groupEnd()
-```
-
-[Full documentation can be found here.](https://cfu288.github.io/SylvieJS/).
 
 ## Demo
 
 The following demos are available:
 
 - [Sandbox / Playground](https://replit.com/@cfu288/sylviejs-sandbox)
+- a node-webkit small demo in the folder demos/desktop_app. You can launch it by running `/path/to/nw demos/desktop_app/`
+
+## Wiki
+
+Example usage can be found in our [documentation](https://cfu288.github.io/SylvieJS/).
 
 
 ## Main Features

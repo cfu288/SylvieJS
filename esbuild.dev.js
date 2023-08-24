@@ -5,7 +5,6 @@ esbuild
     entryPoints: [
       "src/sylviejs.ts",
       "src/storage-adapter/incremental-indexeddb-adapter.ts",
-      "src/storage-adapter/indexeddb-adapter.ts",
       "src/storage-adapter/crypted-indexeddb-adapter.ts",
       "src/storage-adapter/fs-adapter.ts",
     ],
@@ -16,6 +15,7 @@ esbuild
     minify: true,
     keepNames: true,
     format: "esm",
+    external: ["fs/promises"],
   })
   // eslint-disable-next-line no-undef
   .catch(() => process.exit(1));

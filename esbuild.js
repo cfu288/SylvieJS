@@ -16,6 +16,7 @@ esbuild
     minify: true,
     keepNames: true,
     format: "esm",
+    external: ["fs/promises"],
     plugins: [dtsPlugin()],
   })
   // eslint-disable-next-line no-undef

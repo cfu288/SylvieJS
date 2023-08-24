@@ -1,53 +1,57 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 /* eslint-disable no-prototype-builtins */
-/* eslint-disable no-var */
 /**
- * A loki persistence adapter which persists using node fs module
- * @constructor LokiFsAdapter
+ * A Sylvie persistence adapter which persists using node fs module
  */
-
-import Sylvie from "../modules/sylvie";
 import { NormalSyncPersistenceAdapter } from "./persistence-adapter";
 
 export class FsAdapter implements NormalSyncPersistenceAdapter {
-  fs: any;
-  constructor() {
-    try {
-      this.fs = require("fs");
-    } catch (e) {
-      this.fs = null;
+  fs?: typeof import("node:fs/promises");
+  mode: "normal";
+
+  async #initializeFS() {
+    if (this.fs === null || this.fs === undefined) {
+      try {
+        this.fs = await import("node:fs/promises");
+      } catch (e) {
+        // Silently fail - likely attempting to import fs from a browser
+        console.error(`FsAdapter - ${e}`);
+      }
     }
   }
-  mode: "normal";
 
   /** loadDatabase() - Load data from file, will throw an error if the file does not exist
    * @param {string} dbname - the filename of the database to load
    * @param {function} callback - the callback to handle the result
    * @memberof LokiFsAdapter
    */
-  loadDatabase(dbname: string, callback: (value: any) => void): void {
-    const self = this;
-
-    this.fs.stat(dbname, (err, stats) => {
-      if (!err && stats.isFile()) {
-        self.fs.readFile(
-          dbname,
-          {
-            encoding: "utf8",
-          },
-          function readFileCallback(err, data) {
-            if (err) {
-              callback(new Error(err));
-            } else {
-              callback(data);
-            }
-          },
-        );
-      } else {
-        callback(null);
-      }
+  loadDatabase = (
+    dbname: string,
+    callback: (serialized: string | Error) => void,
+  ): void => {
+    this.#initializeFS().then(() => {
+      this.fs
+        .stat(dbname)
+        .then((stats) => {
+          if (stats.isFile()) {
+            this.fs
+              .readFile(dbname, {
+                encoding: "utf8",
+              })
+              .then((data) => {
+                callback(data);
+              })
+              .catch((err) => {
+                callback(err);
+              });
+          }
+        })
+        .catch((err) => {
+          callback(err);
+        })
+        .catch(callback);
     });
-  }
+  };
 
   /**
    * saveDatabase() - save data to file, will throw an error if the file can't be saved
@@ -56,17 +60,28 @@ export class FsAdapter implements NormalSyncPersistenceAdapter {
    * @param {function} callback - the callback to handle the result
    * @memberof LokiFsAdapter
    */
-  saveDatabase(dbname, dbstring, callback) {
-    const self = this;
-    const tmpdbname = `${dbname}~`;
-    this.fs.writeFile(tmpdbname, dbstring, function writeFileCallback(err) {
-      if (err) {
-        callback(new Error(err));
-      } else {
-        self.fs.rename(tmpdbname, dbname, callback);
-      }
-    });
-  }
+  saveDatabase = (
+    dbname: string,
+    dbstring: string,
+    callback: (
+      _?: Error | { success: true } | { success: false; error: Error },
+    ) => void,
+  ) => {
+    this.#initializeFS()
+      .then(() => {
+        const tmpdbname = `${dbname}~`;
+        this.fs
+          .writeFile(tmpdbname, dbstring)
+          .then(() => {
+            this.fs
+              .rename(tmpdbname, dbname)
+              .then(() => callback())
+              .catch(callback);
+          })
+          .catch(callback);
+      })
+      .catch(callback);
+  };
 
   /**
    * deleteDatabase() - delete the database file, will throw an error if the
@@ -75,13 +90,21 @@ export class FsAdapter implements NormalSyncPersistenceAdapter {
    * @param {function} callback - the callback to handle the result
    * @memberof LokiFsAdapter
    */
-  deleteDatabase(dbname, callback) {
-    this.fs.unlink(dbname, function deleteDatabaseCallback(err) {
-      if (err) {
-        callback(new Error(err));
-      } else {
-        callback();
-      }
-    });
-  }
+  deleteDatabase = (
+    dbname: string,
+    callback: (
+      _?: Error | { success: true } | { success: false; error: Error },
+    ) => void,
+  ) => {
+    this.#initializeFS()
+      .then(() => {
+        this.fs
+          .unlink(dbname)
+          .then(() => callback())
+          .catch((err) => {
+            callback(err);
+          });
+      })
+      .catch(callback);
+  };
 }
