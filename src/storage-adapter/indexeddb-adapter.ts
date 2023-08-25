@@ -2,7 +2,7 @@
   Sylvie IndexedDb Adapter (need to include this script to use it)
 */
 import { IDBCatalog } from "./src/indexeddb-adapter/idb-catalog";
-import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
+import { BasicPersistenceAdapter } from "./src/models/persistence-adapter";
 import { AsyncPersistenceAdapter } from "./src/models/async-persistence-adapter";
 
 // @ts-ignore
@@ -48,7 +48,7 @@ interface IndexedDBAdapterOptions {
  *
  */
 export class IndexedDBAdapter
-  implements NormalPersistenceAdapter, AsyncPersistenceAdapter
+  implements BasicPersistenceAdapter, AsyncPersistenceAdapter
 {
   isAsync: true;
   app: string;
@@ -549,21 +549,22 @@ export class IndexedDBAdapter
 
     // catalog already initialized
     // get all keys for current appName, and transpose results so just string array
-    this.catalog.getAppKeys(this.app, (results) => {
-      const names = [];
+    this.catalog
+      .getAppKeysAsync(this.app)
+      .then((results) => {
+        const names = [];
 
-      for (let idx = 0; idx < results.length; idx++) {
-        names.push(results[idx].key);
-      }
+        for (let idx = 0; idx < results.length; idx++) {
+          names.push(results[idx].key);
+        }
 
-      if (typeof callback === "function") {
-        callback(names);
-      } else {
-        names.forEach((obj) => {
-          console.log(obj);
-        });
-      }
-    });
+        if (typeof callback === "function") {
+          callback(names);
+        }
+      })
+      .catch((err) => {
+        callback(err);
+      });
   };
 
   getDatabaseListAsync = (): Promise<string[]> => {
@@ -650,10 +651,6 @@ export class IndexedDBAdapter
 
       if (typeof callback === "function") {
         callback(entries);
-      } else {
-        entries.forEach((obj) => {
-          console.log(obj);
-        });
       }
     });
   };

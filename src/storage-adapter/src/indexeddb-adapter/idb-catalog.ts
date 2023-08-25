@@ -27,7 +27,7 @@ export class IDBCatalog {
     });
   }
 
-  openCatalog() {
+  #openCatalog() {
     const openRequest = indexedDB.open("IDBCatalog", 1);
 
     openRequest.onupgradeneeded = ({ target }) => {
@@ -50,21 +50,20 @@ export class IDBCatalog {
     return openRequest;
   }
 
-  async #initializeCatalog(): Promise<IDBCatalog> {
-    const cat = this;
-    const openRequest = this.openCatalog();
+  #initializeCatalog = async (): Promise<IDBCatalog> => {
+    const openRequest = this.#openCatalog();
 
     return new Promise((resolve, reject) => {
       openRequest.onsuccess = ({ target }) => {
-        cat.db = (target as any).result;
-        resolve(cat);
+        this.db = (target as any).result;
+        resolve(this);
       };
 
       openRequest.onerror = (e) => {
         reject(e);
       };
     });
-  }
+  };
 
   async getAppKeyAsync(
     app,
@@ -202,48 +201,6 @@ export class IDBCatalog {
         reject(e);
       };
     });
-  }
-
-  getAppKeys(app, callback) {
-    const transaction = this.db.transaction(["IDBAKV"], "readonly");
-    const store = transaction.objectStore("IDBAKV");
-    const index = store.index("app");
-
-    // We want cursor to all values matching our (single) app param
-    const singleKeyRange = IDBKeyRange.only(app);
-
-    // To use one of the key ranges, pass it in as the first argument of openCursor()/openKeyCursor()
-    const cursor = index.openCursor(singleKeyRange);
-
-    // cursor internally, pushing results into this.data[] and return
-    // this.data[] when done (similar to service)
-    const localdata = [];
-
-    cursor.onsuccess = ((data, callback) => () => {
-      const cur = cursor.result;
-      if (cur) {
-        const currObject = cur.value;
-
-        data.push(currObject);
-
-        cur.continue();
-      } else {
-        if (typeof callback === "function") {
-          callback(data);
-        } else {
-          console.log(data);
-        }
-      }
-    })(localdata, callback);
-
-    cursor.onerror = ((usercallback) => (e) => {
-      if (typeof usercallback === "function") {
-        usercallback(null);
-      } else {
-        console.error("IDBCatalog.getAppKeys raised onerror");
-        console.error(e);
-      }
-    })(callback);
   }
 
   // Hide 'cursoring' and return array of { id: id, key: key }
