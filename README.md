@@ -28,7 +28,7 @@ SylvieJS is ideal for the following scenarios:
 1. client-side in-memory db is ideal (e.g., a session store)
 2. performance critical applications
 3. Ionic/Capacitor mobile apps where you can leverage the power of javascript and avoid interacting with native databases
-4. Data sets loaded into a browser page and synchronised at the end of the work session
+4. Data sets loaded into a browser page and synchronized at the end of the work session
 5. Electron desktop apps
 
 SylvieJS supports indexing and views and achieves high-performance through maintaining unique and binary indexes (indices) for data.
@@ -44,6 +44,8 @@ npm install sylviejs
 ```
 
 #### Via `<script/>` tag
+
+You can use the `sylvie.js` file found in the `dist/` folder or use the file found at `https://cfu288.github.io/SylvieJS/sylviejs.js`.
 
 ```html
 <!doctype html>
@@ -101,7 +103,9 @@ console.groupEnd();
 
 The following demos are available:
 
-- [Sandbox / Playground](https://replit.com/@cfu288/sylviejs-sandbox)
+- [Node Sandbox / Playground](https://replit.com/@cfu288/sylviejs-sandbox).
+
+More examples can be found in our [examples folder](./examples/).
 
 ## Main Features
 
@@ -117,13 +121,6 @@ The following demos are available:
 This fork is currently undergoing a rework.
 
 Currently maintained by cfu288. Originally made by [@techfort](http://twitter.com/tech_fort), with the precious help of Dave Easterday.
-
-## Installation
-
-SylvieJS is distributed via npm and can be installed with the command:
-`npm install sylviejs`.
-
-For browser environments you simply need the sylviejs.js file contained in `dist/`
 
 ## License
 
