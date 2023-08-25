@@ -1,6 +1,6 @@
 "use strict";
 import Sylvie from "../../src/sylviejs";
-import { ChangeOpsLoadJSONOptionsMeta } from "../../src/modules/sylvie";
+import { ChangeOpsLoadJSONOptionsMeta } from "../../src/database/sylvie";
 const loki = Sylvie;
 
 describe("immutable", function () {

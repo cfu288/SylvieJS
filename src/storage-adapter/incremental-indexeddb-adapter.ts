@@ -1,9 +1,6 @@
 // @ts-nocheck
 
-import {
-  IncrementalSyncPersistenceAdapter,
-  SyncPersistenceAdapter,
-} from "./persistence-adapter";
+import { IncrementalPersistenceAdapter } from "./src/models/persistence-adapter";
 
 /* jshint -W030 */
 const DEBUG =
@@ -45,7 +42,7 @@ const DEBUG =
  *     Only use this for collections that aren't used at launch
  */
 export class IncrementalIndexedDBAdapter
-  implements IncrementalSyncPersistenceAdapter
+  implements IncrementalPersistenceAdapter
 {
   mode: "incremental";
   constructor(options?: {

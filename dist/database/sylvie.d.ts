@@ -1,12 +1,14 @@
 import { FsAdapter } from "../storage-adapter/fs-adapter";
 import { Collection, CollectionDocument } from "./collection";
 import { SylvieEventEmitter } from "./sylvie-event-emitter";
+import { LokiOps } from "../utils/ops";
 import { DynamicView } from "./dynamic-view";
 import { ResultSet } from "./result-set";
 import { LocalStorageAdapter } from "../storage-adapter/local-storage-adapter";
 import { MemoryAdapter } from "../storage-adapter/memory-adapter";
 import { PartitioningAdapterOptions } from "../storage-adapter/partitioning-adapter";
-import { AsyncPersistenceAdapter, SyncPersistenceAdapter } from "../storage-adapter/persistence-adapter";
+import { PersistenceAdapter } from "../storage-adapter/src/models/persistence-adapter";
+import { AsyncPersistenceAdapter } from "../storage-adapter/src/models/async-persistence-adapter";
 export type ChangeOpsLoadJSONUsersOptions = {
     inflate: ((src: any) => ChangeOpsLoadJSONOptionsMeta) | ((src: any, dest: ChangeOpsLoadJSONOptionsMeta) => void);
     proto: (n: any) => void;
@@ -53,7 +55,7 @@ interface ConstructorOptions {
     env: "NATIVESCRIPT" | "NODEJS" | "CORDOVA" | "BROWSER" | "NA";
 }
 interface ConfigOptions {
-    adapter: SyncPersistenceAdapter | AsyncPersistenceAdapter | null;
+    adapter: PersistenceAdapter | AsyncPersistenceAdapter | null;
     autoload: boolean;
     autoloadCallback: (err: any) => void;
     autosave: boolean;
@@ -79,7 +81,7 @@ export default class Sylvie extends SylvieEventEmitter {
     throttledSaves: boolean;
     options?: Partial<ConfigOptions & ConstructorOptions>;
     persistenceMethod: any;
-    persistenceAdapter: SyncPersistenceAdapter | AsyncPersistenceAdapter | null;
+    persistenceAdapter: PersistenceAdapter | AsyncPersistenceAdapter | null;
     throttledSavePending: boolean;
     throttledCallbacks: any[];
     verbose: boolean;
@@ -90,44 +92,7 @@ export default class Sylvie extends SylvieEventEmitter {
     static deepFreeze: (obj: object) => void;
     static freeze: (obj: object) => void;
     static unFreeze: (obj: object) => any;
-    static LokiOps: {
-        $eq: (a: any, b: any) => boolean;
-        $aeq: (a: any, b: any) => boolean;
-        $ne: (a: any, b: any) => boolean;
-        $dteq: (a: any, b: any) => boolean;
-        $gt: (a: any, b: any) => any;
-        $gte: (a: any, b: any) => any;
-        $lt: (a: any, b: any) => any;
-        $lte: (a: any, b: any) => any;
-        $jgt: (a: any, b: any) => boolean;
-        $jgte: (a: any, b: any) => boolean;
-        $jlt: (a: any, b: any) => boolean;
-        $jlte: (a: any, b: any) => boolean;
-        $between: (a: any, vals: any) => any;
-        $jbetween: (a: any, vals: any) => boolean;
-        $in: (a: any, b: any) => boolean;
-        $inSet: (a: any, b: any) => any;
-        $nin: (a: any, b: any) => boolean;
-        $keyin: (a: any, b: any) => boolean;
-        $nkeyin: (a: any, b: any) => boolean;
-        $definedin: (a: any, b: any) => boolean;
-        $undefinedin: (a: any, b: any) => boolean;
-        $regex: (a: any, b: any) => any;
-        $containsString: (a: any, b: any) => boolean;
-        $containsNone: (a: any, b: any) => boolean;
-        $containsAny: (a: any, b: any) => boolean;
-        $contains: (a: any, b: any) => boolean;
-        $elemMatch: (a: any, b: any) => boolean;
-        $type: (a: any, b: any, record: any) => any;
-        $finite: (a: any, b: any) => boolean;
-        $size: (a: any, b: any, record: any) => any;
-        $len: (a: any, b: any, record: any) => any;
-        $where: (a: any, b: any) => boolean;
-        $not: (a: any, b: any, record: any) => boolean;
-        $and: (a: any, b: any, record: any) => boolean;
-        $or: (a: any, b: any, record: any) => boolean;
-        $exists: (a: any, b: any) => boolean;
-    };
+    static LokiOps: typeof LokiOps;
     static Collection: typeof Collection;
     static DynamicView: typeof DynamicView;
     static Resultset: typeof ResultSet;

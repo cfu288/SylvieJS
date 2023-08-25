@@ -1,8 +1,8 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable no-var */
 
-import { containsCheckFn } from "./containsCheckFn";
-import { dotSubScan } from "./dotSubScan";
+import { containsCheckFn } from "./contains-check-fn";
+import { dotSubScan } from "./dot-sub-scan";
 import { Comparators } from "./sort";
 
 export function doQueryOp<T>(val, op, record: T) {

@@ -1,5 +1,5 @@
 import Sylvie from "../../src/sylviejs";
-import { ChainTransform } from "../../src/modules/collection";
+import { ChainTransform } from "../../src/database/collection";
 const loki = Sylvie;
 
 describe("transforms", function () {

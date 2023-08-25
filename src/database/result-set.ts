@@ -14,10 +14,10 @@
  * @param {Collection} collection - The collection which this Resultset will query against.
  */
 
-import { hasOwnProperty } from "../sylviejs";
+import { hasOwnProperty } from "../utils/has-own-property";
 import { precompileQuery } from "../utils/precompile-query";
 import { CloneMethods, clone } from "../utils/clone";
-import { dotSubScan } from "../utils/dotSubScan";
+import { dotSubScan } from "../utils/dot-sub-scan";
 import { Utils } from "../utils/index";
 import { indexedOps, LokiOps, valueLevelOps } from "../utils/ops";
 import { sortHelper, compoundeval } from "../utils/sort";

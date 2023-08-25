@@ -1,31 +1,28 @@
-import { NormalSyncPersistenceAdapter } from "./persistence-adapter";
+import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
+import { PersistenceAdapterCallback } from "./src/models/persistence-adapter-callback";
 /**
- * A loki persistence adapter which persists to web browser's local storage object
- * @constructor LokiLocalStorageAdapter
+ * A persistence adapter which persists to web browser's local storage object
  */
-export declare class LocalStorageAdapter implements NormalSyncPersistenceAdapter {
+export declare class LocalStorageAdapter implements NormalPersistenceAdapter {
     mode: "normal";
     /**
      * loadDatabase() - Load data from localstorage
      * @param {string} dbname - the name of the database to load
      * @param {function} callback - the callback to handle the result
-     * @memberof LokiLocalStorageAdapter
      */
-    loadDatabase(dbname: any, callback: any): void;
+    loadDatabase(dbname: string, callback: (value: string | Error) => void): void;
     /**
      * saveDatabase() - save data to localstorage, will throw an error if the file can't be saved
      * might want to expand this to avoid dataloss on partial save
      * @param {string} dbname - the filename of the database to load
      * @param {function} callback - the callback to handle the result
-     * @memberof LokiLocalStorageAdapter
      */
-    saveDatabase(dbname: any, dbstring: any, callback: any): void;
+    saveDatabase(dbname: string, dbstring: any, callback: PersistenceAdapterCallback): void;
     /**
      * deleteDatabase() - delete the database from localstorage, will throw an error if it
      * can't be deleted
      * @param {string} dbname - the filename of the database to delete
-     * @param {function} callback - the callback to handle the result
-     * @memberof LokiLocalStorageAdapter
+     * @param {PersistenceAdapterCallback} callback - the callback to handle the result
      */
-    deleteDatabase(dbname: any, callback: any): void;
+    deleteDatabase(dbname: string, callback: PersistenceAdapterCallback): void;
 }

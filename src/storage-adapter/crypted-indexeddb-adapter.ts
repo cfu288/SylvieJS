@@ -1,15 +1,13 @@
 /**
-  Sylvie IndexedDb Adapter (need to include this script to use it)
+  Sylvie encrypted IndexedDb Adapter (need to include this script to use it)
 */
 import {
   decryptData,
   encryptData,
-} from "./crypted-indexeddb-adapter/string-encryption-utils";
-import { IDBCatalog } from "./crypted-indexeddb-adapter/idb-catalog";
-import {
-  AsyncPersistenceAdapter,
-  NormalSyncPersistenceAdapter,
-} from "./persistence-adapter";
+} from "./src/crypted-indexeddb-adapter/string-encryption-utils";
+import { IDBCatalog } from "./src/crypted-indexeddb-adapter/idb-catalog";
+import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
+import { AsyncPersistenceAdapter } from "./src/models/async-persistence-adapter";
 
 // @ts-ignore
 const DEBUG = typeof window !== "undefined" && !!window.__loki_idb_debug;
@@ -43,7 +41,7 @@ interface CryptedIndexedDBAdapterOptions {
  *
  */
 export class CryptedIndexedDBAdapter
-  implements NormalSyncPersistenceAdapter, AsyncPersistenceAdapter
+  implements NormalPersistenceAdapter, AsyncPersistenceAdapter
 {
   isAsync: true;
   app: string;

@@ -3,8 +3,8 @@ import { DynamicView, DynamicViewOptions } from "./dynamic-view";
 import { ChangeOps } from "./sylvie";
 import { SylvieEventEmitter } from "./sylvie-event-emitter";
 import { ResultSet } from "./result-set";
-import { ExactIndex } from "./index/exact-index";
-import { UniqueIndex } from "./index/unique-index";
+import { ExactIndex } from "./indexes/exact-index";
+import { UniqueIndex } from "./indexes/unique-index";
 export type ChainTransform = string | {
     type: string;
     value?: any;
@@ -313,7 +313,7 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      *
      * var results = pview.data();
      **/
-    addDynamicView(name?: string, options?: Partial<DynamicViewOptions>): DynamicView<ColT>;
+    addDynamicView(name?: string, options?: Partial<DynamicViewOptions>): any;
     /**
      * Remove a dynamic view from the collection
      * @param {string} name - name of dynamic view to remove

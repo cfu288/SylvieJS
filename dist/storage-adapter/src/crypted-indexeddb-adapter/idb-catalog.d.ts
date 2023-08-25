@@ -1,11 +1,4 @@
-export type SuccessResultType = {
-    success: true;
-};
-export type FailResultType = {
-    success: false;
-    error: Error;
-};
-export type ResultType = SuccessResultType | FailResultType;
+import { ResultType } from "../models/result-type";
 /**
  * IDBCatalog - underlying App/Key/Value catalog persistence
  *    This non-interface class implements the actual persistence

@@ -1,5 +1,6 @@
-import { IDBCatalog } from "./crypted-indexeddb-adapter/idb-catalog";
-import { AsyncPersistenceAdapter, NormalSyncPersistenceAdapter } from "./persistence-adapter";
+import { IDBCatalog } from "./src/crypted-indexeddb-adapter/idb-catalog";
+import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
+import { AsyncPersistenceAdapter } from "./src/models/async-persistence-adapter";
 interface CryptedIndexedDBAdapterOptions {
     appname: string;
     closeAfterSave: boolean;
@@ -18,7 +19,7 @@ interface CryptedIndexedDBAdapterOptions {
  * });
  *
  */
-export declare class CryptedIndexedDBAdapter implements NormalSyncPersistenceAdapter, AsyncPersistenceAdapter {
+export declare class CryptedIndexedDBAdapter implements NormalPersistenceAdapter, AsyncPersistenceAdapter {
     #private;
     isAsync: true;
     app: string;

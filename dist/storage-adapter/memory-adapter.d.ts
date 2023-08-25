@@ -12,12 +12,12 @@
  * @param {int} [options.asyncTimeout=50] - timeout in ms to queue callbacks
  * @constructor LokiMemoryAdapter
  */
-import { NormalSyncPersistenceAdapter } from "./persistence-adapter";
+import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
 interface MemoryAdapterOptions {
     asyncResponses: boolean;
     asyncTimeout: number;
 }
-export declare class MemoryAdapter implements NormalSyncPersistenceAdapter {
+export declare class MemoryAdapter implements NormalPersistenceAdapter {
     mode: "normal";
     hashStore: Record<string, any>;
     options: Partial<MemoryAdapterOptions>;

@@ -1,6 +1,6 @@
 import Sylvie from "../../src/sylviejs";
-import { SyncPersistenceAdapter } from "../../src/storage-adapter/persistence-adapter";
-import { CollectionDocument } from "../../src/modules/collection";
+import { PersistenceAdapter } from "../../src/storage-adapter/src/models/persistence-adapter";
+import { CollectionDocument } from "../../src/database/collection";
 const loki = Sylvie;
 
 describe("dirtyIds", function () {
@@ -21,7 +21,7 @@ describe("dirtyIds", function () {
   it("loki and db are incremental if adapter is incremental", function () {
     const adapter = { mode: "incremental" };
     const db = new loki("test.db", {
-      adapter: adapter as SyncPersistenceAdapter,
+      adapter: adapter as PersistenceAdapter,
     });
     const coll = db.addCollection("coll");
 
@@ -31,7 +31,7 @@ describe("dirtyIds", function () {
   it("tracks inserts", function () {
     const adapter = { mode: "incremental" };
     const db = new loki("test.db", {
-      adapter: adapter as SyncPersistenceAdapter,
+      adapter: adapter as PersistenceAdapter,
     });
     const coll = db.addCollection("coll");
 
@@ -43,7 +43,7 @@ describe("dirtyIds", function () {
   it("tracks updates", function () {
     const adapter = { mode: "incremental" };
     const db = new loki("test.db", {
-      adapter: adapter as SyncPersistenceAdapter,
+      adapter: adapter as PersistenceAdapter,
     });
     const coll = db.addCollection("coll");
 
@@ -57,7 +57,7 @@ describe("dirtyIds", function () {
   it("tracks deletes", function () {
     const adapter = { mode: "incremental" };
     const db = new loki("test.db", {
-      adapter: adapter as SyncPersistenceAdapter,
+      adapter: adapter as PersistenceAdapter,
     });
     const coll = db.addCollection("coll");
 
@@ -71,7 +71,7 @@ describe("dirtyIds", function () {
   it("tracks many changes", function () {
     const adapter = { mode: "incremental" };
     const db = new loki("test.db", {
-      adapter: adapter as SyncPersistenceAdapter,
+      adapter: adapter as PersistenceAdapter,
     });
     const coll = db.addCollection("coll");
 

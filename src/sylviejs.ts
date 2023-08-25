@@ -1,12 +1,8 @@
-/* eslint-disable @typescript-eslint/no-this-alias */
-/* eslint-disable no-prototype-builtins */
-
 "use strict";
 
-import Sylvie from "./modules/sylvie";
+import Sylvie from "./database/sylvie";
 
-export const hasOwnProperty = Object.prototype.hasOwnProperty;
-
+// If there is a browser window, add Sylvie to the window object
 if (typeof window !== "undefined") {
   Object.assign(window, { loki: Sylvie, Sylvie: Sylvie });
 }

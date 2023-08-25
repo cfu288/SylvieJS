@@ -3,7 +3,7 @@
 /* eslint-disable no-var */
 "use strict";
 
-import Sylvie from "../modules/sylvie";
+import Sylvie from "../database/sylvie";
 
 export interface PartitioningAdapterOptions {
   paging: boolean;

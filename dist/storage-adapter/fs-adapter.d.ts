@@ -1,8 +1,9 @@
+import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
+import { PersistenceAdapterCallback } from "./src/models/persistence-adapter-callback";
 /**
  * A Sylvie persistence adapter which persists using node fs module
  */
-import { NormalSyncPersistenceAdapter } from "./persistence-adapter";
-export declare class FsAdapter implements NormalSyncPersistenceAdapter {
+export declare class FsAdapter implements NormalPersistenceAdapter {
     #private;
     fs?: typeof import("node:fs/promises");
     mode: "normal";
@@ -19,12 +20,7 @@ export declare class FsAdapter implements NormalSyncPersistenceAdapter {
      * @param {function} callback - the callback to handle the result
      * @memberof LokiFsAdapter
      */
-    saveDatabase: (dbname: string, dbstring: string, callback: (_?: Error | {
-        success: true;
-    } | {
-        success: false;
-        error: Error;
-    }) => void) => void;
+    saveDatabase: (dbname: string, dbstring: string, callback: PersistenceAdapterCallback) => void;
     /**
      * deleteDatabase() - delete the database file, will throw an error if the
      * file can't be deleted
@@ -32,10 +28,5 @@ export declare class FsAdapter implements NormalSyncPersistenceAdapter {
      * @param {function} callback - the callback to handle the result
      * @memberof LokiFsAdapter
      */
-    deleteDatabase: (dbname: string, callback: (_?: Error | {
-        success: true;
-    } | {
-        success: false;
-        error: Error;
-    }) => void) => void;
+    deleteDatabase: (dbname: string, callback: PersistenceAdapterCallback) => void;
 }

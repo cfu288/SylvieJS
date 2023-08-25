@@ -1,3 +1,2 @@
-import Sylvie from "./modules/sylvie";
-export declare const hasOwnProperty: (v: PropertyKey) => boolean;
+import Sylvie from "./database/sylvie";
 export default Sylvie;

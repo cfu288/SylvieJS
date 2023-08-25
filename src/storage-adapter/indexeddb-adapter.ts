@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 /* eslint-disable @typescript-eslint/no-this-alias */
+// @ts-nocheck
 /*
   Loki IndexedDb Adapter (need to include this script to use it)
 
@@ -9,8 +10,7 @@
   adapter.loadDatabase('UserDatabase'); // will log the serialized db to console
   adapter.deleteDatabase('UserDatabase');
 */
-// @ts-nocheck
-import { SyncPersistenceAdapter } from "./persistence-adapter";
+import { PersistenceAdapter } from "./src/models/persistence-adapter";
 
 // @ts-ignore
 const DEBUG = typeof window !== "undefined" && !!window.__loki_idb_debug;
@@ -40,15 +40,11 @@ interface IndexedAdapterOptions {
  * @param {object=} options Configuration options for the adapter
  * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  */
-class IndexedDBAdapter implements SyncPersistenceAdapter {
+class IndexedDBAdapter implements PersistenceAdapter {
   app: string;
   options: Partial<IndexedAdapterOptions>;
   catalog: SylvieCatalog;
   mode: string;
-  loadKey: (dbname: any, callback: any) => void;
-  saveKey: (dbname: any, dbstring: any, callback: any) => void;
-  deleteKey: (dbname: any, callback: any) => void;
-  getKeyList: (callback: any) => void;
 
   constructor(appname: string, options?: Partial<IndexedAdapterOptions>) {
     this.app = "loki";

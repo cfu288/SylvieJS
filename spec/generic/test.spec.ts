@@ -1,4 +1,4 @@
-import { CollectionDocument } from "../../src/modules/collection";
+import { CollectionDocument } from "../../src/database/collection";
 import Sylvie from "../../src/sylviejs";
 const loki = Sylvie;
 

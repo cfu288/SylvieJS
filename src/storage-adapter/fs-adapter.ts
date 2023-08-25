@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-this-alias */
-/* eslint-disable no-prototype-builtins */
+import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
+import { PersistenceAdapterCallback } from "./src/models/persistence-adapter-callback";
+
 /**
  * A Sylvie persistence adapter which persists using node fs module
  */
-import { NormalSyncPersistenceAdapter } from "./persistence-adapter";
-
-export class FsAdapter implements NormalSyncPersistenceAdapter {
+export class FsAdapter implements NormalPersistenceAdapter {
   fs?: typeof import("node:fs/promises");
   mode: "normal";
 
@@ -63,9 +62,7 @@ export class FsAdapter implements NormalSyncPersistenceAdapter {
   saveDatabase = (
     dbname: string,
     dbstring: string,
-    callback: (
-      _?: Error | { success: true } | { success: false; error: Error },
-    ) => void,
+    callback: PersistenceAdapterCallback,
   ) => {
     this.#initializeFS()
       .then(() => {
@@ -90,12 +87,7 @@ export class FsAdapter implements NormalSyncPersistenceAdapter {
    * @param {function} callback - the callback to handle the result
    * @memberof LokiFsAdapter
    */
-  deleteDatabase = (
-    dbname: string,
-    callback: (
-      _?: Error | { success: true } | { success: false; error: Error },
-    ) => void,
-  ) => {
+  deleteDatabase = (dbname: string, callback: PersistenceAdapterCallback) => {
     this.#initializeFS()
       .then(() => {
         this.fs

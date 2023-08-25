@@ -1,4 +1,4 @@
-import { SortedIndex } from "../../src/modules/index/sorted-index";
+import { SortedIndex } from "../../src/database/indexes/sorted-index";
 import { BSonSort, binarySearch } from "../../src/utils/binary-search";
 describe("binary search", function () {
   it("can find a value in an array", function () {

@@ -19,15 +19,14 @@
  * @constructor LokiMemoryAdapter
  */
 
-import Sylvie from "../modules/sylvie";
-import { NormalSyncPersistenceAdapter } from "./persistence-adapter";
+import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
 
 interface MemoryAdapterOptions {
   asyncResponses: boolean;
   asyncTimeout: number;
 }
 
-export class MemoryAdapter implements NormalSyncPersistenceAdapter {
+export class MemoryAdapter implements NormalPersistenceAdapter {
   mode: "normal";
   hashStore: Record<string, any>;
   options: Partial<MemoryAdapterOptions>;

@@ -1,23 +1,22 @@
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable no-var */
-import { localStorageAvailable } from "../utils/localStorageAvailable";
-import Sylvie from "../modules/sylvie";
-import { NormalSyncPersistenceAdapter } from "./persistence-adapter";
+import { localStorageAvailable } from "../utils/local-storage-available";
+import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
+import { PersistenceAdapterCallback } from "./src/models/persistence-adapter-callback";
 
 /**
- * A loki persistence adapter which persists to web browser's local storage object
- * @constructor LokiLocalStorageAdapter
+ * A persistence adapter which persists to web browser's local storage object
  */
-
-export class LocalStorageAdapter implements NormalSyncPersistenceAdapter {
+export class LocalStorageAdapter implements NormalPersistenceAdapter {
   mode: "normal";
+
   /**
    * loadDatabase() - Load data from localstorage
    * @param {string} dbname - the name of the database to load
    * @param {function} callback - the callback to handle the result
-   * @memberof LokiLocalStorageAdapter
    */
-  loadDatabase(dbname, callback) {
+  loadDatabase(
+    dbname: string,
+    callback: (value: string | Error) => void,
+  ): void {
     if (localStorageAvailable()) {
       callback(localStorage.getItem(dbname));
     } else {
@@ -30,9 +29,8 @@ export class LocalStorageAdapter implements NormalSyncPersistenceAdapter {
    * might want to expand this to avoid dataloss on partial save
    * @param {string} dbname - the filename of the database to load
    * @param {function} callback - the callback to handle the result
-   * @memberof LokiLocalStorageAdapter
    */
-  saveDatabase(dbname, dbstring, callback) {
+  saveDatabase(dbname: string, dbstring, callback: PersistenceAdapterCallback) {
     if (localStorageAvailable()) {
       localStorage.setItem(dbname, dbstring);
       callback(null);
@@ -45,10 +43,9 @@ export class LocalStorageAdapter implements NormalSyncPersistenceAdapter {
    * deleteDatabase() - delete the database from localstorage, will throw an error if it
    * can't be deleted
    * @param {string} dbname - the filename of the database to delete
-   * @param {function} callback - the callback to handle the result
-   * @memberof LokiLocalStorageAdapter
+   * @param {PersistenceAdapterCallback} callback - the callback to handle the result
    */
-  deleteDatabase(dbname, callback) {
+  deleteDatabase(dbname: string, callback: PersistenceAdapterCallback) {
     if (localStorageAvailable()) {
       localStorage.removeItem(dbname);
       callback(null);

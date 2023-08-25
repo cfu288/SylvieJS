@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 "use strict";
-import { hasOwnProperty } from "../sylviejs";
+import { hasOwnProperty } from "../utils/has-own-property";
 import { deepProperty } from "../utils/deep-property";
 import { CloneMethods, clone } from "../utils/clone";
 import { deepFreeze, freeze, unFreeze } from "../utils/icebox";
@@ -12,8 +12,8 @@ import { DynamicView, DynamicViewOptions } from "./dynamic-view";
 import { ChangeOps } from "./sylvie";
 import { SylvieEventEmitter } from "./sylvie-event-emitter";
 import { ResultSet } from "./result-set";
-import { ExactIndex } from "./index/exact-index";
-import { UniqueIndex } from "./index/unique-index";
+import { ExactIndex } from "./indexes/exact-index";
+import { UniqueIndex } from "./indexes/unique-index";
 import { parseBase10 } from "../utils/parse-base-10";
 
 export type ChainTransform =
