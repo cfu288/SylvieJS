@@ -4,7 +4,7 @@ The super fast in-memory javascript document oriented database.
 
 See our [Documentation](https://cfu288.github.io/SylvieJS/).
 
-**This repo is a fork of the original [LokiJS repository](https://github.com/techfort/LokiJS)**.
+**This repo is a fork of the original [LokiJS repository](https://github.com/techfort/LokiJS)**
 
 SylvieJS aims to be a drop-in replacement for LokiJS. The objectives of this fork are to modernize the API and the codebase:
 
@@ -35,39 +35,10 @@ SylvieJS supports indexing and views and achieves high-performance through maint
 
 ## Quickstart
 
-### Install
-
-#### Via NPM
+### Install via npm
 
 ```bash
 npm install sylviejs
-```
-
-#### Via `<script/>` tag
-
-```html
-<!doctype html>
-<html>
-  <head>
-    <title>SylvieJS Example</title>
-    <script
-      id="sylvie"
-      type="module"
-      src="https://cfu288.github.io/SylvieJS/sylviejs.js"
-    ></script>
-  </head>
-  <body>
-    <h1>SylvieJS Examples</h1>
-    <p>Open up the console and see it happen!</p>
-    <script type="text/javascript">
-      var script = document.querySelector("#sylvie");
-      script.addEventListener("load", function () {
-        // Do stuff with Sylvie
-        var db = new Sylvie("example.db");
-      });
-    </script>
-  </body>
-</html>
 ```
 
 ### Example usage with default IndexedDB adapter
@@ -89,19 +60,20 @@ users.insert([
   { name: "Sylvie", age: 25 },
 ]);
 
-console.group("Search by find() with mongo-like query");
+console.group("Search by find() with mongo-like query")
 let results = users.find({ age: { $gte: 35 } });
 console.log(results);
-console.groupEnd();
+console.groupEnd()
 ```
 
-[Full documentation can be found here](https://cfu288.github.io/SylvieJS/).
+[Full documentation can be found here.](https://cfu288.github.io/SylvieJS/).
 
 ## Demo
 
 The following demos are available:
 
 - [Sandbox / Playground](https://replit.com/@cfu288/sylviejs-sandbox)
+
 
 ## Main Features
 
