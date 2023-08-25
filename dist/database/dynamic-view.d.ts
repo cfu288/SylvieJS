@@ -1,4 +1,5 @@
-import { Collection, CollectionDocument } from "./collection";
+import { Collection } from "./collection/collection";
+import { CollectionDocument } from "./collection/collection-document";
 import { ResultSet } from "./result-set";
 import { SylvieEventEmitter } from "./sylvie-event-emitter";
 /**

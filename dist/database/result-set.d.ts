@@ -13,7 +13,9 @@
  */
 import { CloneMethods } from "../utils/clone";
 import { valueLevelOps } from "../utils/ops";
-import { ChainTransform, Collection, CollectionDocument } from "./collection";
+import { Collection } from "./collection/collection";
+import { CollectionDocument } from "./collection/collection-document";
+import { ChainTransform } from "./collection/chain-transform";
 export type MongoLikeOps = (typeof valueLevelOps)[number] | "$regex" | "$in" | "$inSet";
 export declare class ResultSet<RST extends Partial<CollectionDocument>> {
     options: Record<string, any>;

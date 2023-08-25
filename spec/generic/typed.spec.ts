@@ -1,5 +1,5 @@
 import Sylvie from "../../src/sylviejs";
-import { ChangeOpsLoadJSONOptionsMeta } from "../../src/database/sylvie";
+import { ChangeOpsLoadJSONOptionsMeta } from "../../src/database/sylvie/change-ops-load-json-options-meta";
 const loki = Sylvie;
 
 describe("typed", function () {

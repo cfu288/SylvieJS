@@ -1,13 +1,11 @@
 /**
   Sylvie encrypted IndexedDb Adapter (need to include this script to use it)
 */
-import {
-  decryptData,
-  encryptData,
-} from "./src/crypted-indexeddb-adapter/string-encryption-utils";
-import { IDBCatalog } from "./src/crypted-indexeddb-adapter/idb-catalog";
+import { decryptData, encryptData } from "./src/utils/string-encryption-utils";
 import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
 import { AsyncPersistenceAdapter } from "./src/models/async-persistence-adapter";
+import { IndexedDBAdapter } from "./indexeddb-adapter";
+import { PersistenceAdapterCallback } from "./src/models/persistence-adapter-callback";
 
 // @ts-ignore
 const DEBUG = typeof window !== "undefined" && !!window.__loki_idb_debug;
@@ -46,9 +44,9 @@ export class CryptedIndexedDBAdapter
   isAsync: true;
   app: string;
   options: Partial<CryptedIndexedDBAdapterOptions>;
-  catalog: IDBCatalog;
   mode: "normal";
   #secret: string;
+  idbAdapter: IndexedDBAdapter;
 
   /**
    * Create a CryptedIndexedDBAdapter.
@@ -60,24 +58,27 @@ export class CryptedIndexedDBAdapter
   constructor(options?: Partial<CryptedIndexedDBAdapterOptions>) {
     DEBUG && console.log("Initialized crypted-indexeddb-adapter");
     this.app = "sylvie";
-    this.options = options || {};
 
     if (typeof options?.appname !== "undefined") {
       this.app = options?.appname;
     }
 
-    // keep reference to catalog class for base AKV operations
-    this.catalog = null;
-
-    if (!this.#checkIDBAvailability()) {
-      throw new Error(
-        "IndexedDB does not seem to be supported for your environment",
-      );
-    }
-
     if (options.secret) {
-      this.#secret = options.secret;
+      this.#secret = options.secret || "";
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const self = this; // Required since constructors cannot be arrow functions
+
+    this.idbAdapter = new IndexedDBAdapter({
+      ...options,
+      beforeRead(rawString) {
+        return decryptData(rawString, self.#secret);
+      },
+      beforeWrite(dbString) {
+        return encryptData(dbString, self.#secret);
+      },
+    });
   }
 
   /**
@@ -98,26 +99,6 @@ export class CryptedIndexedDBAdapter
   }
 
   /**
-   * Used for closing the indexeddb database.
-   */
-  #closeDatabase = () => {
-    if (this.catalog && this.catalog.db) {
-      this.catalog.db.close();
-      this.catalog.db = null;
-    }
-  };
-
-  /**
-   * Used to check if adapter is available
-   *
-   * @returns {boolean} true if indexeddb is available, false if not.
-   */
-  #checkIDBAvailability(): boolean {
-    if (typeof indexedDB !== "undefined" && indexedDB) return true;
-    return false;
-  }
-
-  /**
    * Retrieves a serialized db string from the catalog.
    *
    * @example
@@ -131,43 +112,11 @@ export class CryptedIndexedDBAdapter
    * @param {string} dbname - the name of the database to retrieve.
    * @param {function} callback - callback should accept string param containing serialized db string.
    */
-  loadDatabase = (dbname: string, callback: (serialized: string) => void) => {
-    DEBUG && console.debug("loading database");
-
-    // lazy open/create db reference so dont -need- callback in constructor
-    if (this.catalog === null || this.catalog.db === null) {
-      new IDBCatalog().initialize().then((catalog) => {
-        this.catalog = catalog;
-        this.loadDatabase(dbname, callback);
-        return;
-      });
-      return;
-    }
-
-    // lookup up dbstring in AKV db
-    this.catalog
-      .getAppKeyAsync(this.app, dbname)
-      .then((props) => {
-        const { success } = props as { success: boolean };
-        if (success === false) {
-          callback(null);
-        } else {
-          const { val: encryptedDbString } = props as { val: string };
-          decryptData(encryptedDbString, this.#secret)
-            .then((decryptedDbString) => {
-              DEBUG && console.debug(`DECRYPTED STRING: ${decryptedDbString}`);
-              callback(decryptedDbString);
-            })
-            .catch((err) => {
-              console.error(err);
-              callback(err);
-            });
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        callback(err);
-      });
+  loadDatabase = (
+    dbname: string,
+    callback: (serialized: string) => void,
+  ): void => {
+    this.idbAdapter.loadDatabase(dbname, callback);
   };
 
   /**
@@ -193,46 +142,7 @@ export class CryptedIndexedDBAdapter
    * @throws {Error} If the database is not deserialized successfully.
    */
   loadDatabaseAsync = async (dbname: string): Promise<string> => {
-    DEBUG && console.debug("loading database");
-
-    return new Promise((resolve, reject) => {
-      const doLoad = () =>
-        this.catalog.getAppKeyAsync(this.app, dbname).then((props) => {
-          const { success } = props as { success: boolean };
-          if (success === false) {
-            reject(null);
-          } else {
-            const { val } = props as { val: string };
-            const encryptedDbString = val;
-            decryptData(encryptedDbString, this.#secret)
-              .then((decryptedDbString) => {
-                DEBUG &&
-                  console.debug(`DECRYPTED STRING: ${decryptedDbString}`);
-                resolve(decryptedDbString);
-              })
-              .catch((err) => {
-                reject(err);
-              });
-          }
-        });
-
-      // lazy open/create db reference so dont -need- callback in constructor
-      if (this.catalog === null || this.catalog.db === null) {
-        // catalog not initialized yet
-        new IDBCatalog()
-          .initialize()
-          .then((catalog) => {
-            this.catalog = catalog;
-            doLoad();
-          })
-          .catch((err) => {
-            reject(err);
-          });
-      } else {
-        // catalog was already initialized, so just lookup object and delete by id
-        doLoad();
-      }
-    });
+    return this.idbAdapter.loadDatabaseAsync(dbname);
   };
 
   /**
@@ -253,111 +163,13 @@ export class CryptedIndexedDBAdapter
   saveDatabase = (
     dbname: string,
     dbstring: string,
-    callback?: (
-      err: Error | { success: true } | { success: false; error: Error },
-    ) => void,
+    callback?: PersistenceAdapterCallback,
   ) => {
-    DEBUG &&
-      console.debug(`in saveDatabase(${dbname}, ${dbstring}, ${callback})`);
-
-    const doSave = () =>
-      encryptData(dbstring, this.#secret)
-        .then((encryptedDbString) => {
-          // lazy open/create db reference so dont -need- callback in constructor
-          DEBUG && console.debug(`ENCRYPTED STRING: ${encryptedDbString}`);
-          // set (add/update) entry to AKV database
-          this.catalog
-            .setAppKeyAsync(this.app, dbname, encryptedDbString)
-            .then((res) => {
-              callback(res);
-            })
-            .catch((err) => {
-              callback(err);
-            });
-        })
-        .catch((err) => {
-          callback(err);
-        });
-
-    if (this.catalog === null || this.catalog.db === null) {
-      // catalog not initialized yet
-      new IDBCatalog()
-        .initialize()
-        .then((catalog) => {
-          this.catalog = catalog;
-          this.saveDatabaseAsync(dbname, dbstring)
-            .then(() => {
-              callback(undefined);
-            })
-            .catch((err) => {
-              callback(new Error("Error saving database: " + err));
-            })
-            .finally(() => {
-              if (this.options.closeAfterSave === true) {
-                this.#closeDatabase();
-              }
-            });
-        })
-        .catch((err) => {
-          callback(new Error("Error saving database: " + err));
-        });
-    } else {
-      // catalog was already initialized, so just lookup object and delete by id
-      doSave();
-    }
+    return this.idbAdapter.saveDatabase(dbname, dbstring, callback);
   };
 
   async saveDatabaseAsync(dbname: string, dbstring: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const doSave = () =>
-        encryptData(dbstring, this.#secret)
-          .then((encryptedDbString) => {
-            // lazy open/create db reference so dont -need- callback in constructor
-            DEBUG && console.debug(`ENCRYPTED STRING: ${encryptedDbString}`);
-            // set (add/update) entry to AKV database
-            this.catalog
-              .setAppKeyAsync(this.app, dbname, encryptedDbString)
-              .then((res) => {
-                if (res.success === true) {
-                  resolve();
-                } else {
-                  reject(res);
-                }
-              })
-              .catch((err) => {
-                reject(err);
-              });
-          })
-          .catch((err) => {
-            reject(err);
-          });
-
-      if (this.catalog === null || this.catalog.db === null) {
-        // catalog not initialized yet
-        new IDBCatalog()
-          .initialize()
-          .then((catalog) => {
-            this.catalog = catalog;
-            // Now that catalog is initialized, try again
-            this.saveDatabaseAsync(dbname, dbstring)
-              .then(resolve)
-              .catch((error) => {
-                reject(new Error("Error saving database: " + error));
-              })
-              .finally(() => {
-                if (this.options.closeAfterSave === true) {
-                  this.#closeDatabase();
-                }
-              });
-          })
-          .catch((err) => {
-            reject(err);
-          });
-      } else {
-        // catalog was already initialized, so just lookup object and delete by id
-        doSave();
-      }
-    });
+    return this.idbAdapter.saveDatabaseAsync(dbname, dbstring);
   }
 
   /**
@@ -374,97 +186,12 @@ export class CryptedIndexedDBAdapter
    * @param {function=} callback - (Optional) executed on database delete
    * @memberof SylvieIndexedAdapter
    */
-  deleteDatabase = (
-    dbname: string,
-    callback?: (
-      _: Error | { success: true } | { success: false; error: Error },
-    ) => any,
-  ) => {
-    // lazy open/create db reference and pass callback ahead
-    if (this.catalog === null || this.catalog.db === null) {
-      new IDBCatalog()
-        .initialize()
-        .then((catalog) => {
-          this.catalog = catalog;
-          this.deleteDatabase(dbname, callback);
-        })
-        .catch((err) => {
-          callback(new Error("Error deleting database: " + err));
-        });
-
-      return;
-    }
-
-    // catalog was already initialized, so just lookup object and delete by id
-    this.catalog
-      .getAppKeyAsync(this.app, dbname)
-      .then((result) => {
-        const id = result.id;
-        if (id !== 0) {
-          this.catalog
-            .deleteAppKeyAsync(id)
-            .then((res) => {
-              if (typeof callback === "function") {
-                callback(res);
-              }
-            })
-            .catch((err) => {
-              if (typeof callback === "function") {
-                callback({ success: false, error: err });
-              }
-            });
-        }
-      })
-      .catch((err) => {
-        if (typeof callback === "function") {
-          callback({ success: false, error: err });
-        }
-      });
+  deleteDatabase = (dbname: string, callback?: PersistenceAdapterCallback) => {
+    return this.idbAdapter.deleteDatabase(dbname, callback);
   };
 
   async deleteDatabaseAsync(dbname: string): Promise<void> {
-    // lazy open/create db reference and pass callback ahead
-    return new Promise((resolve, reject) => {
-      const doDelete = () =>
-        this.catalog
-          .getAppKeyAsync(this.app, dbname)
-          .then((result) => {
-            const id = result.id;
-            if (id !== 0) {
-              this.catalog
-                .deleteAppKeyAsync(id)
-                .then((res) => {
-                  if (res.success === true) {
-                    resolve();
-                  } else {
-                    reject(res);
-                  }
-                })
-                .catch((err) => {
-                  reject(err);
-                });
-            }
-          })
-          .catch((err) => {
-            reject(err);
-          });
-
-      if (this.catalog === null || this.catalog.db === null) {
-        // catalog not initialized yet
-        new IDBCatalog()
-          .initialize()
-          .then((catalog) => {
-            this.catalog = catalog;
-            doDelete();
-          })
-          .catch((err) => {
-            reject(err);
-          });
-      } else {
-        // catalog was already initialized, so just lookup object and delete by id
-        doDelete();
-      }
-    });
+    return this.idbAdapter.deleteDatabaseAsync(dbname);
   }
 
   /**
@@ -507,16 +234,7 @@ export class CryptedIndexedDBAdapter
    * @memberof SylvieIndexedAdapter
    */
   deleteDatabasePartitions = (dbname) => {
-    this.getDatabaseList((result) => {
-      if (result instanceof Error) {
-        throw result;
-      }
-      result.forEach((str) => {
-        if (str.startsWith(dbname)) {
-          this.deleteDatabase(str);
-        }
-      });
-    });
+    this.idbAdapter.deleteDatabasePartitions(dbname);
   };
 
   /**
@@ -533,77 +251,12 @@ export class CryptedIndexedDBAdapter
    * @param {function} callback - should accept array of database names in the catalog for current app.
    * @memberof SylvieIndexedAdapter
    */
-  getDatabaseList = (callback: (_: string[] | Error) => void) => {
-    // lazy open/create db reference so dont -need- callback in constructor
-    if (this.catalog === null || this.catalog.db === null) {
-      new IDBCatalog()
-        .initialize()
-        .then((catalog) => {
-          this.catalog = catalog;
-          this.getDatabaseList(callback);
-        })
-        .catch((err) => {
-          callback(new Error("Error getting database list: " + err));
-        });
-
-      return;
-    }
-
-    // catalog already initialized
-    // get all keys for current appName, and transpose results so just string array
-    this.catalog.getAppKeys(this.app, (results) => {
-      const names = [];
-
-      for (let idx = 0; idx < results.length; idx++) {
-        names.push(results[idx].key);
-      }
-
-      if (typeof callback === "function") {
-        callback(names);
-      } else {
-        names.forEach((obj) => {
-          console.log(obj);
-        });
-      }
-    });
+  getDatabaseList = (callback: (_: string[] | Error) => void): void => {
+    this.idbAdapter.getDatabaseList(callback);
   };
 
   getDatabaseListAsync = (): Promise<string[]> => {
-    return new Promise((resolve, reject) => {
-      // lazy open/create db reference
-      if (this.catalog === null || this.catalog.db === null) {
-        // catalog not initialized yet
-        new IDBCatalog()
-          .initialize()
-          .then((catalog) => {
-            this.catalog = catalog;
-            this.catalog
-              .getAppKeysAsync(this.app)
-              .then((results) => {
-                const names: string[] = results.map((result) => result.key);
-                resolve(names);
-              })
-              .catch((err) => {
-                reject(err);
-              });
-          })
-          .catch((err) => {
-            reject(err);
-          });
-      } else {
-        // catalog already initialized
-        // get all keys for current appName, and transpose results so just string array
-        this.catalog
-          .getAppKeysAsync(this.app)
-          .then((results) => {
-            const names: string[] = results.map((result) => result.key);
-            resolve(names);
-          })
-          .catch((err) => {
-            reject(err);
-          });
-      }
-    });
+    return this.idbAdapter.getDatabaseListAsync();
   };
 }
 

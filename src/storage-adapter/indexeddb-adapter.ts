@@ -1,63 +1,80 @@
-/* eslint-disable @typescript-eslint/no-empty-interface */
-/* eslint-disable @typescript-eslint/no-this-alias */
-// @ts-nocheck
-/*
-  Loki IndexedDb Adapter (need to include this script to use it)
-
-  Console Usage can be used for management/diagnostic, here are a few examples :
-  adapter.getDatabaseList(); // with no callback passed, this method will log results to console
-  adapter.saveDatabase('UserDatabase', JSON.stringify(myDb));
-  adapter.loadDatabase('UserDatabase'); // will log the serialized db to console
-  adapter.deleteDatabase('UserDatabase');
+/**
+  Sylvie IndexedDb Adapter (need to include this script to use it)
 */
-import { PersistenceAdapter } from "./src/models/persistence-adapter";
+import { IDBCatalog } from "./src/indexeddb-adapter/idb-catalog";
+import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
+import { AsyncPersistenceAdapter } from "./src/models/async-persistence-adapter";
 
 // @ts-ignore
 const DEBUG = typeof window !== "undefined" && !!window.__loki_idb_debug;
 
 if (DEBUG) {
-  console.log("DEBUG: Running indexeddb-adapter in DEBUG mode");
+  console.log("DEBUG: Running crypted-indexeddb-adapter in DEBUG mode");
 }
 
-interface IndexedAdapterOptions {
-  closeAfterSave: boolean;
+if (!window.crypto.subtle) {
+  alert("Required crypto lib is not available, are you using SSL?");
+  throw new Error("Required crypto lib is not available");
 }
+
+interface IndexedDBAdapterOptions {
+  // (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
+  appname: string;
+  // Whether the indexedDB database should be closed after saving.
+  closeAfterSave: boolean;
+  /**
+   * An optional function hook that is called before the database is written to IndexedDB. Use this to modify the raw string before it is written to disk. If you use this, you must also pass beforeRead.
+   * @param databaseSerialized - The serialized string dump from Sylvie.
+   * @returns The raw string to be written to IndexedDB.
+   */
+  beforeWrite: (databaseSerialized: string) => Promise<string>;
+  /**
+   *  An optional function hook that is called after the database is read from IndexedDB but before it is loaded into Sylvie. Use this to deserialize the string if you used the beforeWrite hook.
+   * @param rawString The raw string read from IndexedDB.
+   * @returns The deserialized string to be loaded into Sylvie.
+   */
+  beforeRead: (rawString: string) => Promise<string>;
+}
+
 /**
- * Loki persistence adapter class for indexedDb.
+ * Loki/Sylvie encrypted persistence adapter class for indexedDb.
  *     This class fulfills abstract adapter interface which can be applied to other storage methods.
- *     Utilizes the included LokiCatalog app/key/value database for actual database persistence.
- *     Indexeddb is highly async, but this adapter has been made 'console-friendly' as well.
- *     Anywhere a callback is omitted, it should return results (if applicable) to console.
+ *     Utilizes the included SylvieCatalog app/key/value database for actual database persistence.
  *     IndexedDb storage is provided per-domain, so we implement app/key/value database to
  *     allow separate contexts for separate apps within a domain.
  *
  * @example
- * var idbAdapter = new LokiIndexedAdapter('finance');
+ * var idbAdapter = new IndexedDBAdapter('finance');
  *
- * @constructor LokiIndexedAdapter
- *
- * @param {string} appname - (Optional) Application name context can be used to distinguish subdomains, 'loki' by default
- * @param {object=} options Configuration options for the adapter
- * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
  */
-class IndexedDBAdapter implements PersistenceAdapter {
+export class IndexedDBAdapter
+  implements NormalPersistenceAdapter, AsyncPersistenceAdapter
+{
+  isAsync: true;
   app: string;
-  options: Partial<IndexedAdapterOptions>;
-  catalog: SylvieCatalog;
-  mode: string;
+  options: Partial<IndexedDBAdapterOptions>;
+  catalog: IDBCatalog;
+  mode: "normal";
 
-  constructor(appname: string, options?: Partial<IndexedAdapterOptions>) {
-    this.app = "loki";
+  /**
+   * Create a IndexedDBAdapter.
+   * @param {IndexedDBAdapterOptions} options Configuration options for the adapter
+   * @param {string} options.appname - (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
+   * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
+   */
+  constructor(options?: Partial<IndexedDBAdapterOptions>) {
+    DEBUG && console.log("Initialized crypted-indexeddb-adapter");
+    this.app = "sylvie";
     this.options = options || {};
 
-    if (typeof appname !== "undefined") {
-      this.app = appname;
+    if (typeof options?.appname !== "undefined") {
+      this.app = options?.appname;
     }
 
     // keep reference to catalog class for base AKV operations
     this.catalog = null;
 
-    if (!this.checkAvailability()) {
+    if (!this.#checkIDBAvailability()) {
       throw new Error(
         "IndexedDB does not seem to be supported for your environment",
       );
@@ -67,19 +84,19 @@ class IndexedDBAdapter implements PersistenceAdapter {
   /**
    * Used for closing the indexeddb database.
    */
-  closeDatabase() {
+  #closeDatabase = () => {
     if (this.catalog && this.catalog.db) {
       this.catalog.db.close();
       this.catalog.db = null;
     }
-  }
+  };
 
   /**
    * Used to check if adapter is available
    *
    * @returns {boolean} true if indexeddb is available, false if not.
    */
-  checkAvailability() {
+  #checkIDBAvailability(): boolean {
     if (typeof indexedDB !== "undefined" && indexedDB) return true;
     return false;
   }
@@ -89,7 +106,7 @@ class IndexedDBAdapter implements PersistenceAdapter {
    *
    * @example
    * // LOAD
-   * var idbAdapter = new LokiIndexedAdapter('finance');
+   * var idbAdapter = new SylvieIndexedAdapter('finance');
    * var db = new loki('test', { adapter: idbAdapter });
    *   db.loadDatabase(function(result) {
    *   console.log('done');
@@ -98,40 +115,130 @@ class IndexedDBAdapter implements PersistenceAdapter {
    * @param {string} dbname - the name of the database to retrieve.
    * @param {function} callback - callback should accept string param containing serialized db string.
    */
-  loadDatabase(dbname: string, callback: (serialized: string) => void) {
-    const appName = this.app;
-    const adapter: IndexedDBAdapter = this;
+  loadDatabase = (
+    dbname: string,
+    callback: (serialized: string) => void,
+  ): void => {
+    DEBUG && console.debug("loading database");
 
     // lazy open/create db reference so dont -need- callback in constructor
     if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new SylvieCatalog((catalog) => {
-        adapter.catalog = catalog;
-        adapter.loadDatabase(dbname, callback);
+      new IDBCatalog().initialize().then((catalog) => {
+        this.catalog = catalog;
+        this.loadDatabase(dbname, callback);
+        return;
       });
       return;
     }
 
-    // lookup up db string in AKV db
-    this.catalog.getAppKey(appName, dbname, ({ id, val }) => {
-      if (typeof callback === "function") {
-        if (id === 0) {
+    // lookup up dbstring in AKV db
+    this.catalog
+      .getAppKeyAsync(this.app, dbname)
+      .then((props) => {
+        const { success } = props as { success: boolean };
+        if (success === false) {
           callback(null);
-          return;
+        } else {
+          const { val: unserializedString } = props as { val: string };
+          if (this.options.beforeRead) {
+            this.options
+              .beforeRead(unserializedString)
+              .then((deserializedString) => {
+                DEBUG &&
+                  console.debug(`DESERIALIZED STRING: ${deserializedString}`);
+                callback(deserializedString);
+              })
+              .catch((err) => {
+                console.error(err);
+                callback(err);
+              });
+          } else {
+            callback(unserializedString);
+          }
         }
-        callback(val);
+      })
+      .catch((err) => {
+        console.error(err);
+        callback(err);
+      });
+  };
+
+  /**
+   * Retrieves a serialized db string from the catalog, returns a promise to a string of the serialized database.
+   * @param dbname
+   * @returns {Promise<string>} A promise to a string of the serialized database.
+   * @example
+   * const db = new Sylvie(TEST_DB_NAME, {
+   *  adapter: new IndexedDBAdapter();
+   * });
+   * await db.loadDatabaseAsync({});
+   * // db is now ready to use
+   * // you can also chain the promises
+   * await db.loadDatabaseAsync({}).then(() => {
+   * // db is now ready to use
+   * });
+   * // or use async await syntax
+   * await db.loadDatabaseAsync({});
+   * // db is now ready to use
+   * @memberof IndexedDBAdapter
+   * @throws {Error} If the database is not found.
+   * @throws {Error} If the database is not decrypted successfully.
+   * @throws {Error} If the database is not deserialized successfully.
+   */
+  loadDatabaseAsync = async (dbname: string): Promise<string> => {
+    DEBUG && console.debug("loading database");
+
+    return new Promise((resolve, reject) => {
+      const doLoad = () =>
+        this.catalog.getAppKeyAsync(this.app, dbname).then((props) => {
+          const { success } = props as { success: boolean };
+          if (success === false) {
+            reject(null);
+          } else {
+            const { val } = props as { val: string };
+            const unserializedString = val;
+            if (this.options.beforeRead) {
+              this.options
+                .beforeRead(unserializedString)
+                .then((deserializedString) => {
+                  DEBUG &&
+                    console.debug(`DESERIALIZED STRING: ${deserializedString}`);
+                  resolve(deserializedString);
+                })
+                .catch((err) => {
+                  reject(err);
+                });
+            } else {
+              resolve(unserializedString);
+            }
+          }
+        });
+
+      // lazy open/create db reference so dont -need- callback in constructor
+      if (this.catalog === null || this.catalog.db === null) {
+        // catalog not initialized yet
+        new IDBCatalog()
+          .initialize()
+          .then((catalog) => {
+            this.catalog = catalog;
+            doLoad();
+          })
+          .catch((err) => {
+            reject(err);
+          });
       } else {
-        // support console use of api
-        console.log(val);
+        // catalog was already initialized, so just lookup object and delete by id
+        doLoad();
       }
     });
-  }
+  };
 
   /**
    * Saves a serialized db to the catalog.
    *
    * @example
    * // SAVE : will save App/Key/Val as 'finance'/'test'/{serializedDb}
-   * var idbAdapter = new LokiIndexedAdapter('finance');
+   * var idbAdapter = new SylvieIndexedAdapter('finance');
    * var db = new loki('test', { adapter: idbAdapter });
    * var coll = db.addCollection('testColl');
    * coll.insert({test: 'val'});
@@ -140,39 +247,147 @@ class IndexedDBAdapter implements PersistenceAdapter {
    * @param {string} dbname - the name to give the serialized database within the catalog.
    * @param {string} dbstring - the serialized db string to save.
    * @param {function} callback - (Optional) callback passed obj.success with true or false
-   * @memberof LokiIndexedAdapter
    */
-  saveDatabase(
+  saveDatabase = (
     dbname: string,
     dbstring: string,
-    callback?: (err: Error) => void,
-  ) {
-    const appName = this.app;
-    const adapter = this;
+    callback?: (
+      err: Error | { success: true } | { success: false; error: Error },
+    ) => void,
+  ) => {
+    DEBUG &&
+      console.debug(`in saveDatabase(${dbname}, ${dbstring}, ${callback})`);
 
-    function saveCallback(result) {
-      if (result && result.success === true) {
-        callback(null);
+    const doSave = () => {
+      if (this.options.beforeWrite) {
+        this.options
+          .beforeWrite(dbstring)
+          .then((serializedString) => {
+            // lazy open/create db reference so dont -need- callback in constructor
+            DEBUG && console.debug(`SERIALIZED STRING: ${serializedString}`);
+            // set (add/update) entry to AKV database
+            this.catalog
+              .setAppKeyAsync(this.app, dbname, serializedString)
+              .then((res) => {
+                callback(res);
+              })
+              .catch((err) => {
+                callback(err);
+              });
+          })
+          .catch((err) => {
+            callback(err);
+          });
       } else {
-        callback(new Error("Error saving database"));
+        DEBUG && console.debug(`SERIALIZED STRING: ${dbstring}`);
+        this.catalog
+          .setAppKeyAsync(this.app, dbname, dbstring)
+          .then((res) => {
+            callback(res);
+          })
+          .catch((err) => {
+            callback(err);
+          });
       }
+    };
 
-      if (adapter.options.closeAfterSave) {
-        adapter.closeDatabase();
-      }
-    }
-
-    // lazy open/create db reference so dont -need- callback in constructor
     if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new SylvieCatalog(() => {
-        adapter.saveDatabase(dbname, dbstring, saveCallback);
-      });
-
-      return;
+      // catalog not initialized yet
+      new IDBCatalog()
+        .initialize()
+        .then((catalog) => {
+          this.catalog = catalog;
+          this.saveDatabaseAsync(dbname, dbstring)
+            .then(() => {
+              callback(undefined);
+            })
+            .catch((err) => {
+              callback(new Error("Error saving database: " + err));
+            })
+            .finally(() => {
+              if (this.options.closeAfterSave === true) {
+                this.#closeDatabase();
+              }
+            });
+        })
+        .catch((err) => {
+          callback(new Error("Error saving database: " + err));
+        });
+    } else {
+      // catalog was already initialized, so just lookup object and delete by id
+      doSave();
     }
+  };
 
-    // set (add/update) entry to AKV database
-    this.catalog.setAppKey(appName, dbname, dbstring, saveCallback);
+  async saveDatabaseAsync(dbname: string, dbstring: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const doSave = () => {
+        if (this.options.beforeWrite) {
+          this.options
+            .beforeWrite(dbstring)
+            .then((encryptedDbString) => {
+              // lazy open/create db reference so dont -need- callback in constructor
+              DEBUG && console.debug(`ENCRYPTED STRING: ${encryptedDbString}`);
+              // set (add/update) entry to AKV database
+              this.catalog
+                .setAppKeyAsync(this.app, dbname, encryptedDbString)
+                .then((res) => {
+                  if (res.success === true) {
+                    resolve();
+                  } else {
+                    reject(res);
+                  }
+                })
+                .catch((err) => {
+                  reject(err);
+                });
+            })
+            .catch((err) => {
+              reject(err);
+            });
+        } else {
+          DEBUG && console.debug(`SERIALIZED STRING: ${dbstring}`);
+          this.catalog
+            .setAppKeyAsync(this.app, dbname, dbstring)
+            .then((res) => {
+              if (res.success === true) {
+                resolve();
+              } else {
+                reject(res);
+              }
+            })
+            .catch((err) => {
+              reject(err);
+            });
+        }
+      };
+
+      if (this.catalog === null || this.catalog.db === null) {
+        // catalog not initialized yet
+        new IDBCatalog()
+          .initialize()
+          .then((catalog) => {
+            this.catalog = catalog;
+            // Now that catalog is initialized, try again
+            this.saveDatabaseAsync(dbname, dbstring)
+              .then(resolve)
+              .catch((error) => {
+                reject(new Error("Error saving database: " + error));
+              })
+              .finally(() => {
+                if (this.options.closeAfterSave === true) {
+                  this.#closeDatabase();
+                }
+              });
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      } else {
+        // catalog was already initialized, so just lookup object and delete by id
+        doSave();
+      }
+    });
   }
 
   /**
@@ -187,30 +402,97 @@ class IndexedDBAdapter implements PersistenceAdapter {
    *
    * @param {string} dbname - the name of the database to delete from the catalog.
    * @param {function=} callback - (Optional) executed on database delete
-   * @memberof LokiIndexedAdapter
+   * @memberof SylvieIndexedAdapter
    */
-  deleteDatabase(dbname: string, callback?: (_: any) => any) {
-    const appName = this.app;
-    const adapter = this;
-
+  deleteDatabase = (
+    dbname: string,
+    callback?: (
+      _: Error | { success: true } | { success: false; error: Error },
+    ) => any,
+  ) => {
     // lazy open/create db reference and pass callback ahead
     if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new SylvieCatalog((catalog) => {
-        adapter.catalog = catalog;
-        adapter.deleteDatabase(dbname, callback);
-      });
+      new IDBCatalog()
+        .initialize()
+        .then((catalog) => {
+          this.catalog = catalog;
+          this.deleteDatabase(dbname, callback);
+        })
+        .catch((err) => {
+          callback(new Error("Error deleting database: " + err));
+        });
 
       return;
     }
 
     // catalog was already initialized, so just lookup object and delete by id
-    this.catalog.getAppKey(appName, dbname, (result) => {
-      const id = result.id;
+    this.catalog
+      .getAppKeyAsync(this.app, dbname)
+      .then((result) => {
+        const id = result.id;
+        if (id !== 0) {
+          this.catalog
+            .deleteAppKeyAsync(id)
+            .then((res) => {
+              if (typeof callback === "function") {
+                callback(res);
+              }
+            })
+            .catch((err) => {
+              if (typeof callback === "function") {
+                callback({ success: false, error: err });
+              }
+            });
+        }
+      })
+      .catch((err) => {
+        if (typeof callback === "function") {
+          callback({ success: false, error: err });
+        }
+      });
+  };
 
-      if (id !== 0) {
-        adapter.catalog.deleteAppKey(id, callback);
-      } else if (typeof callback === "function") {
-        callback({ success: true });
+  async deleteDatabaseAsync(dbname: string): Promise<void> {
+    // lazy open/create db reference and pass callback ahead
+    return new Promise((resolve, reject) => {
+      const doDelete = () =>
+        this.catalog
+          .getAppKeyAsync(this.app, dbname)
+          .then((result) => {
+            const id = result.id;
+            if (id !== 0) {
+              this.catalog
+                .deleteAppKeyAsync(id)
+                .then((res) => {
+                  if (res.success === true) {
+                    resolve();
+                  } else {
+                    reject(res);
+                  }
+                })
+                .catch((err) => {
+                  reject(err);
+                });
+            }
+          })
+          .catch((err) => {
+            reject(err);
+          });
+
+      if (this.catalog === null || this.catalog.db === null) {
+        // catalog not initialized yet
+        new IDBCatalog()
+          .initialize()
+          .then((catalog) => {
+            this.catalog = catalog;
+            doDelete();
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      } else {
+        // catalog was already initialized, so just lookup object and delete by id
+        doDelete();
       }
     });
   }
@@ -220,18 +502,20 @@ class IndexedDBAdapter implements PersistenceAdapter {
    * This utility method does not (yet) guarantee async deletions will be completed before returning
    *
    * @param {string} dbname - the base filename which container, partitions, or pages are derived
-   * @memberof LokiIndexedAdapter
+   * @memberof SylvieIndexedAdapter
    */
-  deleteDatabasePartitions(dbname) {
-    const self = this;
+  deleteDatabasePartitions = (dbname) => {
     this.getDatabaseList((result) => {
+      if (result instanceof Error) {
+        throw result;
+      }
       result.forEach((str) => {
         if (str.startsWith(dbname)) {
-          self.deleteDatabase(str);
+          this.deleteDatabase(str);
         }
       });
     });
-  }
+  };
 
   /**
    * Retrieves object array of catalog entries for current app.
@@ -245,26 +529,27 @@ class IndexedDBAdapter implements PersistenceAdapter {
    * });
    *
    * @param {function} callback - should accept array of database names in the catalog for current app.
-   * @memberof LokiIndexedAdapter
+   * @memberof SylvieIndexedAdapter
    */
-  getDatabaseList(callback) {
-    const appName = this.app;
-    const adapter = this;
-
+  getDatabaseList = (callback: (_: string[] | Error) => void) => {
     // lazy open/create db reference so dont -need- callback in constructor
     if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new SylvieCatalog((cat) => {
-        adapter.catalog = cat;
-
-        adapter.getDatabaseList(callback);
-      });
+      new IDBCatalog()
+        .initialize()
+        .then((catalog) => {
+          this.catalog = catalog;
+          this.getDatabaseList(callback);
+        })
+        .catch((err) => {
+          callback(new Error("Error getting database list: " + err));
+        });
 
       return;
     }
 
     // catalog already initialized
     // get all keys for current appName, and transpose results so just string array
-    this.catalog.getAppKeys(appName, (results) => {
+    this.catalog.getAppKeys(this.app, (results) => {
       const names = [];
 
       for (let idx = 0; idx < results.length; idx++) {
@@ -279,7 +564,45 @@ class IndexedDBAdapter implements PersistenceAdapter {
         });
       }
     });
-  }
+  };
+
+  getDatabaseListAsync = (): Promise<string[]> => {
+    return new Promise((resolve, reject) => {
+      // lazy open/create db reference
+      if (this.catalog === null || this.catalog.db === null) {
+        // catalog not initialized yet
+        new IDBCatalog()
+          .initialize()
+          .then((catalog) => {
+            this.catalog = catalog;
+            this.catalog
+              .getAppKeysAsync(this.app)
+              .then((results) => {
+                const names: string[] = results.map((result) => result.key);
+                resolve(names);
+              })
+              .catch((err) => {
+                reject(err);
+              });
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      } else {
+        // catalog already initialized
+        // get all keys for current appName, and transpose results so just string array
+        this.catalog
+          .getAppKeysAsync(this.app)
+          .then((results) => {
+            const names: string[] = results.map((result) => result.key);
+            resolve(names);
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      }
+    });
+  };
 
   /**
    * Allows retrieval of list of all keys in catalog along with size
@@ -287,17 +610,18 @@ class IndexedDBAdapter implements PersistenceAdapter {
    * @param {function} callback - (Optional) callback to accept result array.
    * @memberof LokiIndexedAdapter
    */
-  getCatalogSummary(callback) {
-    const appName = this.app;
-    const adapter = this;
-
+  getCatalogSummary = (callback) => {
     // lazy open/create db reference
     if (this.catalog === null || this.catalog.db === null) {
-      this.catalog = new SylvieCatalog((cat) => {
-        adapter.catalog = cat;
-
-        adapter.getCatalogSummary(callback);
-      });
+      new IDBCatalog()
+        .initialize()
+        .then((catalog) => {
+          this.catalog = catalog;
+          this.getCatalogSummary(callback);
+        })
+        .catch((err) => {
+          callback(new Error("Error getting database list: " + err));
+        });
 
       return;
     }
@@ -332,274 +656,11 @@ class IndexedDBAdapter implements PersistenceAdapter {
         });
       }
     });
-  }
-}
-
-// alias
-IndexedDBAdapter.prototype.loadKey = IndexedDBAdapter.prototype.loadDatabase;
-
-// alias
-IndexedDBAdapter.prototype.saveKey = IndexedDBAdapter.prototype.saveDatabase;
-
-// alias
-IndexedDBAdapter.prototype.deleteKey =
-  IndexedDBAdapter.prototype.deleteDatabase;
-
-// alias
-IndexedDBAdapter.prototype.getKeyList =
-  IndexedDBAdapter.prototype.getDatabaseList;
-
-/**
- * LokiCatalog - underlying App/Key/Value catalog persistence
- *    This non-interface class implements the actual persistence.
- *    Used by the IndexedDBAdapter class.
- */
-class SylvieCatalog {
-  db: IDBDatabase;
-  constructor(callback) {
-    this.db = null;
-    this.initializeLokiCatalog(callback);
-  }
-
-  initializeLokiCatalog(callback) {
-    const openRequest = indexedDB.open("SylvieCatalog", 1);
-    const cat = this;
-
-    // If database doesn't exist yet or its version is lower than our version specified above (2nd param in line above)
-    openRequest.onupgradeneeded = ({ target }) => {
-      const thisDB = (target as any).result;
-      if (thisDB.objectStoreNames.contains("SylvieAKV")) {
-        thisDB.deleteObjectStore("SylvieAKV");
-      }
-
-      if (!thisDB.objectStoreNames.contains("SylvieAKV")) {
-        const objectStore = thisDB.createObjectStore("SylvieAKV", {
-          keyPath: "id",
-          autoIncrement: true,
-        });
-        objectStore.createIndex("app", "app", { unique: false });
-        objectStore.createIndex("key", "key", { unique: false });
-        // hack to simulate composite key since overhead is low (main size should be in val field)
-        // user (me) required to duplicate the app and key into comma delimited appkey field off object
-        // This will allow retrieving single record with that composite key as well as
-        // still supporting opening cursors on app or key alone
-        objectStore.createIndex("appkey", "appkey", { unique: true });
-      }
-    };
-
-    openRequest.onsuccess = ({ target }) => {
-      cat.db = (target as any).result;
-
-      if (typeof callback === "function") callback(cat);
-    };
-
-    openRequest.onerror = (e) => {
-      throw e;
-    };
-  }
-
-  getAppKey(app, key, callback) {
-    const transaction = this.db.transaction(["SylvieAKV"], "readonly");
-    const store = transaction.objectStore("SylvieAKV");
-    const index = store.index("appkey");
-    const appkey = `${app},${key}`;
-    const request = index.get(appkey);
-
-    request.onsuccess = (
-      (usercallback) =>
-      ({ target }) => {
-        let lres = (target as any).result;
-
-        if (lres === null || typeof lres === "undefined") {
-          lres = {
-            id: 0,
-            success: false,
-          };
-        }
-
-        if (typeof usercallback === "function") {
-          usercallback(lres);
-        } else {
-          console.log(lres);
-        }
-      }
-    )(callback);
-
-    request.onerror = ((usercallback) => (e) => {
-      if (typeof usercallback === "function") {
-        usercallback({ id: 0, success: false });
-      } else {
-        throw e;
-      }
-    })(callback);
-  }
-
-  getAppKeyById(id, callback, data) {
-    const transaction = this.db.transaction(["SylvieAKV"], "readonly");
-    const store = transaction.objectStore("SylvieAKV");
-    const request = store.get(id);
-
-    request.onsuccess = (
-      (data, usercallback) =>
-      ({ target }) => {
-        if (typeof usercallback === "function") {
-          usercallback((target as any).result, data);
-        } else {
-          console.log((target as any).result);
-        }
-      }
-    )(data, callback);
-  }
-
-  setAppKey(app, key, val, callback) {
-    const transaction = this.db.transaction(["SylvieAKV"], "readwrite");
-    const store = transaction.objectStore("SylvieAKV");
-    const index = store.index("appkey");
-    const appkey = `${app},${key}`;
-    const request = index.get(appkey);
-
-    // first try to retrieve an existing object by that key
-    // need to do this because to update an object you need to have id in object, otherwise it will append id with new autocounter and clash the unique index appkey
-    request.onsuccess = ({ target }) => {
-      let res = (target as any).result;
-
-      if (res === null || res === undefined) {
-        res = {
-          app,
-          key,
-          appkey: `${app},${key}`,
-          val,
-        };
-      } else {
-        res.val = val;
-      }
-
-      const requestPut = store.put(res);
-
-      requestPut.onerror = ((usercallback) => (e) => {
-        if (typeof usercallback === "function") {
-          usercallback({ success: false });
-        } else {
-          console.error("SylvieCatalog.setAppKey (set) onerror");
-          console.error(request.error);
-        }
-      })(callback);
-
-      requestPut.onsuccess = ((usercallback) => (e) => {
-        if (typeof usercallback === "function") {
-          usercallback({ success: true });
-        }
-      })(callback);
-    };
-
-    request.onerror = ((usercallback) => (e) => {
-      if (typeof usercallback === "function") {
-        usercallback({ success: false });
-      } else {
-        console.error("SylvieCatalog.setAppKey (get) onerror");
-        console.error(request.error);
-      }
-    })(callback);
-  }
-
-  deleteAppKey(id, callback: (result: { success: boolean }) => void) {
-    const transaction = this.db.transaction(["SylvieAKV"], "readwrite");
-    const store = transaction.objectStore("SylvieAKV");
-    const request = store.delete(id);
-
-    request.onsuccess = ((usercallback) => (evt) => {
-      if (typeof usercallback === "function") usercallback({ success: true });
-    })(callback);
-
-    request.onerror = ((usercallback) => (evt) => {
-      if (typeof usercallback === "function") {
-        usercallback({ success: false });
-      } else {
-        console.error("SylvieCatalog.deleteAppKey raised onerror");
-        console.error(request.error);
-      }
-    })(callback);
-  }
-
-  getAppKeys(app, callback) {
-    const transaction = this.db.transaction(["SylvieAKV"], "readonly");
-    const store = transaction.objectStore("SylvieAKV");
-    const index = store.index("app");
-
-    // We want cursor to all values matching our (single) app param
-    const singleKeyRange = IDBKeyRange.only(app);
-
-    // To use one of the key ranges, pass it in as the first argument of openCursor()/openKeyCursor()
-    const cursor = index.openCursor(singleKeyRange);
-
-    // cursor internally, pushing results into this.data[] and return
-    // this.data[] when done (similar to service)
-    const localdata = [];
-
-    cursor.onsuccess = (
-      (data, callback) =>
-      ({ target }) => {
-        const cursor = target.result;
-        if (cursor) {
-          const currObject = cursor.value;
-
-          data.push(currObject);
-
-          cursor.continue();
-        } else {
-          if (typeof callback === "function") {
-            callback(data);
-          } else {
-            console.log(data);
-          }
-        }
-      }
-    )(localdata, callback);
-
-    cursor.onerror = ((usercallback) => (e) => {
-      if (typeof usercallback === "function") {
-        usercallback(null);
-      } else {
-        console.error("SylvieCatalog.getAppKeys raised onerror");
-        console.error(e);
-      }
-    })(callback);
-  }
-
-  // Hide 'cursoring' and return array of { id: id, key: key }
-  getAllKeys(callback) {
-    const transaction = this.db.transaction(["SylvieAKV"], "readonly");
-    const store = transaction.objectStore("SylvieAKV");
-    const cursor = store.openCursor();
-
-    const localdata = [];
-
-    cursor.onsuccess = (
-      (data, callback) =>
-      ({ target }) => {
-        const cursor = target.result;
-        if (cursor) {
-          const currObject = cursor.value;
-
-          data.push(currObject);
-
-          cursor.continue();
-        } else {
-          if (typeof callback === "function") {
-            callback(data);
-          } else {
-            console.log(data);
-          }
-        }
-      }
-    )(localdata, callback);
-
-    cursor.onerror = ((usercallback) => (e) => {
-      if (typeof usercallback === "function") usercallback(null);
-    })(callback);
-  }
+  };
 }
 
 if (typeof window !== "undefined") {
-  Object.assign(window, { IndexedDBAdapter: IndexedDBAdapter });
+  Object.assign(window, {
+    IndexedDBAdapter: IndexedDBAdapter,
+  });
 }

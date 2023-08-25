@@ -1,6 +1,6 @@
 import { CloneMethods } from "../utils/clone";
 import { DynamicView, DynamicViewOptions } from "./dynamic-view";
-import { ChangeOps } from "./sylvie";
+import { ChangeOps } from "./sylvie/change-ops";
 import { SylvieEventEmitter } from "./sylvie-event-emitter";
 import { ResultSet } from "./result-set";
 import { ExactIndex } from "./indexes/exact-index";
@@ -66,7 +66,7 @@ export type BinaryIndex = Record<string, {
  * @param {string} [options.cloneMethod='parse-stringify'] - 'parse-stringify', 'jquery-extend-deep', 'shallow', 'shallow-assign'
  * @param {int=} options.ttl - age of document (in ms.) before document is considered aged/stale.
  * @param {int=} options.ttlInterval - time interval for clearing out 'aged' documents; not set by default.
- * @see {@link Loki#addCollection} for normal creation of collections
+ * @see {@link Sylvie#addCollection} for normal creation of collections
  */
 export declare class Collection<ColT extends Partial<CollectionDocument>> extends SylvieEventEmitter {
     data: ColT[];
@@ -313,7 +313,7 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      *
      * var results = pview.data();
      **/
-    addDynamicView(name?: string, options?: Partial<DynamicViewOptions>): any;
+    addDynamicView(name?: string, options?: Partial<DynamicViewOptions>): DynamicView<ColT>;
     /**
      * Remove a dynamic view from the collection
      * @param {string} name - name of dynamic view to remove

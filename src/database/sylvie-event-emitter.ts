@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-this-alias */
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable no-var */
 "use strict";
 /**
  * LokiEventEmitter is a minimalist version of EventEmitter. It enables any
@@ -9,7 +6,6 @@
  *
  * @constructor LokiEventEmitter
  */
-// function LokiEventEmitter() {}
 export class SylvieEventEmitter {
   save: any;
 
@@ -25,7 +21,6 @@ export class SylvieEventEmitter {
     listener: F,
   ): F {
     let event;
-    var self = this;
 
     if (Array.isArray(eventName)) {
       eventName.forEach((currentEventName) => {
@@ -62,7 +57,6 @@ export class SylvieEventEmitter {
    */
   emit(eventName: string, data?: unknown, arg?: any): void {
     let selfArgs;
-    var self = this;
 
     if (eventName && this.events[eventName]) {
       if (this.events[eventName].length) {
@@ -71,10 +65,10 @@ export class SylvieEventEmitter {
         this.events[eventName].forEach((listener) => {
           if (this.asyncListeners) {
             setTimeout(() => {
-              listener.apply(self, selfArgs);
+              listener.apply(this, selfArgs);
             }, 1);
           } else {
-            listener.apply(self, selfArgs);
+            listener.apply(this, selfArgs);
           }
         });
       }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import Sylvie from "../../src/sylviejs";
 import { CryptedIndexedDBAdapter } from "../../src/storage-adapter/crypted-indexeddb-adapter";
 
@@ -342,7 +341,7 @@ describe("CryptedIndexedDBAdapter", function () {
     // Save the database
     db.saveDatabase(function () {
       // Verify that the database is closed
-      expect(adapter.catalog.db).toBeNull();
+      expect(adapter.idbAdapter.catalog.db).toBeNull();
       done();
     });
   });
@@ -363,7 +362,7 @@ describe("CryptedIndexedDBAdapter", function () {
     // Save the database
     db.saveDatabase(function () {
       // Verify that the database is closed
-      expect(adapter.catalog.db).not.toBeNull();
+      expect(adapter.idbAdapter.catalog.db).not.toBeNull();
       done();
     });
   });
@@ -385,7 +384,7 @@ describe("CryptedIndexedDBAdapter", function () {
     // Save the database
     await db.saveDatabaseAsync();
     // Verify that the database is closed
-    expect(adapter.catalog.db).toBeNull();
+    expect(adapter.idbAdapter.catalog.db).toBeNull();
   });
 
   it("passing 'closeAfterSave' = false option to Crypted constructor should close the database after saveDatabaseAsync()", async function () {
@@ -404,7 +403,7 @@ describe("CryptedIndexedDBAdapter", function () {
     // Save the database
     await db.saveDatabaseAsync();
     // Verify that the database is closed
-    expect(adapter.catalog.db).not.toBeNull();
+    expect(adapter.idbAdapter.catalog.db).not.toBeNull();
   });
 
   it("loadDatabaseAsync() should work", async function () {

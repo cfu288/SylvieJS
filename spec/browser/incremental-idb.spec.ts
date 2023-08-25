@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import Sylvie from "../../src/sylviejs";
-import { Collection, CollectionDocument } from "../../src/database/collection";
+import Collection from "../../src/database/collection";
+import { CollectionDocument } from "../../src/database/collection/collection-document";
 import { PersistenceAdapter } from "../../src/storage-adapter/src/models/persistence-adapter";
 import { IncrementalIndexedDBAdapter } from "../../src/storage-adapter/incremental-indexeddb-adapter";
 const loki = Sylvie;

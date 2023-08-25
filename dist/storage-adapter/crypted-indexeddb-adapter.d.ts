@@ -1,6 +1,7 @@
-import { IDBCatalog } from "./src/crypted-indexeddb-adapter/idb-catalog";
 import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
 import { AsyncPersistenceAdapter } from "./src/models/async-persistence-adapter";
+import { IndexedDBAdapter } from "./indexeddb-adapter";
+import { PersistenceAdapterCallback } from "./src/models/persistence-adapter-callback";
 interface CryptedIndexedDBAdapterOptions {
     appname: string;
     closeAfterSave: boolean;
@@ -24,8 +25,8 @@ export declare class CryptedIndexedDBAdapter implements NormalPersistenceAdapter
     isAsync: true;
     app: string;
     options: Partial<CryptedIndexedDBAdapterOptions>;
-    catalog: IDBCatalog;
     mode: "normal";
+    idbAdapter: IndexedDBAdapter;
     /**
      * Create a CryptedIndexedDBAdapter.
      * @param {CryptedIndexedDBAdapterOptions} options Configuration options for the adapter
@@ -101,12 +102,7 @@ export declare class CryptedIndexedDBAdapter implements NormalPersistenceAdapter
      * @param {string} dbstring - the serialized db string to save.
      * @param {function} callback - (Optional) callback passed obj.success with true or false
      */
-    saveDatabase: (dbname: string, dbstring: string, callback?: (err: Error | {
-        success: true;
-    } | {
-        success: false;
-        error: Error;
-    }) => void) => void;
+    saveDatabase: (dbname: string, dbstring: string, callback?: PersistenceAdapterCallback) => void;
     saveDatabaseAsync(dbname: string, dbstring: string): Promise<void>;
     /**
      * Deletes a serialized db from the catalog.
@@ -122,12 +118,7 @@ export declare class CryptedIndexedDBAdapter implements NormalPersistenceAdapter
      * @param {function=} callback - (Optional) executed on database delete
      * @memberof SylvieIndexedAdapter
      */
-    deleteDatabase: (dbname: string, callback?: (_: Error | {
-        success: true;
-    } | {
-        success: false;
-        error: Error;
-    }) => any) => void;
+    deleteDatabase: (dbname: string, callback?: PersistenceAdapterCallback) => void;
     deleteDatabaseAsync(dbname: string): Promise<void>;
     /**
      * Changes the password of a database and re-encrypts the database with the new password.
