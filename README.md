@@ -62,10 +62,10 @@ You can use the `sylvie.js` file found in the `dist/` folder or use the file fou
     <h1>SylvieJS Examples</h1>
     <p>Open up the console and see it happen!</p>
     <script type="text/javascript">
-      var script = document.querySelector("#sylvie");
+      const script = document.querySelector("#sylvie");
       script.addEventListener("load", function () {
         // Do stuff with Sylvie
-        var db = new Sylvie("example.db");
+        const db = new Sylvie("example.db");
       });
     </script>
   </body>
