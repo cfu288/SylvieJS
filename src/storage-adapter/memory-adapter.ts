@@ -19,14 +19,14 @@
  * @constructor LokiMemoryAdapter
  */
 
-import { BasicPersistenceAdapter } from "./src/models/persistence-adapter";
+import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
 
 interface MemoryAdapterOptions {
   asyncResponses: boolean;
   asyncTimeout: number;
 }
 
-export class MemoryAdapter implements BasicPersistenceAdapter {
+export class MemoryAdapter implements NormalPersistenceAdapter {
   mode: "normal";
   hashStore: Record<string, any>;
   options: Partial<MemoryAdapterOptions>;

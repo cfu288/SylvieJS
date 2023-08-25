@@ -2,7 +2,7 @@
   Sylvie IndexedDb Adapter (need to include this script to use it)
 */
 import { IDBCatalog } from "./src/indexeddb-adapter/idb-catalog";
-import { BasicPersistenceAdapter } from "./src/models/persistence-adapter";
+import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
 import { AsyncPersistenceAdapter } from "./src/models/async-persistence-adapter";
 
 // @ts-ignore
@@ -48,7 +48,7 @@ interface IndexedDBAdapterOptions {
  *
  */
 export class IndexedDBAdapter
-  implements BasicPersistenceAdapter, AsyncPersistenceAdapter
+  implements NormalPersistenceAdapter, AsyncPersistenceAdapter
 {
   isAsync: true;
   app: string;

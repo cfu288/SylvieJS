@@ -12,7 +12,6 @@ export declare class IDBCatalog {
      * Asynchronously initializes the catalog the database after creation. Must be run after the database is constructed but before using the database.
      */
     initialize(): Promise<IDBCatalog>;
-    openCatalog(): IDBOpenDBRequest;
     getAppKeyAsync(app: any, key: any): Promise<{
         app: string;
         appkey: string;
@@ -28,6 +27,5 @@ export declare class IDBCatalog {
     getAppKeysAsync(app: any): Promise<{
         key: string;
     }[]>;
-    getAppKeys(app: any, callback: any): void;
     getAllKeys(callback: any): void;
 }
