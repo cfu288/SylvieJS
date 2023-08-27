@@ -59,16 +59,11 @@ export class FsStructuredAdapter implements ReferencePersistenceAdapter {
       .readdir(".")
       .then((files) => {
         for (const file of files) {
-          if (file.startsWith(dbName) + ".") {
-            fsPromise
-              .unlink(file)
-              .then(() => {
-                console.log(`Deleted ${file}`);
-              })
-              .catch((err) => {
-                callback(err);
-                return;
-              });
+          if (file === dbName || file.startsWith(dbName + ".") === true) {
+            fsPromise.unlink(file).catch((err) => {
+              callback(err);
+              return;
+            });
           }
         }
         callback({ success: true });
@@ -96,7 +91,6 @@ export class FsStructuredAdapter implements ReferencePersistenceAdapter {
 
     this.dbref = null;
 
-    console.log(`Loading database ${dbname}`);
     // make sure file exists
     fsPromise
       .stat(dbname)
