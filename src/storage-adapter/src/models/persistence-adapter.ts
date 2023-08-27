@@ -15,7 +15,7 @@ export interface NormalPersistenceAdapter {
   deleteDatabase(dbname: string, callback: PersistenceAdapterCallback): void;
   saveDatabase(
     dbname: string,
-    dbstring: any,
+    dbstring: string,
     callback?: PersistenceAdapterCallback,
   ): void;
 }
@@ -26,23 +26,21 @@ export interface IncrementalPersistenceAdapter {
   deleteDatabase(dbname: string, callback: PersistenceAdapterCallback): void;
   saveDatabase(
     dbname: string,
-    dbstring: any,
+    dbref: () => Sylvie,
     callback?: PersistenceAdapterCallback,
   ): void;
 }
 
 export interface ReferencePersistenceAdapter {
   mode: "reference";
-  loadDatabase(dbname: string, callback: (value: string | Error) => void): void;
-  deleteDatabase(dbname: string, callback: PersistenceAdapterCallback): void;
-  saveDatabase(
+  loadDatabase(
     dbname: string,
-    dbstring: any,
-    callback?: PersistenceAdapterCallback,
+    callback: (value: string | Error | Sylvie) => void,
   ): void;
+  deleteDatabase(dbname: string, callback: PersistenceAdapterCallback): void;
   exportDatabase(
     dbname: string,
-    dbref: typeof Sylvie,
+    dbref: Sylvie,
     callback?: PersistenceAdapterCallback,
   ): void;
 }
