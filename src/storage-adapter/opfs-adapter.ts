@@ -72,6 +72,7 @@ export class OPFSAdapter implements NormalPersistenceAdapter {
           .getFileHandle(dbname, { create: true })
           .then((fileHandle) => {
             fileHandle
+              // @ts-ignore
               .createWritable()
               .then((writeFileHandle) => {
                 writeFileHandle

@@ -116,7 +116,7 @@ describe("OPFSAdapter", function () {
     expect(db.collections[0].data.length).toBe(2);
 
     // Save the database and try reloading it
-    const res = await new Promise<string | Error>((resolve) => {
+    const res = await new Promise<Error | ResultType>((resolve) => {
       db.saveDatabase((_) => resolve(_));
     });
     expect(res instanceof Error).toBe(false);
@@ -223,9 +223,10 @@ describe("OPFSAdapter", function () {
       adapter,
     });
 
-    let fs = await navigator.storage.getDirectory();
+    const fs = await navigator.storage.getDirectory();
     // list all files in directory
     const files = [];
+    // @ts-ignore
     for await (const name of fs.keys()) {
       files.push(name);
     }
@@ -239,6 +240,7 @@ describe("OPFSAdapter", function () {
     });
 
     const newFiles = [];
+    // @ts-ignore
     for await (const name of fs.keys()) {
       newFiles.push(name);
     }
@@ -266,8 +268,9 @@ describe("OPFSAdapter", function () {
     expect(db.collections[0].data.length).toBe(2);
 
     // need to save db in order to delete
-    let fs = await navigator.storage.getDirectory();
+    const fs = await navigator.storage.getDirectory();
     const files = [];
+    // @ts-ignore
     for await (const name of fs.keys()) {
       files.push(name);
     }
@@ -280,6 +283,7 @@ describe("OPFSAdapter", function () {
     });
 
     const newFiles = [];
+    // @ts-ignore
     for await (const name of fs.keys()) {
       newFiles.push(name);
     }
@@ -292,6 +296,7 @@ describe("OPFSAdapter", function () {
     });
 
     const newFiles1 = [];
+    // @ts-ignore
     for await (const name of fs.keys()) {
       newFiles1.push(name);
     }
