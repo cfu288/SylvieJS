@@ -129,7 +129,7 @@ describe("CryptedIndexedDBAdapter", function () {
       expect(errorMessage).toBeFalsy();
       collection.clear();
       db.loadDatabase({}, function (loadErrorMessage) {
-        expect(loadErrorMessage).toBeFalsy();
+        expect(loadErrorMessage).toBe(null);
         // Verify the database contents
         const newCollection = db.getCollection("items");
         const docs = newCollection.find();
@@ -210,7 +210,7 @@ describe("CryptedIndexedDBAdapter", function () {
         adapter: newAdapter,
       });
       newDb.loadDatabase({}, function (loadErrorMessage) {
-        expect(loadErrorMessage).toBeFalsy();
+        expect(loadErrorMessage).toBe(null);
         // Verify the database contents
         const newCollection = newDb.getCollection("items");
         const docs = newCollection.find();

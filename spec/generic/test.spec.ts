@@ -1440,7 +1440,7 @@ describe("loki", function () {
       );
 
       // View data copy strict equality
-      expect(view.resultset === view.resultset.copy()).toBeFalsy();
+      expect(view.resultset === view.resultset.copy()).toBe(false);
     });
   });
 
@@ -1505,7 +1505,7 @@ describe("loki", function () {
       }
 
       // now verify they are not exactly equal (verify sort moved stuff)
-      expect(JSON.stringify(frcopy) === JSON.stringify(frcopy2)).toBeFalsy();
+      expect(JSON.stringify(frcopy) === JSON.stringify(frcopy2)).toBe(false);
     });
   });
 

@@ -3,7 +3,7 @@
 */
 import { IDBCatalog } from "./src/indexeddb-adapter/idb-catalog";
 import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
-import { AsyncPersistenceAdapter } from "./src/models/async-persistence-adapter";
+import { NormalAsyncPersistenceAdapter } from "./src/models/async-persistence-adapter";
 
 // @ts-ignore
 const DEBUG = typeof window !== "undefined" && !!window.__loki_idb_debug;
@@ -17,7 +17,7 @@ if (!window.crypto.subtle) {
   throw new Error("Required crypto lib is not available");
 }
 
-interface IndexedDBAdapterOptions {
+type IndexedDBAdapterOptions = {
   // (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
   appname: string;
   // Whether the indexedDB database should be closed after saving.
@@ -27,14 +27,14 @@ interface IndexedDBAdapterOptions {
    * @param databaseSerialized - The serialized string dump from Sylvie.
    * @returns The raw string to be written to IndexedDB.
    */
-  beforeWrite: (databaseSerialized: string) => Promise<string>;
+  beforeWriteToIDB: (databaseSerialized: string) => Promise<string>;
   /**
    *  An optional function hook that is called after the database is read from IndexedDB but before it is loaded into Sylvie. Use this to deserialize the string if you used the beforeWrite hook.
    * @param rawString The raw string read from IndexedDB.
    * @returns The deserialized string to be loaded into Sylvie.
    */
-  beforeRead: (rawString: string) => Promise<string>;
-}
+  beforeReadFromIDB: (rawString: string) => Promise<string>;
+};
 
 /**
  * Loki/Sylvie encrypted persistence adapter class for indexedDb.
@@ -48,7 +48,7 @@ interface IndexedDBAdapterOptions {
  *
  */
 export class IndexedDBAdapter
-  implements NormalPersistenceAdapter, AsyncPersistenceAdapter
+  implements NormalPersistenceAdapter, NormalAsyncPersistenceAdapter
 {
   isAsync: true;
   app: string;
@@ -58,9 +58,11 @@ export class IndexedDBAdapter
 
   /**
    * Create a IndexedDBAdapter.
-   * @param {IndexedDBAdapterOptions} options Configuration options for the adapter
-   * @param {string} options.appname - (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
-   * @param {boolean} options.closeAfterSave Whether the indexedDB database should be closed after saving.
+   * @param {string} appname - (Optional) Application name context can be used to distinguish subdomains, 'sylvie' by default
+   * @param {object=} options - (Optional) configuration options for adapter
+   * @param {boolean} [options.closeAfterSave=false] - (Optional) whether the indexedDB database should be closed after saving.
+   * @param {function} [options.beforeWriteToIDB] - (Optional) an optional function hook that is called before the database is written to IndexedDB. Use this to modify the raw string before it is written to disk. If you use this, you must also pass beforeRead.
+   * @param {function} [options.beforeReadFromIDB] - (Optional) an optional function hook that is called after the database is read from IndexedDB but before it is loaded into Sylvie. Use this to deserialize the string if you used the beforeWrite hook.
    */
   constructor(options?: Partial<IndexedDBAdapterOptions>) {
     DEBUG && console.log("Initialized crypted-indexeddb-adapter");
@@ -117,7 +119,7 @@ export class IndexedDBAdapter
    */
   loadDatabase = (
     dbname: string,
-    callback: (serialized: string) => void,
+    callback: (serialized: string | null) => void,
   ): void => {
     DEBUG && console.debug("loading database");
 
@@ -140,9 +142,9 @@ export class IndexedDBAdapter
           callback(null);
         } else {
           const { val: unserializedString } = props as { val: string };
-          if (this.options.beforeRead) {
+          if (this.options.beforeReadFromIDB) {
             this.options
-              .beforeRead(unserializedString)
+              .beforeReadFromIDB(unserializedString)
               .then((deserializedString) => {
                 DEBUG &&
                   console.debug(`DESERIALIZED STRING: ${deserializedString}`);
@@ -197,9 +199,9 @@ export class IndexedDBAdapter
           } else {
             const { val } = props as { val: string };
             const unserializedString = val;
-            if (this.options.beforeRead) {
+            if (this.options.beforeReadFromIDB) {
               this.options
-                .beforeRead(unserializedString)
+                .beforeReadFromIDB(unserializedString)
                 .then((deserializedString) => {
                   DEBUG &&
                     console.debug(`DESERIALIZED STRING: ${deserializedString}`);
@@ -259,9 +261,9 @@ export class IndexedDBAdapter
       console.debug(`in saveDatabase(${dbname}, ${dbstring}, ${callback})`);
 
     const doSave = () => {
-      if (this.options.beforeWrite) {
+      if (this.options.beforeWriteToIDB) {
         this.options
-          .beforeWrite(dbstring)
+          .beforeWriteToIDB(dbstring)
           .then((serializedString) => {
             // lazy open/create db reference so dont -need- callback in constructor
             DEBUG && console.debug(`SERIALIZED STRING: ${serializedString}`);
@@ -322,9 +324,9 @@ export class IndexedDBAdapter
   async saveDatabaseAsync(dbname: string, dbstring: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const doSave = () => {
-        if (this.options.beforeWrite) {
+        if (this.options.beforeWriteToIDB) {
           this.options
-            .beforeWrite(dbstring)
+            .beforeWriteToIDB(dbstring)
             .then((encryptedDbString) => {
               // lazy open/create db reference so dont -need- callback in constructor
               DEBUG && console.debug(`ENCRYPTED STRING: ${encryptedDbString}`);

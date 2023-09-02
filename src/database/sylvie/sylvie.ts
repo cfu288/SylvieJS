@@ -1308,7 +1308,7 @@ export default class Sylvie extends SylvieEventEmitter {
   loadDatabaseInternal = (
     options,
     callback?: (
-      _: Error | { success: true } | { success: false; error: Error },
+      _: Error | { success: true } | { success: false; error: Error } | null,
     ) => void,
   ) => {
     const cFun =
@@ -1401,7 +1401,8 @@ export default class Sylvie extends SylvieEventEmitter {
    * @param {boolean} options.recursiveWait - (default: true) wait recursively until no saves are queued
    * @param {bool} options.recursiveWaitLimit - (default: false) limit our recursive waiting to a duration
    * @param {int} options.recursiveWaitLimitDelay - (default: 2000) cutoff in ms to stop recursively re-draining
-   * @param {function=} callback - (Optional) user supplied async callback / error handler
+   * @param {function=} callback - (Optional) user supplied async callback / error handler. Note on success, the 
+   * callback param will be null or { success: true }, on error it will be typeof Error or { success: false, error: Error }
 
    * @example
    * db.loadDatabase({}, function(err) {
@@ -1419,7 +1420,7 @@ export default class Sylvie extends SylvieEventEmitter {
       recursiveWaitLimitDelay?: boolean;
     },
     callback?: (
-      _: Error | { success: true } | { success: false; error: Error },
+      _: Error | null | { success: true } | { success: false; error: Error },
     ) => void,
   ) {
     const self = this;
@@ -1650,7 +1651,7 @@ export default class Sylvie extends SylvieEventEmitter {
    *     console.log("database saved.");
    *   }
    * });   */
-  saveDatabase(callback?: (_: string | Error) => any) {
+  saveDatabase(callback?: (_: ResultType | Error | null) => void) {
     if (!this.throttledSaves) {
       this.saveDatabaseInternal(callback);
       return;

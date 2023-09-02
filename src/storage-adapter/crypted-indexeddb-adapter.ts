@@ -3,7 +3,7 @@
 */
 import { decryptData, encryptData } from "./src/utils/string-encryption-utils";
 import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
-import { AsyncPersistenceAdapter } from "./src/models/async-persistence-adapter";
+import { NormalAsyncPersistenceAdapter } from "./src/models/async-persistence-adapter";
 import { IndexedDBAdapter } from "./indexeddb-adapter";
 import { PersistenceAdapterCallback } from "./src/models/persistence-adapter-callback";
 
@@ -39,7 +39,7 @@ interface CryptedIndexedDBAdapterOptions {
  *
  */
 export class CryptedIndexedDBAdapter
-  implements NormalPersistenceAdapter, AsyncPersistenceAdapter
+  implements NormalPersistenceAdapter, NormalAsyncPersistenceAdapter
 {
   isAsync: true;
   app: string;
@@ -72,10 +72,10 @@ export class CryptedIndexedDBAdapter
 
     this.idbAdapter = new IndexedDBAdapter({
       ...options,
-      beforeRead(rawString) {
+      beforeReadFromIDB(rawString) {
         return decryptData(rawString, self.#secret);
       },
-      beforeWrite(dbString) {
+      beforeWriteToIDB(dbString) {
         return encryptData(dbString, self.#secret);
       },
     });

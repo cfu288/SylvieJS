@@ -1,7 +1,13 @@
 import { esbuildPlugin } from "@web/dev-server-esbuild";
 
 export default {
-  plugins: [esbuildPlugin({ ts: true, target: "auto", externals: ["fs/promises"] })],
+  plugins: [
+    esbuildPlugin({
+      ts: true,
+      target: "auto",
+      externals: ["fs/promises", "fs"],
+    }),
+  ],
   testRunnerHtml: (testFramework) => `
       <html>
             <head>
@@ -12,7 +18,8 @@ export default {
       `,
   files: [
     "**/*.spec.ts", // include `.spec.ts` files
-    "!**/node/*.spec.ts", // exclude `.e2e.spec.ts` files
+    "!**/node/*.spec.ts",
+    "!**/*.skipsafari.spec.ts",
     "!**/node_modules/**/*", // exclude any node modules
   ],
 };

@@ -55,11 +55,11 @@ describe("IncrementalIndexedDBAdapter", function () {
     checkDatabaseCopyIntegrity(db, JSON.parse(db.serialize()));
 
     // this should throw
-    // expect(function () {
-    //   var copy = db.copy();
-    //   copy.collections[0].data.push({ hello: '!'})
-    //   checkDatabaseCopyIntegrity(db, copy);
-    // }).toThrow();
+    expect(function () {
+      const copy = db.copy();
+      copy.collections[0].data.push({ hello: "!" });
+      checkDatabaseCopyIntegrity(db, copy);
+    }).toThrow();
   });
   it("basic save and loading works (6 records)", function (done) {
     const adapter = new IncrementalIndexedDBAdapter();

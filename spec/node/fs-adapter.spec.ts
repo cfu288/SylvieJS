@@ -1,6 +1,7 @@
 import { FsAdapter } from "../../src/storage-adapter/fs-adapter";
 import { randomUUID } from "node:crypto";
 import Sylvie from "../../src/sylviejs";
+import fs from "node:fs/promises";
 
 describe("FsAdapter", function () {
   it("initializes Sylvie properly", async function () {
@@ -36,7 +37,7 @@ describe("FsAdapter", function () {
     expect(db.collections.length).toBe(1);
   });
 
-  it("can save database", async function () {
+  it("can load, save, and delete database", async function () {
     const adapter = new FsAdapter();
     const TEST_DB_NAME = `fs_test_${randomUUID()}.db`;
     const db = new Sylvie(TEST_DB_NAME, {
@@ -53,13 +54,22 @@ describe("FsAdapter", function () {
       },
     ]);
 
+    // Expect database to not exist in fs
+    let files = await fs.readdir(".");
+    expect(files).not.toContain(TEST_DB_NAME);
+
     await db.saveDatabaseAsync();
+
+    // Expect database to exist in fs
+    files = await fs.readdir(".");
+    expect(files).toContain(TEST_DB_NAME);
 
     const newAdapter = new FsAdapter();
     const newDb = new Sylvie(TEST_DB_NAME, {
       adapter: newAdapter,
     });
 
+    // Load new instance of database from fs
     await newDb.loadDatabaseAsync();
     expect(newDb.collections.length).toBe(1);
 
@@ -74,6 +84,10 @@ describe("FsAdapter", function () {
     try {
       await db.closeAsync();
       await db.deleteDatabaseAsync();
+
+      // Expect database to not exist in fs
+      const files = await fs.readdir(".");
+      expect(files).not.toContain(TEST_DB_NAME);
     } catch (e) {
       expect(e).toBeUndefined();
     }

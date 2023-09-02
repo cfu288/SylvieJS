@@ -6,12 +6,22 @@ import Sylvie from "../../../database/sylvie";
  * that an adapter can choose to implement both SyncPersistenceAdapter and AsyncPersistenceAdapter if
  * backwards compatibility is desired. Sylvie will choose to use the async version isAsync is set.
  */
+export type AsyncPersistenceAdapter =
+  | NormalAsyncPersistenceAdapter
+  | ReferenceAsyncPersistenceAdapter;
 
-export interface AsyncPersistenceAdapter {
+export interface NormalAsyncPersistenceAdapter {
   isAsync: true;
-  mode?: "normal" | "reference" | "incremental";
+  mode?: "normal";
   loadDatabaseAsync(dbname: string): Promise<string>;
   deleteDatabaseAsync(dbname: string): Promise<void>;
   saveDatabaseAsync(dbname: string, dbstring: string): Promise<void>;
-  exportDatabaseAsync?(dbname: string, dbref: typeof Sylvie): Promise<void>;
+}
+
+export interface ReferenceAsyncPersistenceAdapter {
+  isAsync: true;
+  mode: "reference";
+  loadDatabaseAsync(dbname: string): Promise<string | Sylvie>;
+  deleteDatabaseAsync(dbname: string): Promise<void>;
+  exportDatabaseAsync(dbname: string, dbref: Sylvie): Promise<void>;
 }
