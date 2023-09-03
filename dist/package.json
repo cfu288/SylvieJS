@@ -1,6 +1,6 @@
 {
   "name": "sylviejs",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "SylvieJS: Fast document oriented javascript in-memory database",
   "homepage": "https://cfu288.github.io/SylvieJS/",
   "main": "sylviejs.js",
@@ -29,7 +29,7 @@
     "test:browser": "web-test-runner --node-resolve --playwright --browsers chromium firefox webkit",
     "test:browser-only": "web-test-runner spec/browser/**/*.spec.ts !**/*.skipsafari.spec.ts --node-resolve --playwright --browsers chromium firefox webkit",
     "test:browser-only:skip-safari": "web-test-runner **/*.skipsafari.spec.ts --node-resolve --playwright --browsers chromium firefox",
-    "test:node-only": "jest --config jest.config.ts spec/node/**/*.spec.ts --silent=false",
+    "test:node-only": "jest --config jest.config.ts spec/node/*.spec.ts --silent=false",
     "test:node": "jest --config jest.config.ts spec/**/*.spec.ts --silent=false",
     "pretest": "npm run build:only",
     "test": "npm run test:node && npm run test:browser && npm run test:browser-only:skip-safari",
