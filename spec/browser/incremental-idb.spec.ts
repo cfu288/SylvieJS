@@ -22,7 +22,7 @@ describe("IncrementalIndexedDBAdapter", function () {
     });
   }
 
-  it("initializes Loki properly", function () {
+  it("initializes Sylvie/Loki properly", function () {
     const adapter =
       new IncrementalIndexedDBAdapter() as unknown as PersistenceAdapter;
     const db = new loki("incremental_idb_tester", {
@@ -61,6 +61,7 @@ describe("IncrementalIndexedDBAdapter", function () {
       checkDatabaseCopyIntegrity(db, copy);
     }).toThrow();
   });
+
   it("basic save and loading works (6 records)", function (done) {
     const adapter = new IncrementalIndexedDBAdapter();
     const source = new loki("incremental_idb_tester", { adapter: adapter });

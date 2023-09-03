@@ -9,12 +9,7 @@ import { NormalAsyncPersistenceAdapter } from "./src/models/async-persistence-ad
 const DEBUG = typeof window !== "undefined" && !!window.__loki_idb_debug;
 
 if (DEBUG) {
-  console.log("DEBUG: Running crypted-indexeddb-adapter in DEBUG mode");
-}
-
-if (!window.crypto.subtle) {
-  alert("Required crypto lib is not available, are you using SSL?");
-  throw new Error("Required crypto lib is not available");
+  console.log("DEBUG: Running indexeddb-adapter in DEBUG mode");
 }
 
 type IndexedDBAdapterOptions = {

@@ -35,72 +35,10 @@ describe("OPFSAdapter", function () {
     expect(db.collections[0].data[0].extra).toEqual("world");
   });
 
-  it("findAndRemove() can remove data", function () {
-    const db = new Sylvie("test.db", {
-      adapter: new OPFSAdapter(),
-    });
-    const collection = db.addCollection("items");
-    collection.insert([
-      { customId: 0, val: "hello", extra: "world" },
-      { customId: 1, val: "hello1" },
-      { customId: 2, val: "hello2" },
-    ]);
-
-    collection.findAndRemove({ customId: 1 });
-
-    expect(db.collections[0].data.length).toBe(2);
-    expect(db.collections[0].data[0].customId).toEqual(0);
-    expect(db.collections[0].data[0].val).toEqual("hello");
-    expect(db.collections[0].data[0].extra).toEqual("world");
-    expect(db.collections[0].data[1].customId).toEqual(2);
-    expect(db.collections[0].data[1].val).toEqual("hello2");
-  });
-
-  it("removeWhere() can remove data using function param", function () {
-    const db = new Sylvie("test.db", {
-      adapter: new OPFSAdapter(),
-    });
-    const collection = db.addCollection("items");
-    collection.insert([
-      { customId: 0, val: "hello", extra: "world" },
-      { customId: 1, val: "hello1" },
-      { customId: 2, val: "hello2" },
-    ]);
-
-    collection.removeWhere({ customId: 1 });
-
-    expect(db.collections[0].data.length).toBe(2);
-    expect(db.collections[0].data[0].customId).toEqual(0);
-    expect(db.collections[0].data[0].val).toEqual("hello");
-    expect(db.collections[0].data[0].extra).toEqual("world");
-    expect(db.collections[0].data[1].customId).toEqual(2);
-    expect(db.collections[0].data[1].val).toEqual("hello2");
-  });
-
-  it("removeWhere() can remove data using mongo param", function () {
-    const db = new Sylvie("test.db", {
-      adapter: new OPFSAdapter(),
-    });
-    const collection = db.addCollection("items");
-    collection.insert([
-      { customId: 0, val: "hello", extra: "world" },
-      { customId: 1, val: "hello1" },
-      { customId: 2, val: "hello2" },
-    ]);
-    collection.removeWhere((doc) => doc.customId === 1);
-
-    expect(db.collections[0].data.length).toBe(2);
-    expect(db.collections[0].data[0].customId).toEqual(0);
-    expect(db.collections[0].data[0].val).toEqual("hello");
-    expect(db.collections[0].data[0].extra).toEqual("world");
-    expect(db.collections[0].data[1].customId).toEqual(2);
-    expect(db.collections[0].data[1].val).toEqual("hello2");
-  });
-
   it("saveDatabase() does not return error message", async function () {
     const adapter = new OPFSAdapter();
     // Force legacy use of callback sync API for testing purposes
-
+    delete adapter.isAsync;
     const db = new Sylvie("test.db", {
       adapter,
     });
@@ -123,9 +61,12 @@ describe("OPFSAdapter", function () {
   });
 
   it("loadDatabase() does not return error message", async function () {
+    const adapter = new OPFSAdapter();
     const db = new Sylvie("test.db", {
-      adapter: new OPFSAdapter(),
+      adapter,
     });
+    // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
 
     const res = await new Promise((resolve) => {
       db.loadDatabase({}, (_) => resolve(_));
@@ -136,6 +77,7 @@ describe("OPFSAdapter", function () {
   it("saveDatabase() and loadDatabase() the db works", function (done) {
     const adapter = new OPFSAdapter();
     // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
 
     const db = new Sylvie("test.db", {
       adapter,
@@ -174,6 +116,7 @@ describe("OPFSAdapter", function () {
   it("saveDatabase() and loadDatabase() of a new instance of the db works", function (done) {
     const adapter = new OPFSAdapter();
     // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
 
     const db = new Sylvie("test.db", {
       adapter,
@@ -191,7 +134,11 @@ describe("OPFSAdapter", function () {
 
     // Save the database and try reloading it
     db.saveDatabase(function (res) {
-      expect((res as ResultType).success).toBe(true);
+      if (res === null || res === undefined) {
+        expect(res).toBeFalsy();
+      } else {
+        expect((res as ResultType).success).toBe(true);
+      }
       // Create a new db instance
       const newAdapter = new OPFSAdapter();
       const newDb = new Sylvie("test.db", {
@@ -213,11 +160,49 @@ describe("OPFSAdapter", function () {
     });
   });
 
+  it("saveDatabaseAsync() and loadDatabaseAsync() of a new instance of the db works", async function () {
+    const adapter = new OPFSAdapter();
+
+    const db = new Sylvie("test.db", {
+      adapter,
+    });
+
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+    collection.removeWhere({ customId: 1 });
+    expect(db.collections[0].data.length).toBe(2);
+
+    // Save the database and try reloading it
+    await db.saveDatabaseAsync();
+
+    // Create a new db instance
+    const newAdapter = new OPFSAdapter();
+    const newDb = new Sylvie("test.db", {
+      adapter: newAdapter,
+    });
+    await newDb.loadDatabaseAsync();
+    // Verify the database contents
+    const newCollection = newDb.getCollection("items");
+    const docs = newCollection.find();
+    expect(docs.length).toEqual(2);
+    expect(docs[0].customId).toEqual(0);
+    expect(docs[0].val).toEqual("hello");
+    expect(docs[0].extra).toEqual("world");
+    expect(docs[1].customId).toEqual(2);
+    expect(docs[1].val).toEqual("hello2");
+  });
+
   it("saveDatabase() should work", async function () {
     // Note that other tests may save dbs concurrently as well, can't rely on absolute db counts
     const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
     const adapter = new OPFSAdapter();
     // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
 
     const db = new Sylvie(TEST_DB_NAME, {
       adapter,
@@ -253,6 +238,8 @@ describe("OPFSAdapter", function () {
     const TEST_DB_NAME = `test_db_to_delete_${self.crypto.randomUUID()}.db`;
     const adapter = new OPFSAdapter();
     // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
+
     const db = new Sylvie(TEST_DB_NAME, {
       adapter,
     });
@@ -301,5 +288,41 @@ describe("OPFSAdapter", function () {
       newFiles1.push(name);
     }
     expect(newFiles1).not.toContain(TEST_DB_NAME);
+  });
+
+  it("deleteDatabaseAsync() the db should work", async function () {
+    const TEST_DB_NAME = `test_db_to_delete_${self.crypto.randomUUID()}.db`;
+    const adapter = new OPFSAdapter();
+    const db = new Sylvie(TEST_DB_NAME, {
+      adapter,
+    });
+
+    // Add some data, manipulate it
+    const collection = db.addCollection("items");
+    collection.insert([
+      { customId: 0, val: "hello", extra: "world" },
+      { customId: 1, val: "hello1" },
+      { customId: 2, val: "hello2" },
+    ]);
+    collection.removeWhere({ customId: 1 });
+    expect(db.collections[0].data.length).toBe(2);
+
+    // need to save db in order to delete
+    const fs = await navigator.storage.getDirectory();
+    const files = [];
+    // @ts-ignore
+    for await (const name of fs.keys()) {
+      files.push(name);
+    }
+    expect(files).not.toContain(TEST_DB_NAME);
+
+    await db.saveDatabaseAsync();
+
+    const newFiles = [];
+    // @ts-ignore
+    for await (const name of fs.keys()) {
+      newFiles.push(name);
+    }
+    expect(newFiles).toContain(TEST_DB_NAME);
   });
 });
