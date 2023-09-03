@@ -2,6 +2,13 @@ import { NormalAsyncPersistenceAdapter } from "./src/models/async-persistence-ad
 import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
 import { PersistenceAdapterCallback } from "./src/models/persistence-adapter-callback";
 
+// @ts-ignore
+const DEBUG = typeof window !== "undefined" && !!window.__loki_idb_debug;
+
+if (DEBUG) {
+  console.log("DEBUG: Running opfs-adapter in DEBUG mode");
+}
+
 type OPFSAdapterOptions = {
   /**
    * An optional function hook that is called before the database is written to IndexedDB. Use this to modify the raw string before it is written to disk. If you use this, you must also pass beforeRead.
@@ -199,4 +206,10 @@ export class OPFSAdapter
   async deleteDatabaseAsync(dbname: string): Promise<void> {
     return this.fs.removeEntry(dbname);
   }
+}
+
+if (typeof window !== "undefined") {
+  Object.assign(window, {
+    OPFSAdapter: OPFSAdapter,
+  });
 }

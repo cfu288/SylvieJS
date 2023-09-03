@@ -12,8 +12,9 @@ window.runExample = function () {
     }
 
     // init db
-
-    var db = new Sylvie("Example");
+    const db = new Sylvie("example.db", {
+      adapter: new OPFSAdapter(),
+    });
 
     // create two example collections
     var users = db.addCollection("users", ["email"], true, false);
