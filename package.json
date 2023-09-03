@@ -1,6 +1,6 @@
 {
   "name": "sylviejs",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "SylvieJS: Fast document oriented javascript in-memory database",
   "homepage": "https://cfu288.github.io/SylvieJS/",
   "main": "sylviejs.js",
