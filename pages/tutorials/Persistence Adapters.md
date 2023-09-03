@@ -15,11 +15,10 @@ Other persistance adapters available in this project include (but are not limite
 
 - IndexedDBAdapter
 - CryptedIndexedDBAdapter
-- IncrementalPersistenceAdapter
-- AWSS3SyncAdapter
-- LokiFsStructuredAdapter
-- LokiCryptedFileAdapter
+- IncrementalIndexedDBAdapter
+- OPFSAdapter
 - MemoryAdapter
+- FSStructuredAdapter
 
 # Node.js QuickStart
 

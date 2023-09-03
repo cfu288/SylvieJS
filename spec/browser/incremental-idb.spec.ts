@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import Sylvie from "../../src/sylviejs";
 import Collection from "../../src/database/collection";
 import { CollectionDocument } from "../../src/database/collection/collection-document";
