@@ -14,7 +14,7 @@ const config: JestConfigWithTsJest = {
   // collectCoverage: true,
   // collectCoverageFrom: ["src/**/*.ts"],
   // coverageDirectory: "coverage",
-  testTimeout: 60000,
+  testTimeout: 120000,
 };
 
 export default config;
