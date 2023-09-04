@@ -2,39 +2,52 @@
 <html>
   <head>
     <title>SylvieJS Examples</title>
-    <script>window.__loki_idb_debug = true;</script>
-    <script id="sylvie" type="module" src="./sylviejs.js"></script>
-    <script id="adapter" type="module" src="./opfs-adapter.js"></script>
-    <script src="example.js"></script>
-    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    <script>
+      window.__loki_idb_debug = true;
+    </script>
+    <script type="module" src="./sylviejs.js"></script>
+    <script type="module" src="./opfs-adapter.js"></script>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css" />
   </head>
   <body>
     <h1>SylvieJS OPFS Example</h1>
-    <p>You can serve this page using <pre>npx serve examples</pre></p>
+    <p>You can serve this page using</p>
+    <code>npx serve examples</code>
     <p>Open up the console and see it happen!</p>
-    <p>You may need <a href="https://chrome.google.com/webstore/detail/opfs-explorer/acndjpgkpaclldomagafnognkcgjignd">a browser extension</a> to view files stored in OPFS.</p>
+    <p>
+      You may need
+      <a
+        href="https://chrome.google.com/webstore/detail/opfs-explorer/acndjpgkpaclldomagafnognkcgjignd"
+        >a browser extension</a
+      >
+      to view the stored database files in OPFS.
+    </p>
     <script type="text/javascript">
-      var script = document.querySelector("#sylvie");
-      var adapter = document.querySelector("#adapter");
-      script.addEventListener("load", function () {
-        adapter.addEventListener("load", async function () {
-          try {
-            console.log("Running")
-            const db = new Sylvie("example.db", {
-              adapter: new OPFSAdapter(),
-            });
-            const collection = db.addCollection("items");
-            collection.insert([
-              { customId: 0, val: "hello", extra: "world" },
-              { customId: 1, val: "hello1" },
-              { customId: 2, val: "hello2" },
-            ]);
-            await db.saveDatabaseAsync();
-          } catch (err) {
-            trace(err);
-          }
-        }); 
+      window.addEventListener("load", async () => {
+        try {
+          console.log("Started to run example");
+
+          const db = new Sylvie("example.db", {
+            adapter: new OPFSAdapter(),
+          });
+          const collection = db.addCollection("items");
+          collection.insert([
+            { customId: 0, val: "hello", extra: "world" },
+            { customId: 1, val: "hello1" },
+            { customId: 2, val: "hello2" },
+          ]);
+          await db.saveDatabaseAsync();
+          const results = collection.find();
+          document.getElementById("output").innerText = JSON.stringify(
+            results,
+            null,
+            2,
+          );
+        } catch (err) {
+          console.log(err);
+        }
       });
     </script>
+    <pre id="output"></pre>
   </body>
 </html>

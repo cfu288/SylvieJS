@@ -24,7 +24,7 @@ Other persistance adapters available in this project include (but are not limite
 
 If you are using SylvieJS in a node environment, we will automatically detect and use the built-in fs-adapter without your needing to provide an adapter.
 
-### No Persistence example (entirely synchronous and in memory) :
+### Manual Persistence Example
 
 ```javascript
 import Sylvie from "sylviejs";
@@ -39,9 +39,12 @@ var result = users.find({ age: { $lte: 35 } });
 
 // dumps array with 1 doc (thor) to console
 console.log(result);
+
+// Sylvie will only persist the database if saveDatabase() or saveDatabaseAsync() is called.
+await db.saveDatabaseAsync();
 ```
 
-### Autosave/autoload with default FsAdapter (async i/o) :
+### Autosave/Autoload with default FsAdapter
 
 ```javascript
 var db = new Sylvie("quickstart.db", {
@@ -51,7 +54,7 @@ var db = new Sylvie("quickstart.db", {
   autosaveInterval: 4000,
 });
 
-// implement the autoloadback referenced in loki constructor
+// implement the autoloadback referenced in sylvie constructor
 function databaseInitialize() {
   var entries = db.getCollection("entries");
   if (entries === null) {
@@ -71,11 +74,11 @@ function runProgramLogic() {
 
 If you expect your database to grow over 100mb or you experience slow save speeds you might to use our more high-performance FsStructuredAdapter. This adapter utilizes es6 generator iterators and node streams to stream the database line by line. It will also save each collection into its own file (partitioned) with a file name derived from the base name. This database should scale to support databases just under 1 gb on the default node heap allocation of 1.4gb. Increasing heap allocation, you can push this limit further.
 
-### An example using fastest and most scalable FsStructuredAdapter (for nodejs) might look like :
+### An example FsStructuredAdapter (NodeJS) might look like
 
 ```javascript
 import Sylvie from "sylviejs";
-const lfsa = require("../src/loki-fs-structured-adapter.js");
+const lfsa = require("./fs-structured-adapter.js");
 
 var adapter = new lfsa();
 var db = new Sylvie("sandbox.db", {
@@ -100,22 +103,30 @@ function databaseInitialize() {
 
 # Web QuickStart
 
-If you are using SylvieJS in a web environment, we will automatically use the built-in local-storage adapter. This adapter is limited to around 5mb, we recommend you use a different storage adapter like the indexeddb adapter for production applications:
+If you are using SylvieJS in a web environment, we will automatically use the built-in localStorage adapter.
 
-```
-<script src="../../src/sylviejs.js"></script>
+```html
+<script type="module" src="./sylviejs.js"></script>
+<script>
+  window.addEventListener("load", async () => {
+    const db = new Sylvie("test.db");
+    // Do stuff with db
+  });
+</script>
 ```
 
-### Example constructing Sylvie for in-memory only or manual save/load (with default localStorage adapter) :
+Or:
+
+```ts
+import Sylvie from "./sylviejs";
+
+const db = new Sylvie("test.db");
+```
+
+You can enable autoload/autosave with Sylvie:
 
 ```javascript
-var Sylvie = new Sylvie("test.db");
-```
-
-### Example constructing Sylvie for autoload/autosave (with default localStorage adapter) :
-
-```javascript
-var db = new Sylvie("quickstart.db", {
+const db = new Sylvie("quickstart.db", {
   autoload: true,
   autoloadCallback: databaseInitialize,
   autosave: true,
@@ -129,27 +140,37 @@ function databaseInitialize() {
 }
 ```
 
-If you expect your database to grow up to 60megs you might want to use our IndexedAdapter which can save to IndexedDb, if your browser supports it.
+**Note**: We still default to the localStorage adapter for backwards compatibility with Loki. However, we suggest using another adapter like the IndexedDBAdapter due to a storage limitation of only 5 mb with the localStorage adapter (See next section).
 
-### Example using IndexedAdapter :
+### Example using IndexedDBAdapter
 
+```html
+<script type="module" src="./sylviejs.js"></script>
+<script type="module" src="./indexeddb-adapter"></script>
+<script>
+  window.addEventListener("load", async () => {
+    const adapter = new IndexedDBAdapter();
+    const db = new Sylvie("quickstart.db", {
+      adapter: adapter,
+    });
+    // Do stuff with db
+  });
+</script>
 ```
-<script src="../../src/sylviejs.js"></script>
-<script src="../../src/indexed-adapter.js"></script>
-```
 
-```javascript
-var idbAdapter = new IndexedAdapter();
-var db = new Sylvie("test.db", {
-  adapter: idbAdapter,
-  autoload: true,
-  autoloadCallback: databaseInitialize,
-  autosave: true,
-  autosaveInterval: 4000,
+Or:
+
+```ts
+import Sylvie from "./sylviejs";
+import { IndexedDBAdapter } from "./indexeddb-adapter";
+
+const adapter = new IndexedDBAdapter();
+const db = new Sylvie("quickstart.db", {
+  adapter: adapter,
 });
 ```
 
-If you expect your database to grow over 60megs things start to get browser dependent. To provide singular guidance and since Chrome is the most popular web browser you will want to employ our PartitioningAdapter in addition to our IndexedAdapter. To sum up as briefly as possible, this will divide collections into their own files and if a collection exceeds 25megs (customizable) it will subdivide into separate pages(files). This allows our indexed db adapter to accomplish a single database save/load using many key/value pairs. This adapter will allow scaling up to around 300mb or so in current testing.
+If you expect your database to grow over 60megs things start to get browser dependent. To provide singular guidance and since Chrome is the most popular web browser you will want to employ our PartitioningAdapter in addition to our IndexedAdapter. The PartitioningAdapter wraps other adapters to divide collections into their own files. If a collection exceeds 25megs (customizable) it will subdivide into separate pages(files). This allows our IndexedDB adapter to accomplish a single database save/load using many key/value pairs. This adapter will allow scaling up to around 300mb or so in current testing.
 
 ### An example using the PartitioningAdapter along with IndexedAdapter might appear as :
 
@@ -159,17 +180,10 @@ If you expect your database to grow over 60megs things start to get browser depe
 ```
 
 ```javascript
-var idbAdapter = new IndexedAdapter();
-
-// use paging only if you expect a single collection to be over 50 megs or so
-var pa = new Sylvie.PartitioningAdapter(idbAdapter, { paging: true });
-
-var db = new Sylvie("test.db", {
-  adapter: pa,
-  autoload: true,
-  autoloadCallback: databaseInitialize,
-  autosave: true,
-  autosaveInterval: 4000,
+const idbAdapter = new IndexedAdapter();
+const partAdapter = new PartitioningAdapter(idbAdapter, { paging: true });
+const db = new Sylvie("quickstart.db", {
+  adapter: partAdapter,
 });
 ```
 
@@ -185,38 +199,15 @@ avoids Safari 13 bug that would cause the database to balloon in size to gigabyt
 `IncrementalIndexedDBAdapter` is not backwards compatible with `IndexedAdapter`.
 
 ```html
-<script src="../../src/sylviejs.js"></script>
-<script src="../../src/incremental-indexeddb-adapter.js"></script>
+<script src="./sylviejs.js"></script>
+<script src="./incremental-indexeddb-adapter.js"></script>
 ```
 
 ```javascript
-var db = new Sylvie("TestDatabase", {
+var db = new Sylvie("quickstart.db", {
   adapter: new IncrementalIndexedDBAdapter(),
-  autoload: true,
-  autoloadCallback: databaseInitialize,
-  autosave: true,
-  autosaveInterval: 4000,
 });
 ```
-
-# Description of SylvieNativescriptAdapter
-
-This adapter can be used when developing a nativescript application for iOS or Android, it persists the loki db to the filesystem using the native platform api.
-
-### Simple Example of using LokiNativescriptAdapter :
-
-```javascript
-const loki = require("sylviejs");
-const SylvieNativescriptAdapter = require("sylviejs/src/loki-nativescript-adapter");
-let db = new Sylvie("loki.json", {
-  adapter: new SylvieNativescriptAdapter(),
-});
-```
-
-> In addition to the above adapters which are included in the sylviejs distro, several community members have also created their own adapters using this adapter interface. Some of these include :
-
-- Cordova adapter : https://github.com/cosmith/loki-cordova-fs-adapter
-- localForage adapter : https://github.com/paulhovey/loki-localforage-adapter
 
 # Configuring persistence adapters
 
@@ -257,8 +248,6 @@ function loadHandler() {
   }
 }
 ```
-
-[Try in Sylvie Sandbox](https://rawgit.com/techfort/SylvieJS/master/examples/sandbox/SylvieSandbox.htm#rawgist=https://gist.githubusercontent.com/obeliskos/447edca33d1274dd9a64767d23df56e9/raw/740d3bedc1ed76d3718acd207b6913281a11ed78/autoloadCallback).
 
 # Save throttling and persistence contention management
 
@@ -309,7 +298,58 @@ var db = new Sylvie("test.db", { throttledSaves: false });
 
 # Creating your own Sylvie Persistence Adapters
 
-Sylviejs currently supports two types of database adapters : 'basic', and 'reference' mode adapters. Basic adapters are passed a string to save and return a string when loaded... this is well suited to key/value stores. Reference mode adapters are passed a reference to the database itself where it can save however it wishes to. When loading, reference mode adapters can return an object reference or serialized string. Below we will describe the minimal functionality which sylviejs requires, you may want to provide additional adapter functionality for deleting or inspecting its persistence store.
+Sylviejs currently supports three types of database adapters : 'normal', 'reference', and 'incremental' mode adapters.
+
+Normal adapters implement the following methods:
+
+```ts
+  saveDatabase(
+    dbname: string,
+    dbstring: string,
+    callback?: PersistenceAdapterCallback,
+  ): void;
+  loadDatabase(
+    dbname: string,
+    callback: (value: string | Error | null) => void,
+  ): void;
+  deleteDatabase(dbname: string, callback: PersistenceAdapterCallback): void;
+```
+
+Note that dbstring in saveDatabase is a serialized string to be written to the underlying store by the adapter. This is well suited to key/value stores.
+
+Reference mode adapters implement the following interface:
+
+```ts
+  exportDatabase(
+    dbname: string,
+    dbref: Sylvie,
+    callback?: PersistenceAdapterCallback,
+  ): void;
+  loadDatabase(
+    dbname: string,
+    callback: (value: string | Error | Sylvie) => void,
+  ): void;
+  deleteDatabase(dbname: string, callback: PersistenceAdapterCallback): void;
+```
+
+Reference mode adapters are passed a reference to the database itself instead of a serialized string where it can save however it wishes to in saveDatabase(). When loading, reference mode adapters can return an object reference or serialized string. Below we will describe the minimal functionality which sylviejs requires, you may want to provide additional adapter functionality for deleting or inspecting its persistence store.
+
+Incremental mode adapters implement the following interface:
+
+```ts
+  saveDatabase(
+    dbname: string,
+    dbref: () => Sylvie,
+    callback?: PersistenceAdapterCallback,
+  ): void;
+  loadDatabase(
+    dbname: string,
+    callback: (value: string | Error | null) => void,
+  ): void;
+  deleteDatabase(dbname: string, callback: PersistenceAdapterCallback): void;
+```
+
+Incremental mode adapters are passed function that returns a reference to the database itself instead of a serialized string in saveDatabase().
 
 ## Creating your own 'Normal' persistence adapter
 
@@ -410,7 +450,7 @@ This 'basic' persistence adapter is only intended for experimenting and testing 
 You might access this memory adapter (which is included in the main source file) similarly to the following :
 
 ```javascript
-var mem = new loki.MemoryAdapter();
+var mem = new MemoryAdapter();
 var db = new Sylvie("sandbox.db", { adapter: mem });
 ```
 
@@ -418,7 +458,7 @@ If you wish to simulate asynchronous 'basic' adapter you can pass options to its
 
 ```javascript
 // simulate 50ms async delay for loads and saves. this will yield thread until then
-var mem = new loki.MemoryAdapter({
+var mem = new MemoryAdapter({
   asyncResponses: true,
   asyncTimeout: 50,
 });
@@ -464,7 +504,7 @@ If your database is small enough you can use the PartitioningAdapter (with or wi
 
 # Detailed IndexedAdapter Description
 
-Our IndexedAdapter is implemented as a 'basic' mode loki persistence adapter. Since this will probably be the default web persistence adapter, this section will overview some of its advanced features.
+Our IndexedAdapter is implemented as a 'Normal' mode persistence adapter. Since this will probably be the default web persistence adapter, this section will overview some of its advanced features.
 
 It implements persistence by defining an app/key/value database in indexeddb for storing serialized databases (or partitions). The 'app' portion is designated when instantiating the adapter and loki only supplies it key/value pair for storage.
 
@@ -482,19 +522,15 @@ var idbAdapter = new IndexedAdapter("finance");
 var db = new Sylvie("test", { adapter: idbAdapter });
 ```
 
-Note the 'finance' in this case represents an 'App' context and the 'test' designates the key (or database name)... the 'value' is the serialized strings representing your database which loki will provide. Advantages include larger storage limits over localstorage, and a catalog based approach where you can store many databases, grouped by an 'App' context. Since indexedDB storage is provided 'per-domain', and on any given domain you might be running several web 'apps' each with its own database(s), this structure allows for organization and expandibility.
+Note the 'finance' in this case represents an 'App' context and the 'test' designates the key (or database name)... the 'value' is the serialized strings representing your database which Sylvie will provide. Advantages include larger storage limits over localstorage, and a catalog based approach where you can store many databases, grouped by an 'App' context. Since indexedDB storage is provided 'per-domain', and on any given domain you might be running several web 'apps' each with its own database(s), this structure allows for organization and expandibility.
 
 > _**Note : the 'App' context is an conceptual separation, not a security partition. Security is provided by your web browser, partitioned per-domain within client storage in the browser/system.**_
 
-# Sylvie Indexed adapter interface
-
-In addition to core loadDatabase and saveDatabase methods, the loki Indexed adapter provides the ability to getDatabaseList (for the current app context), deleteDatabase, and getCatalogSummary to retrieve unfiltered list of app/keys along with the size in database. (Note sizes reported may not be Unicode sizes so effective 'size' it may consume might be double that amount as indexeddb saves in Unicode). The loki indexed adapter also is console-friendly... even though indexeddb is highly asynchronous, relying on callbacks, you can omit callbacks for many of its methods and will log results to console instead. This makes experimenting, diagnosing, and maintenance of loki catalog easier to learn and inspect.
-
-### Full Examples of using loki indexed adapter
+### Full Examples of using IndexedDB adapter
 
 ```javascript
 // Save : will save App/Key/Val as 'finance'/'test'/{serializedDb}
-// if appContect ('finance' in this example) is omitted, 'loki' will be used
+// if appContect ('finance' in this example) is omitted, 'sylvie' will be used
 var idbAdapter = new IndexedAdapter("finance");
 var db = new Sylvie("test", { adapter: idbAdapter });
 var coll = db.addCollection("testColl");
@@ -535,16 +571,4 @@ idbAdapter.getCatalogSummary(function (entries) {
     console.log("size : " + obj.size);
   });
 });
-```
-
-### Examples of using loki Indexed adapter from console
-
-```javascript
-// CONSOLE USAGE : if using from console for management/diagnostic, here are a few examples :
-var adapter = new IndexedAdapter("loki"); // or whatever appContext you want to use
-adapter.getDatabaseList(); // with no callback passed, this method will log results to console
-adapter.saveDatabase("UserDatabase", JSON.stringify(myDb));
-adapter.loadDatabase("UserDatabase"); // will log the serialized db to console
-adapter.deleteDatabase("UserDatabase");
-adapter.getCatalogSummary(); // gets list of all keys along with their sizes
 ```
