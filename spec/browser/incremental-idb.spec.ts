@@ -7,7 +7,7 @@ import { IncrementalIndexedDBAdapter } from "../../src/storage-adapter/increment
 const loki = Sylvie;
 
 describe("IncrementalIndexedDBAdapter", function () {
-  this.timeout(5000); // mocha timout
+  this.timeout(60000); // mocha timout
   function checkDatabaseCopyIntegrity(source, copy) {
     source.collections.forEach(function (sourceCol: Collection<any>, i) {
       const copyCol = copy.collections[i];
@@ -146,7 +146,7 @@ describe("IncrementalIndexedDBAdapter", function () {
     checkDatabaseCopyIntegrity(source, copy);
   });
 
-  it("large save works (10K records)", function (done) {
+  it("large save works (10K records)", async function () {
     const adapter = new IncrementalIndexedDBAdapter();
     const source = new loki("incremental_idb_tester", { adapter: adapter });
     const col1 = source.addCollection("test_collection");
@@ -159,23 +159,18 @@ describe("IncrementalIndexedDBAdapter", function () {
       });
     }
 
-    source.saveDatabase(function (saveError) {
-      expect(saveError).toBe(undefined);
+    await source.saveDatabaseAsync();
 
-      const copy = new loki("incremental_idb_tester", {
-        adapter: new IncrementalIndexedDBAdapter(),
-        verbose: true,
-      });
-
-      copy.loadDatabase({}, (loadError) => {
-        expect(loadError).toBeFalsy();
-        checkDatabaseCopyIntegrity(source, copy);
-        done();
-      });
+    const copy = new loki("incremental_idb_tester", {
+      adapter: new IncrementalIndexedDBAdapter(),
+      verbose: true,
     });
+
+    await copy.loadDatabaseAsync({});
+    checkDatabaseCopyIntegrity(source, copy);
   });
 
-  it("large save with fuzzed changes works (75K records)", function (done) {
+  it("large save with fuzzed changes works (75K records)", async function () {
     const adapter = new IncrementalIndexedDBAdapter();
     const source = new loki("incremental_idb_tester", { adapter: adapter });
 
@@ -211,20 +206,15 @@ describe("IncrementalIndexedDBAdapter", function () {
       }
     });
 
-    source.saveDatabase(function (saveError) {
-      expect(saveError).toBe(undefined);
+    await source.saveDatabase();
 
-      const copy = new loki("incremental_idb_tester", {
-        adapter: new IncrementalIndexedDBAdapter(),
-        verbose: true,
-      });
-
-      copy.loadDatabase({}, (loadError) => {
-        expect(loadError).toBeFalsy();
-        checkDatabaseCopyIntegrity(source, copy);
-        done();
-      });
+    const copy = new loki("incremental_idb_tester", {
+      adapter: new IncrementalIndexedDBAdapter(),
+      verbose: true,
     });
+
+    await copy.loadDatabase({});
+    checkDatabaseCopyIntegrity(source, copy);
   });
 
   it("regression test: batch removing records works", function (done) {

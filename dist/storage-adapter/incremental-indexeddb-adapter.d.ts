@@ -1,4 +1,42 @@
+import Collection from "../database/collection";
+import { CollectionDocument } from "../database/collection/collection-document";
+import Sylvie from "../sylviejs";
 import { IncrementalPersistenceAdapter } from "./src/models/persistence-adapter";
+import { PersistenceAdapterCallback } from "./src/models/persistence-adapter-callback";
+type LokiIncrementalChunk = {
+    key: string;
+    index: number;
+    value: Partial<CollectionDocument>;
+    collectionName: string;
+    type: "loki";
+};
+export type IncrementalChunk = (LokiIncrementalChunk | {
+    key: string;
+    index: number;
+    value: Partial<CollectionDocument> | string;
+    collectionName: string;
+    dataChunks: LokiIncrementalChunk[];
+    type: "data";
+} | {
+    key: string;
+    index: number;
+    value: Partial<CollectionDocument>;
+    collectionName: string;
+    metadata: LokiIncrementalChunk;
+    dataChunks: LokiIncrementalChunk[];
+    type: "metadata";
+}) & Partial<CollectionDocument>;
+export interface IncrementalIndexedDBAdapterOptions {
+    onversionchange?: (versionChangeEvent: IDBVersionChangeEvent) => void;
+    onFetchStart?: () => void;
+    onDidOverwrite?: () => void;
+    serializeChunk?: (collectionName: string, chunk: IncrementalChunk[]) => string;
+    serializeChunkAsync?: (collectionName: string, chunk: IncrementalChunk[]) => Promise<string>;
+    deserializeChunk?: (collectionName: string, chunkString: string) => IncrementalChunk[];
+    deserializeChunkAsync?: (collectionName: string, chunkString: string) => Promise<IncrementalChunk[]>;
+    megachunkCount?: number;
+    lazyCollections?: string[];
+}
 /**
  * An improved Loki persistence adapter for IndexedDB (not compatible with LokiIndexedAdapter)
  *     Unlike LokiIndexedAdapter, the database is saved not as one big JSON blob, but split into
@@ -23,7 +61,8 @@ import { IncrementalPersistenceAdapter } from "./src/models/persistence-adapter"
  * @param {function} options.onDidOverwrite Called when this adapter is forced to overwrite contents
  *     of IndexedDB. This happens if there's another open tab of the same app that's making changes.
  *     You might use it as an opportunity to alert user to the potential loss of data
- * @param {function} options.serializeChunk Called with a chunk (array of Loki documents) before
+ * @param {function} options.(isData && isLazy))
+ *  Called with a chunk (array of Loki documents) before
  *     it's saved to IndexedDB. You can use it to manually compress on-disk representation
  *     for faster database loads. Hint: Hand-written conversion of objects to arrays is very
  *     profitable for performance. If you use this, you must also pass options.deserializeChunk.
@@ -36,16 +75,17 @@ import { IncrementalPersistenceAdapter } from "./src/models/persistence-adapter"
  */
 export declare class IncrementalIndexedDBAdapter implements IncrementalPersistenceAdapter {
     mode: "incremental";
-    constructor(options?: {
-        onversionchange?: (versionChangeEvent: IDBVersionChangeEvent) => void;
-        onFetchStart?: () => void;
-        onDidOverwrite?: () => void;
-        serializeChunk?: (collectionName: string, chunk: any[]) => string;
-        deserializeChunk?: (collectionName: string, chunk: string) => any[];
-        megachunkCount?: number;
-        lazyCollections?: string[];
-    });
-    _getChunk(collection: any, chunkId: any): any;
+    options: Partial<IncrementalIndexedDBAdapterOptions>;
+    chunkSize: number;
+    megachunkCount: number;
+    lazyCollections: string[];
+    idb: null | IDBDatabase;
+    _prevLokiVersionId: string | null;
+    _prevCollectionVersionIds: {};
+    operationInProgress: any;
+    idbInitInProgress: any;
+    constructor(options?: Partial<IncrementalIndexedDBAdapterOptions>);
+    _getChunk(collection: Collection<IncrementalChunk>, chunkId: number): IncrementalChunk[];
     /**
      * Incrementally saves the database to IndexedDB
      *
@@ -61,11 +101,13 @@ export declare class IncrementalIndexedDBAdapter implements IncrementalPersisten
      * @param {function} callback - (Optional) callback passed obj.success with true or false
      * @memberof IncrementalIndexedDBAdapter
      */
-    saveDatabase(dbname: any, getLokiCopy: any, callback: any): void;
-    _putInChunks(idbStore: any, loki: any, incremental: any, maxChunkIds: any): {
-        lokiVersionId: any;
+    saveDatabase: (dbname: string, getLokiCopy: () => Sylvie, callback: PersistenceAdapterCallback) => void;
+    _putInChunksAsync(idbStore: IDBObjectStore, loki: Sylvie & {
+        idbVersionId?: string;
+    }, incremental: boolean, maxChunkIds: Record<string, number>): Promise<{
+        lokiVersionId: string;
         collectionVersionIds: any[];
-    };
+    }>;
     /**
      * Retrieves a serialized db string from the catalog.
      *
@@ -82,8 +124,9 @@ export declare class IncrementalIndexedDBAdapter implements IncrementalPersisten
      * @memberof IncrementalIndexedDBAdapter
      */
     loadDatabase(dbname: any, callback: any): void;
-    _initializeIDB(dbname: any, onError: any, onSuccess: any): void;
-    _getAllChunks(dbname: any, callback: any): void;
+    _initializeIDBAsync(dbname: string): Promise<unknown>;
+    _initializeIDB(dbname: string, onError: any, onSuccess: any): void;
+    _getAllChunksAsync(dbname: string): Promise<any[]>;
     /**
      * Deletes a database from IndexedDB
      *
@@ -98,5 +141,6 @@ export declare class IncrementalIndexedDBAdapter implements IncrementalPersisten
      * @param {function=} callback - (Optional) executed on database delete
      * @memberof IncrementalIndexedDBAdapter
      */
-    deleteDatabase(dbname: any, callback: any): void;
+    deleteDatabase(dbname: string, callback?: PersistenceAdapterCallback): void;
 }
+export {};

@@ -5,7 +5,7 @@ import { PersistenceAdapter } from "../../src/storage-adapter/src/models/persist
 import { CryptedIncrementalIndexedDBAdapter } from "../../src/storage-adapter/crypted-incremental-indexeddb-adapter";
 const loki = Sylvie;
 
-describe("CryptedIncrementalIndexedDBAdapter", function() {
+describe("CryptedIncrementalIndexedDBAdapter", function () {
   this.timeout(30000); // mocha timout
   // function checkDatabaseCopyIntegrity(source, copy) {
   //   source.collections.forEach(function(sourceCol: Collection<any>, i) {
