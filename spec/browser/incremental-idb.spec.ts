@@ -2,10 +2,7 @@ import Sylvie from "../../src/sylviejs";
 import Collection from "../../src/database/collection";
 import { CollectionDocument } from "../../src/database/collection/collection-document";
 import { PersistenceAdapter } from "../../src/storage-adapter/src/models/persistence-adapter";
-import {
-  IncrementalIndexedDBAdapter,
-  IncrementalIndexedDBAdapterOptions,
-} from "../../src/storage-adapter/incremental-indexeddb-adapter";
+import { IncrementalIndexedDBAdapter } from "../../src/storage-adapter/incremental-indexeddb-adapter";
 const loki = Sylvie;
 
 describe("IncrementalIndexedDBAdapter", function () {
@@ -104,13 +101,13 @@ describe("IncrementalIndexedDBAdapter", function () {
     });
   });
 
-  it("serializeChunkAsync() and deserializeChunkAsync() work", function (done) {
-    const opts: IncrementalIndexedDBAdapterOptions = {
-      serializeChunkAsync(name, x) {
-        return Promise.resolve(JSON.stringify(x));
+  it("serializeChunk() and deserializeChunk() work", function (done) {
+    const opts = {
+      serializeChunk(name, x) {
+        return JSON.stringify(x);
       },
-      deserializeChunkAsync(name, x) {
-        return Promise.resolve(JSON.parse(x));
+      deserializeChunk(name, x) {
+        return JSON.parse(x);
       },
     };
     const adapter = new IncrementalIndexedDBAdapter(opts);

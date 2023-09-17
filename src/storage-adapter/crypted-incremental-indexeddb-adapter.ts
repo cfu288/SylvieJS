@@ -6,7 +6,7 @@ import {
   IncrementalChunk,
   IncrementalIndexedDBAdapter,
   IncrementalIndexedDBAdapterOptions,
-} from "./incremental-indexeddb-adapter";
+} from "./incremental-indexeddb-adapter-test";
 import { IncrementalPersistenceAdapter } from "./src/models/persistence-adapter";
 import { encryptData, decryptData } from "./src/utils/string-encryption-utils";
 
@@ -89,12 +89,12 @@ export class CryptedIncrementalIndexedDBAdapter
 
     const opts = {
       ...(options || {}),
-      serializeChunkAsync: (colName: string, chunk: IncrementalChunk[]) => {
-        return encryptData(JSON.stringify(chunk), self.#secret);
-      },
-      deserializeChunkAsync: async (colName, dbString) => {
-        return await decryptData(dbString, self.#secret);
-      },
+      // serializeChunkAsync: (colName: string, chunk: IncrementalChunk[]) => {
+      //   return encryptData(JSON.stringify(chunk), self.#secret);
+      // },
+      // deserializeChunkAsync: async (colName, dbString) => {
+      //   return await decryptData(dbString, self.#secret);
+      // },
     };
     this.idbIndexedAdapter = new IncrementalIndexedDBAdapter(opts);
 

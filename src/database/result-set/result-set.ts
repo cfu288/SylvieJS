@@ -1170,7 +1170,7 @@ export class ResultSet<RST extends Partial<CollectionDocument>> {
    *   };
    * });
    */
-  map<U>(
+  map<U extends RST>(
     mapFun: (value: RST, index: number, array: RST[]) => U,
     dataOptions?: Partial<ResultSetDataOptions>,
   ) {

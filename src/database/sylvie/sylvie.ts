@@ -372,10 +372,10 @@ export default class Sylvie extends SylvieEventEmitter {
    * @param {int=} options.ttlInterval - time interval for clearing out 'aged' documents; not set by default.
    * @returns {Collection} a reference to the collection which was just added
    */
-  addCollection(
+  addCollection<TCollection extends Partial<CollectionDocument>>(
     name,
     options?: Record<string, any>,
-  ): Collection<Partial<CollectionDocument>> {
+  ): Collection<TCollection> {
     let i;
     const len = this.collections.length;
 
@@ -399,7 +399,7 @@ export default class Sylvie extends SylvieEventEmitter {
 
     for (i = 0; i < len; i += 1) {
       if (this.collections[i].name === name) {
-        return this.collections[i];
+        return this.collections[i] as Collection<TCollection>;
       }
     }
 
@@ -409,7 +409,7 @@ export default class Sylvie extends SylvieEventEmitter {
 
     if (this.verbose) collection.lokiConsoleWrapper = console;
 
-    return collection;
+    return collection as Collection<TCollection>;
   }
 
   loadCollection(collection) {
@@ -947,8 +947,9 @@ export default class Sylvie extends SylvieEventEmitter {
   ) {
     let i = 0;
     const len = dbObject.collections ? dbObject.collections.length : 0;
-    let coll;
-    let copyColl;
+    // getData is a dynamic function added by some adapters when lazy loading
+    let coll: Collection<unknown> & { getData?: () => void };
+    let copyColl: Collection<unknown> & { getData?: () => void };
     let clen;
     let j;
     let loader;
@@ -1054,7 +1055,7 @@ export default class Sylvie extends SylvieEventEmitter {
         } else {
           for (j; j < clen; j++) {
             copyColl.data[j] = coll.data[j];
-            copyColl.addAutoUpdateObserver(copyColl.data[j]);
+            copyColl.addAutoUpdateObserver(copyColl.data[j] as object);
             if (!copyColl.disableFreeze) {
               deepFreeze(copyColl.data[j]);
             }
