@@ -2,11 +2,12 @@ import Sylvie from "../../src/sylviejs";
 import Collection from "../../src/database/collection";
 import { CollectionDocument } from "../../src/database/collection/collection-document";
 import { PersistenceAdapter } from "../../src/storage-adapter/src/models/persistence-adapter";
+// import { IncrementalIndexedDBAdapter } from "../../src/storage-adapter/incremental-indexeddb-adapter";
 import { IncrementalIndexedDBAdapter } from "../../src/storage-adapter/incremental-indexeddb-adapter";
 const loki = Sylvie;
 
 describe("IncrementalIndexedDBAdapter", function () {
-  this.timeout(30000); // mocha timout
+  this.timeout(5000); // mocha timout
   function checkDatabaseCopyIntegrity(source, copy) {
     source.collections.forEach(function (sourceCol: Collection<any>, i) {
       const copyCol = copy.collections[i];
@@ -101,7 +102,7 @@ describe("IncrementalIndexedDBAdapter", function () {
     });
   });
 
-  it("serializeChunk() and deserializeChunk() work", function (done) {
+  it("serializeChunk() and deserializeChunk() work", async function () {
     const opts = {
       serializeChunk(name, x) {
         return JSON.stringify(x);
@@ -133,20 +134,16 @@ describe("IncrementalIndexedDBAdapter", function () {
 
     const h6 = col1.insert({ customId: 6, val: "hello6" });
 
-    source.saveDatabase(function (saveError) {
-      expect(saveError).toBe(undefined);
+    await source.saveDatabaseAsync();
 
-      const copy = new loki("incremental_idb_tester", {
-        adapter: new IncrementalIndexedDBAdapter(opts),
-        verbose: true,
-      });
-
-      copy.loadDatabase({}, (loadError) => {
-        expect(loadError).toBeFalsy();
-        checkDatabaseCopyIntegrity(source, copy);
-        done();
-      });
+    const copy = new loki("incremental_idb_tester", {
+      adapter: new IncrementalIndexedDBAdapter(opts),
+      verbose: true,
     });
+
+    await copy.loadDatabaseAsync({});
+
+    checkDatabaseCopyIntegrity(source, copy);
   });
 
   it("large save works (10K records)", function (done) {
@@ -344,6 +341,132 @@ describe("IncrementalIndexedDBAdapter", function () {
         done();
       });
     });
+  });
+
+  it("serializeChunk() and deserializeChunk() work with lazy collection deserialization", function (done) {
+    const opts = {
+      serializeChunk(name, x) {
+        return JSON.stringify(x);
+      },
+      deserializeChunk(name, x) {
+        return JSON.parse(x);
+      },
+      lazyCollections: ["test_collection"],
+    };
+    const adapter = new IncrementalIndexedDBAdapter(opts);
+    const source = new loki("incremental_idb_tester", { adapter: adapter });
+    const col = source.addCollection("test_collection");
+    for (let i = 0; i < 10000; i++) {
+      col.insert({
+        mass: true,
+        i,
+        blah: "accumsan congue. Lorem ipsum primis in nibh vel risus. Sed vel lectus. Ut sagittis, ipsum dolor quam. nibh vel risus. Sed vel lectus. Ut sagittis, ipsum dolor quam. Ut sagittis, ipsum dolor quam. nibh vel risus. Sed vel lectus. Ut sagittis, ipsum dolor quam",
+      });
+    }
+
+    const lazyCopyDb = new loki("incremental_idb_tester", {
+      adapter: new IncrementalIndexedDBAdapter(opts),
+    });
+
+    // Check
+    lazyCopyDb.saveDatabase(function (saveError) {
+      expect(saveError).toBe(undefined);
+
+      const copy = new loki("incremental_idb_tester", {
+        adapter: new IncrementalIndexedDBAdapter(),
+        verbose: true,
+      });
+
+      copy.loadDatabase({}, (loadError) => {
+        expect(loadError).toBeFalsy();
+        checkDatabaseCopyIntegrity(lazyCopyDb, copy);
+        done();
+      });
+    });
+  });
+
+  it("deserializeChunkAsync() raises error if lazy collection is set", async function () {
+    const opts = {
+      serializeChunkAsync(name, x) {
+        return Promise.resolve(JSON.stringify(x));
+      },
+      deserializeChunkAsync(name, x) {
+        return Promise.resolve(JSON.parse(x));
+      },
+      lazyCollections: ["test_collection"],
+    };
+    try {
+      const adapter = new IncrementalIndexedDBAdapter(opts);
+      new loki("incremental_idb_tester", { adapter: adapter });
+    } catch (e) {
+      expect(e).toBeTruthy();
+      expect(e.message).toBe(
+        "deserializeChunkAsync is not supported if lazyCollections is set",
+      );
+    }
+  });
+
+  it("serializeChunkAsync() and deserializeChunkAsync() work", async function () {
+    const opts = {
+      serializeChunkAsync(name, x) {
+        return Promise.resolve(JSON.stringify(x));
+      },
+      deserializeChunkAsync(name, x) {
+        return Promise.resolve(JSON.parse(x));
+      },
+    };
+    const adapter = new IncrementalIndexedDBAdapter(opts);
+    const source = new loki("incremental_idb_tester", { adapter: adapter });
+    const col = source.addCollection("test_collection");
+    for (let i = 0; i < 101; i++) {
+      col.insert({
+        mass: true,
+        i,
+        blah: "accumsan congue. Lorem ipsum primis in nibh vel risus. Sed vel lectus. Ut sagittis, ipsum dolor quam. nibh vel risus. Sed vel lectus. Ut sagittis, ipsum dolor quam. Ut sagittis, ipsum dolor quam. nibh vel risus. Sed vel lectus. Ut sagittis, ipsum dolor quam",
+      });
+    }
+
+    // Check
+    await source.saveDatabaseAsync();
+
+    const lazyCopy = new loki("incremental_idb_tester", {
+      adapter: new IncrementalIndexedDBAdapter(opts),
+      verbose: true,
+    });
+
+    await lazyCopy.loadDatabaseAsync({});
+    checkDatabaseCopyIntegrity(source, lazyCopy);
+  });
+
+  it("serializeChunkAsync() and deserializeChunkAsync() must both be provided", async function () {
+    let opts: any = {
+      serializeChunkAsync(name, x) {
+        return Promise.resolve(JSON.stringify(x));
+      },
+    };
+    try {
+      const adapter = new IncrementalIndexedDBAdapter(opts);
+      new loki("incremental_idb_tester", { adapter: adapter });
+    } catch (e) {
+      expect(e).toBeTruthy();
+      expect(e.message).toBe(
+        "serializeChunkAsync requires deserializeChunkAsync to be set as well",
+      );
+    }
+    opts = {
+      deserializeChunkAsync(name, x) {
+        return Promise.resolve(JSON.parse(x));
+      },
+    };
+    try {
+      const adapter = new IncrementalIndexedDBAdapter(opts);
+      new loki("incremental_idb_tester", { adapter: adapter });
+    } catch (e) {
+      expect(e).toBeTruthy();
+      expect(e.message).toBe(
+        "serializeChunkAsync requires deserializeChunkAsync to be set as well",
+      );
+    }
   });
 
   function fuzz(dbToFuzz) {

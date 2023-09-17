@@ -6,7 +6,7 @@ import {
   IncrementalChunk,
   IncrementalIndexedDBAdapter,
   IncrementalIndexedDBAdapterOptions,
-} from "./incremental-indexeddb-adapter-test";
+} from "./incremental-indexeddb-adapter";
 import { IncrementalPersistenceAdapter } from "./src/models/persistence-adapter";
 import { encryptData, decryptData } from "./src/utils/string-encryption-utils";
 
