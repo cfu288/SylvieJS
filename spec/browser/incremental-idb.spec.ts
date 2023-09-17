@@ -2,7 +2,10 @@ import Sylvie from "../../src/sylviejs";
 import Collection from "../../src/database/collection";
 import { CollectionDocument } from "../../src/database/collection/collection-document";
 import { PersistenceAdapter } from "../../src/storage-adapter/src/models/persistence-adapter";
-import { IncrementalIndexedDBAdapter } from "../../src/storage-adapter/incremental-indexeddb-adapter";
+import {
+  IncrementalIndexedDBAdapter,
+  IncrementalIndexedDBAdapterOptions,
+} from "../../src/storage-adapter/incremental-indexeddb-adapter";
 const loki = Sylvie;
 
 describe("IncrementalIndexedDBAdapter", function () {
@@ -90,6 +93,54 @@ describe("IncrementalIndexedDBAdapter", function () {
 
       const copy = new loki("incremental_idb_tester", {
         adapter: new IncrementalIndexedDBAdapter(),
+        verbose: true,
+      });
+
+      copy.loadDatabase({}, (loadError) => {
+        expect(loadError).toBeFalsy();
+        checkDatabaseCopyIntegrity(source, copy);
+        done();
+      });
+    });
+  });
+
+  it("serializeChunkAsync() and deserializeChunkAsync() work", function (done) {
+    const opts: IncrementalIndexedDBAdapterOptions = {
+      serializeChunkAsync(name, x) {
+        return Promise.resolve(JSON.stringify(x));
+      },
+      deserializeChunkAsync(name, x) {
+        return Promise.resolve(JSON.parse(x));
+      },
+    };
+    const adapter = new IncrementalIndexedDBAdapter(opts);
+    const source = new loki("incremental_idb_tester", { adapter: adapter });
+    const col1 = source.addCollection("test_collection");
+
+    col1.insert({ customId: 0, val: "hello", constraints: 100 });
+    col1.insert({ customId: 1, val: "hello1" });
+    const h2 = col1.insert({ customId: 2, val: "hello2" });
+    const h3 = col1.insert({ customId: 3, val: "hello3" });
+    const h4 = col1.insert({ customId: 4, val: "hello4" });
+    const h5 = col1.insert({ customId: 5, val: "hello5" });
+
+    h2.val = "UPDATED";
+    col1.update(h2);
+
+    h3.val = "UPDATED";
+    col1.update(h3);
+    (h3 as CollectionDocument).val2 = "added!";
+    col1.update(h3);
+
+    col1.remove(h4);
+
+    const h6 = col1.insert({ customId: 6, val: "hello6" });
+
+    source.saveDatabase(function (saveError) {
+      expect(saveError).toBe(undefined);
+
+      const copy = new loki("incremental_idb_tester", {
+        adapter: new IncrementalIndexedDBAdapter(opts),
         verbose: true,
       });
 

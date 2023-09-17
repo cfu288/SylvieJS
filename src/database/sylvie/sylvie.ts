@@ -1333,23 +1333,23 @@ export default class Sylvie extends SylvieEventEmitter {
       }
     };
 
-    const handleLoadError = (dbString: undefined | Error | object) => {
+    const handleLoadError = (dbLoadResult: undefined | Error | object) => {
       // falsy result means new database
-      if (!dbString) {
+      if (!dbLoadResult) {
         cFun(null);
         this.emit("loaded", `empty database ${this.filename} loaded`);
         return;
       }
 
       // instanceof error means load faulted
-      if (dbString instanceof Error) {
-        cFun(dbString);
+      if (dbLoadResult instanceof Error) {
+        cFun(dbLoadResult);
         return;
       }
 
       // if adapter has returned an js object (other than null or error) attempt to load from JSON object
-      if (typeof dbString === "object") {
-        this.loadJSONObject(dbString, options || {});
+      if (typeof dbLoadResult === "object") {
+        this.loadJSONObject(dbLoadResult, options || {});
         cFun(null); // return null on success
         this.emit("loaded", `database ${this.filename} loaded`);
         return;
@@ -1357,18 +1357,8 @@ export default class Sylvie extends SylvieEventEmitter {
 
       cFun({
         success: false,
-        error: Error(`unexpected adapter response : ${dbString}`),
+        error: Error(`unexpected adapter response : ${dbLoadResult}`),
       });
-    };
-
-    const loadDatabaseCallback = (
-      dbString: string | undefined | Error | object,
-    ) => {
-      if (typeof dbString === "string") {
-        handleValidDbString(dbString);
-      } else {
-        handleLoadError(dbString);
-      }
     };
 
     // the persistenceAdapter should be present if all is ok, but check to be sure.
@@ -1381,7 +1371,13 @@ export default class Sylvie extends SylvieEventEmitter {
       } else {
         this.persistenceAdapter.loadDatabase(
           this.filename,
-          loadDatabaseCallback,
+          (dbString: string | undefined | Error | object) => {
+            if (typeof dbString === "string") {
+              handleValidDbString(dbString);
+            } else {
+              handleLoadError(dbString);
+            }
+          },
         );
       }
     } else {
