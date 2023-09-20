@@ -42,7 +42,8 @@
     "benchmark:incrementalidb": "npm run clean && npm run build:only && mkdir -p benchmark/benchmark_incrementalidb/dist/ && cp dist/storage-adapter/incremental-indexeddb-adapter.js benchmark/benchmark_incrementalidb/dist && cp -r dist/ benchmark/benchmark_incrementalidb/dist && serve benchmark/benchmark_incrementalidb",
     "benchmark:web": "npm run clean && npm run build:only && mkdir -p benchmark/benchmark_web/dist/ && cp -r dist/ benchmark/benchmark_web/dist && serve benchmark/benchmark_web",
     "release": "npm run test && npm run build && release-it",
-    "release:only": "release-it"
+    "release:only": "release-it",
+    "ionic:build": "npm run build"
   },
   "author": "Christopher Fu <invent288cfu@gmail.com>",
   "contributors": [

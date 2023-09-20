@@ -2,12 +2,11 @@ import Sylvie from "../../src/sylviejs";
 import Collection from "../../src/database/collection";
 import { CollectionDocument } from "../../src/database/collection/collection-document";
 import { PersistenceAdapter } from "../../src/storage-adapter/src/models/persistence-adapter";
-// import { IncrementalIndexedDBAdapter } from "../../src/storage-adapter/incremental-indexeddb-adapter";
 import { IncrementalIndexedDBAdapter } from "../../src/storage-adapter/incremental-indexeddb-adapter";
 const loki = Sylvie;
 
 describe("IncrementalIndexedDBAdapter", function () {
-  this.timeout(60000); // mocha timout
+  this.timeout(30000); // mocha timout
   function checkDatabaseCopyIntegrity(source, copy) {
     source.collections.forEach(function (sourceCol: Collection<any>, i) {
       const copyCol = copy.collections[i];

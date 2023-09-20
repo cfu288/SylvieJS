@@ -87,16 +87,21 @@ export class CryptedIncrementalIndexedDBAdapter
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this; // Required since constructors cannot be arrow functions
 
-    const opts = {
-      ...(options || {}),
-      // serializeChunkAsync: (colName: string, chunk: IncrementalChunk[]) => {
-      //   return encryptData(JSON.stringify(chunk), self.#secret);
-      // },
-      // deserializeChunkAsync: async (colName, dbString) => {
-      //   return await decryptData(dbString, self.#secret);
-      // },
-    };
-    this.idbIndexedAdapter = new IncrementalIndexedDBAdapter(opts);
+    // const opts = {
+    //   ...(options || {}),
+    // serializeChunkAsync: (colName: string, chunk: IncrementalChunk[]) => {
+    // return encryptData(chunk, self.#secret);
+    // return Promise.resolve(JSON.stringify(chunk));
+    // },
+    // deserializeChunkAsync: async (colName, dbString) => {
+    // return JSON.parse(
+    //   await decryptData(dbString, self.#secret),
+    // ) as IncrementalChunk[];
+    //   const res = JSON.parse(dbString) as IncrementalChunk[];
+    //   return Promise.resolve(res);
+    // },
+    // };
+    this.idbIndexedAdapter = new IncrementalIndexedDBAdapter(options);
 
     this._names = {
       objectStoreName: "LID",

@@ -313,23 +313,23 @@ export class IncrementalIndexedDBAdapter
 
       const store = tx.objectStore("LokiIncrementalData");
 
-      const performSave = (maxChunkIds?: Record<string, number>) => {
+      const performSaveAsync = async (maxChunkIds?: Record<string, number>) => {
         try {
           const incremental = !maxChunkIds;
-          that
-            ._putInChunksAsync(store, getLokiCopy(), incremental, maxChunkIds)
-            .then((chunkInfo) => {
-              // Update last seen version IDs, but only after the transaction is successful
-              updatePrevVersionIds = () => {
-                that._prevLokiVersionId = chunkInfo.lokiVersionId;
-                chunkInfo.collectionVersionIds.forEach(
-                  ({ name, versionId }) => {
-                    that._prevCollectionVersionIds[name] = versionId;
-                  },
-                );
-              };
-              tx.commit && tx.commit();
+          const chunkInfo = await that._putInChunksAsync(
+            store,
+            getLokiCopy(),
+            incremental,
+            maxChunkIds,
+          );
+          // Update last seen version IDs, but only after the transaction is successful
+          updatePrevVersionIds = () => {
+            that._prevLokiVersionId = chunkInfo.lokiVersionId;
+            chunkInfo.collectionVersionIds.forEach(({ name, versionId }) => {
+              that._prevCollectionVersionIds[name] = versionId;
             });
+          };
+          tx.commit && tx.commit();
         } catch (error) {
           console.error("idb performSave failed: ", error);
           tx.abort();
@@ -346,41 +346,39 @@ export class IncrementalIndexedDBAdapter
       // TODO: We can optimize the slow path by fetching collection metadata chunks and comparing their
       // version IDs with those last seen by us. Since any change in collection data requires a metadata
       // chunk save, we're guaranteed that if the IDs match, we don't need to overwrite chukns of this collection
-      const getAllKeysThenSave = () => {
+      const getAllKeysThenSaveAsync = async () => {
         // NOTE: We must fetch all keys to protect against a case where another tab has wrote more
         // chunks whan we did -- if so, we must delete them.
-        idbReqAsync(store.getAllKeys())
-          .then((result) => {
-            const maxChunkIds = getMaxChunkIds(result);
-            performSave(maxChunkIds);
-          })
-          .catch((e) => {
-            console.error("Getting all keys failed: ", e);
-            tx.abort();
-          });
+        try {
+          const result = await idbReqAsync(store.getAllKeys());
+          const maxChunkIds = getMaxChunkIds(result);
+          await performSaveAsync(maxChunkIds);
+        } catch (e) {
+          console.error("Getting all keys failed: ", e);
+          tx.abort();
+        }
       };
 
-      const getLokiThenSave = () => {
-        idbReqAsync(store.get("loki"))
-          .then((result) => {
-            if (lokiChunkVersionId(result) === that._prevLokiVersionId) {
-              performSave();
-            } else {
-              DEBUG &&
-                console.warn(
-                  "Another writer changed Loki IDB, using slow path...",
-                );
-              didOverwrite = true;
-              getAllKeysThenSave();
-            }
-          })
-          .catch((e) => {
-            console.error("Getting loki chunk failed: ", e);
-            tx.abort();
-          });
+      const getLokiThenSaveAsync = async () => {
+        try {
+          const result = await idbReqAsync(store.get("loki"));
+          if (lokiChunkVersionId(result) === that._prevLokiVersionId) {
+            await performSaveAsync();
+          } else {
+            DEBUG &&
+              console.warn(
+                "Another writer changed Loki IDB, using slow path...",
+              );
+            didOverwrite = true;
+            await getAllKeysThenSaveAsync();
+          }
+        } catch (e) {
+          console.error("Getting loki chunk failed: ", e);
+          tx.abort();
+        }
       };
 
-      getLokiThenSave();
+      getLokiThenSaveAsync().catch((e) => finish(e));
     } catch (error) {
       finish(error);
     }
@@ -396,7 +394,7 @@ export class IncrementalIndexedDBAdapter
     const collectionVersionIds = [];
     let savedSize = 0;
 
-    const prepareCollection = async (collection, i) => {
+    const prepareCollectionAsync = async (collection, i) => {
       // Find dirty chunk ids
       const dirtyChunks = new Set();
       incremental &&
@@ -404,42 +402,54 @@ export class IncrementalIndexedDBAdapter
           const chunkId = (lokiId / that.chunkSize) | 0;
           dirtyChunks.add(chunkId);
         });
+
       collection.dirtyIds = [];
 
       // Serialize chunks to save
-      const prepareChunk = async (chunkId) => {
+      const prepareChunkAsync = async (chunkId) => {
         let chunkData: string | IncrementalChunk[] = that._getChunk(
           collection,
           chunkId,
         );
+
         if (that.options.serializeChunk) {
           chunkData = that.options.serializeChunk(collection.name, chunkData);
-        } else if (that.options.serializeChunkAsync) {
+        }
+        if (that.options.serializeChunkAsync) {
           chunkData = await that.options.serializeChunkAsync(
             collection.name,
-            chunkData,
+            chunkData as IncrementalChunk[],
           );
         }
+
         // we must stringify now, because IDB is asynchronous, and underlying objects are mutable
         // In general, it's also faster to stringify, because we need serialization anyway, and
         // JSON.stringify is much better optimized than IDB's structured clone
         chunkData = JSON.stringify(chunkData);
+        // console.warn(chunkData);
         savedSize += chunkData.length;
         DEBUG &&
           incremental &&
           console.log(`Saving: ${collection.name}.chunk.${chunkId}`);
-        await idbStore.put({
+
+        const res = idbStore.put({
           key: `${collection.name}.chunk.${chunkId}`,
           value: chunkData,
         });
+
+        return new Promise((resolve, reject) => {
+          res.onsuccess = () => resolve(res.result);
+          res.onerror = () => reject(res.error);
+        });
       };
+
       if (incremental) {
-        await Promise.all([...dirtyChunks].map(prepareChunk));
+        await Promise.all([...dirtyChunks].map(prepareChunkAsync));
       } else {
         // add all chunks
         const maxChunkId = (collection.maxId / that.chunkSize) | 0;
         for (let j = 0; j <= maxChunkId; j += 1) {
-          await prepareChunk(j);
+          await prepareChunkAsync(j);
         }
 
         // delete chunks with larger ids than what we have
@@ -448,7 +458,7 @@ export class IncrementalIndexedDBAdapter
         const persistedMaxChunkId = maxChunkIds[collection.name] || 0;
         for (let k = maxChunkId + 1; k <= persistedMaxChunkId; k += 1) {
           const deletedChunkName = `${collection.name}.chunk.${k}`;
-          await idbStore.delete(deletedChunkName);
+          idbStore.delete(deletedChunkName);
           DEBUG && console.warn(`Deleted chunk: ${deletedChunkName}`);
         }
       }
@@ -468,9 +478,18 @@ export class IncrementalIndexedDBAdapter
         DEBUG &&
           incremental &&
           console.log(`Saving: ${collection.name}.metadata`);
-        await idbStore.put({
+        const metaPutRes = idbStore.put({
           key: `${collection.name}.metadata`,
           value: metadataChunk,
+        });
+
+        await new Promise((resolve, reject) => {
+          metaPutRes.onsuccess = () => {
+            resolve(metaPutRes.result);
+          };
+          metaPutRes.onerror = () => {
+            reject(metaPutRes.error);
+          };
         });
       }
 
@@ -479,14 +498,41 @@ export class IncrementalIndexedDBAdapter
         Partial<CollectionDocument>
       >;
     };
-    await Promise.all(loki.collections.map(prepareCollection));
+
+    for (const [i, collection] of loki.collections.entries()) {
+      try {
+        await prepareCollectionAsync(collection, i);
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    }
+
+    // await Promise.all(
+    //   [...loki.collections.entries()].map(async ([i, collection]) => {
+    //     return prepareCollectionAsync(collection, i);
+    //   }),
+    // );
 
     loki.idbVersionId = randomVersionId();
     const serializedMetadata = JSON.stringify(loki);
     savedSize += serializedMetadata.length;
 
     DEBUG && incremental && console.log("Saving: loki");
-    await idbStore.put({ key: "loki", value: serializedMetadata });
+
+    const serMetaPutReq = idbStore.put({
+      key: "loki",
+      value: serializedMetadata,
+    });
+
+    await new Promise((resolve, reject) => {
+      serMetaPutReq.onsuccess = () => {
+        resolve(serMetaPutReq.result);
+      };
+      serMetaPutReq.onerror = () => {
+        reject(serMetaPutReq.error);
+      };
+    });
 
     DEBUG && console.log(`saved size: ${savedSize}`);
     return {
@@ -510,7 +556,10 @@ export class IncrementalIndexedDBAdapter
    * @param {function} callback - callback should accept string param containing serialized db string.
    * @memberof IncrementalIndexedDBAdapter
    */
-  loadDatabase(dbname, callback) {
+  loadDatabase(
+    dbname: string,
+    callback: (value: string | Error | null) => void,
+  ) {
     const that = this;
 
     if (this.operationInProgress) {
@@ -524,7 +573,15 @@ export class IncrementalIndexedDBAdapter
     DEBUG && console.log("loadDatabase - begin");
     DEBUG && console.time("loadDatabase");
 
-    const finish = (value) => {
+    const finish = (value: string | Error | null) => {
+      // console.log(
+      //   "finish with ",
+      //   "<<",
+      //   typeof value,
+      //   ": error: ",
+      //   value instanceof Error,
+      //   ">>",
+      // );
       DEBUG && console.timeEnd("loadDatabase");
       that.operationInProgress = false;
       callback(value);
@@ -545,29 +602,33 @@ export class IncrementalIndexedDBAdapter
         // repack chunks into a map
         let n_chunks = chunksToMap(chunks);
         const loki = n_chunks.loki;
-        n_chunks.loki = null; // gc
 
         // populate collections with data
         populateLoki(
-          loki,
+          n_chunks.loki,
           n_chunks.chunkMap,
           that.options.deserializeChunk,
           that.lazyCollections,
         );
+
         n_chunks = null; // gc
 
         // remember previous version IDs
         that._prevLokiVersionId = loki.idbVersionId || null;
         that._prevCollectionVersionIds = {};
+        // console.log(loki.collections);
         loki.collections.forEach(({ name, idbVersionId }) => {
           that._prevCollectionVersionIds[name] = idbVersionId || null;
         });
+
+        // console.log("PRINT COLL");
+        // console.log(loki.collections);
 
         return finish(loki);
       } catch (error) {
         that._prevLokiVersionId = null;
         that._prevCollectionVersionIds = {};
-        return finish(error);
+        return finish(Error(error));
       }
     });
   }
@@ -884,7 +945,7 @@ function lokiChunkVersionId(chunk) {
 }
 
 function chunksToMap(chunks: IncrementalChunk[]): {
-  loki: any;
+  loki: Sylvie;
   chunkMap: Record<string, IncrementalChunk>;
 } {
   let loki;
@@ -925,78 +986,10 @@ function chunksToMap(chunks: IncrementalChunk[]): {
   return { loki, chunkMap };
 }
 
-// async function populateLokiAsync(
-//   {
-//     collections,
-//   }: {
-//     collections: Collection<IncrementalChunk & Partial<CollectionDocument>>[];
-//   },
-//   chunkMap: Record<string, IncrementalChunk>,
-//   deserializeChunkAsync: (
-//     collectionName: string,
-//     chunk: any,
-//   ) => Promise<IncrementalChunk[]>,
-//   lazyCollections: string[],
-// ) {
-//   console.log("  populateLokiAsync called");
-//   const promises: Promise<unknown>[] = [];
-//   collections.map(async (collectionStub, i) => {
-//     const name = collectionStub.name;
-//     const chunkCollection = chunkMap[name];
-//     console.log("CHUNKMAP");
-//     console.log(chunkCollection);
-//     if (chunkCollection) {
-//       if (!chunkCollection.metadata) {
-//         throw new Error(
-//           `Corrupted database - missing metadata chunk for ${name}`,
-//         );
-//       }
-//       const collection = chunkCollection.metadata;
-//       chunkCollection.metadata = null;
-//       collections[i] = collection;
-
-//       const isLazy = lazyCollections.includes(name);
-//       const lokiDeserializeCollectionChunks = () => {
-//         DEBUG && isLazy && console.log(`lazy loading ${name}`);
-//         const data = [];
-//         const dataChunks = chunkCollection.dataChunks;
-
-//         // for (const [chunk, i] of dataChunks.entries()) {
-//         // }
-//         dataChunks.forEach(function populateChunk(chunk, i) {
-//           if (isLazy) {
-//             chunk = JSON.parse(chunk);
-//             if (deserializeChunkAsync) {
-//               const prom = () =>
-//                 deserializeChunkAsync(name, chunk).then((result) => {
-//                   // May be race condition? return before callback
-//                   result.forEach((doc) => {
-//                     data.push(doc);
-//                   });
-//                   dataChunks[i] = null;
-//                 });
-//               promises.push(prom());
-//             }
-//           } else {
-//             chunk.forEach((doc) => {
-//               data.push(doc);
-//             });
-//             dataChunks[i] = null;
-//           }
-//         });
-//         return data;
-//       };
-//       collection.getData = lokiDeserializeCollectionChunks;
-//     }
-//   });
-//   await Promise.all(promises);
-//   console.log("  populateLokiAsync finished awaited promises");
-// }
-
 function populateLoki(
   {
     collections,
-  }: {
+  }: Sylvie & {
     collections: Collection<IncrementalChunk & Partial<CollectionDocument>>[];
   },
   chunkMap: Record<string, any>,
@@ -1005,6 +998,7 @@ function populateLoki(
 ) {
   collections.forEach(function populateCollection(collectionStub, i) {
     const name = collectionStub.name;
+
     const chunkCollection = chunkMap[name];
     if (chunkCollection) {
       if (!chunkCollection.metadata) {
@@ -1021,6 +1015,7 @@ function populateLoki(
         DEBUG && isLazy && console.log(`lazy loading ${name}`);
         const data = [];
         const dataChunks = chunkCollection.dataChunks;
+
         dataChunks.forEach(function populateChunk(chunk, i) {
           if (isLazy) {
             chunk = JSON.parse(chunk);
@@ -1033,6 +1028,8 @@ function populateLoki(
           });
           dataChunks[i] = null;
         });
+        // console.log("data");
+        // console.log(data);
         return data;
       };
       collection.getData = lokiDeserializeCollectionChunks;
