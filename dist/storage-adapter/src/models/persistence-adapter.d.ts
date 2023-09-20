@@ -32,7 +32,7 @@ interface DeletablePersistenceAdapter {
     deleteDatabase(dbname: string, callback: PersistenceAdapterCallback): void;
 }
 interface IncrementalSaveablePersistenceAdapter {
-    saveDatabase(dbname: string, dbref: () => Sylvie, callback?: PersistenceAdapterCallback): void;
+    saveDatabase(dbname: string, getDb: () => Sylvie, callback?: PersistenceAdapterCallback): void;
 }
 interface SaveablePersistenceAdapter {
     /**

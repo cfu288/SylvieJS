@@ -298,7 +298,7 @@ export class Collection<
         if (!hasOwnProperty.call(object, "$loki"))
           return self.removeAutoUpdateObserver(object);
         try {
-          self.update(object);
+          self.update(object as ColT[]);
         } catch (err) {
           console.log(err);
         }
@@ -1088,12 +1088,11 @@ export class Collection<
    * // alternatively, insert array of documents
    * users.insert([{ name: 'Thor', age: 35}, { name: 'Loki', age: 30}]);
    */
-  insert<T extends CollectionDocument | CollectionDocument[]>(
-    doc: T,
-    overrideAdaptiveIndices?: boolean,
-  ): T {
+  insert<T extends ColT>(doc: T, overrideAdaptiveIndices?: boolean): T;
+  insert<T extends ColT>(doc: T[], overrideAdaptiveIndices?: boolean): T[];
+  insert<T extends ColT>(doc: T | T[], overrideAdaptiveIndices?: boolean) {
     if (!Array.isArray(doc)) {
-      return this.insertOne(doc as CollectionDocument) as T;
+      return this.insertOne(doc as ColT);
     }
 
     // holder to the clone of the object inserted if collections is set to clone objects
@@ -1143,10 +1142,7 @@ export class Collection<
    * @param {boolean} bulkInsert - quiet pre-insert and insert event emits
    * @returns {object} document or 'undefined' if there was a problem inserting it
    */
-  insertOne<T extends CollectionDocument>(
-    doc: T,
-    bulkInsert?: boolean,
-  ): T | undefined {
+  insertOne<T extends ColT>(doc: T, bulkInsert?: boolean): T | undefined {
     let err = null;
 
     if (typeof doc !== "object") {
@@ -1255,7 +1251,7 @@ export class Collection<
    * @param {CollectionDocument} doc - document to update within the collection
    * @returns the document that was updated
    */
-  update(doc: CollectionDocument | CollectionDocument[]) {
+  update<T extends ColT>(doc: T | T[]) {
     let adaptiveBatchOverride;
     let k;
     let len;
@@ -1389,7 +1385,7 @@ export class Collection<
   /**
    * Add object to collection
    */
-  add(obj) {
+  add<T extends ColT>(obj: T) {
     // if parameter isn't object exit with throw
     if ("object" !== typeof obj) {
       throw new TypeError("Object being added needs to be an object");
@@ -1622,7 +1618,7 @@ export class Collection<
    *  Internal method called by remove()
    * @param {object[]|number[]} batch - array of documents or $loki ids to remove
    */
-  removeBatch(batch: CollectionDocument[] | number[]) {
+  removeBatch<T extends ColT>(batch: T[] | number[]) {
     const len = batch.length;
     const dlen = this.data.length;
     let idx;
@@ -1652,14 +1648,15 @@ export class Collection<
    
    * @returns CollectionDocument | null - null if document not found, otherwise removed document. Array of new documents is not returned
    */
-  remove(
-    docOrId: CollectionDocument | number | CollectionDocument[],
-  ): CollectionDocument {
-    let doc: CollectionDocument;
+  remove<T extends ColT>(doc: T): T | null;
+  remove<T extends ColT>(doc: T[]): null;
+  remove(doc: number): null;
+  remove<T extends ColT>(docOrId: T | number | T[]): T {
+    let doc: T;
     if (typeof docOrId === "number") {
       doc = this.get(docOrId as number);
     } else {
-      doc = docOrId as CollectionDocument | CollectionDocument[];
+      doc = docOrId as T;
     }
 
     if ("object" !== typeof doc) {
@@ -1738,6 +1735,9 @@ export class Collection<
     }
   }
 
+  get<T extends ColT>(id: number): T | null;
+  get<T extends ColT>(id: number, returnPosition: true): [T, number] | null;
+
   /*---------------------+
   | Finding methods     |
   +----------------------*/
@@ -1749,7 +1749,7 @@ export class Collection<
    *     or an array if 'returnPosition' was passed.
    
    */
-  get(id: number, returnPosition?: boolean): object | Array<any> | null {
+  get(id: number, returnPosition?: boolean) {
     if (!this.idIndex) {
       this.ensureId();
     }

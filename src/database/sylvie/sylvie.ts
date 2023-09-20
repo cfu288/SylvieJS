@@ -372,10 +372,10 @@ export default class Sylvie extends SylvieEventEmitter {
    * @param {int=} options.ttlInterval - time interval for clearing out 'aged' documents; not set by default.
    * @returns {Collection} a reference to the collection which was just added
    */
-  addCollection(
+  addCollection<TCollection extends Partial<CollectionDocument>>(
     name,
     options?: Record<string, any>,
-  ): Collection<Partial<CollectionDocument>> {
+  ): Collection<TCollection> {
     let i;
     const len = this.collections.length;
 
@@ -399,7 +399,7 @@ export default class Sylvie extends SylvieEventEmitter {
 
     for (i = 0; i < len; i += 1) {
       if (this.collections[i].name === name) {
-        return this.collections[i];
+        return this.collections[i] as Collection<TCollection>;
       }
     }
 
@@ -409,7 +409,7 @@ export default class Sylvie extends SylvieEventEmitter {
 
     if (this.verbose) collection.lokiConsoleWrapper = console;
 
-    return collection;
+    return collection as Collection<TCollection>;
   }
 
   loadCollection(collection) {
@@ -947,8 +947,9 @@ export default class Sylvie extends SylvieEventEmitter {
   ) {
     let i = 0;
     const len = dbObject.collections ? dbObject.collections.length : 0;
-    let coll;
-    let copyColl;
+    // getData is a dynamic function added by some adapters when lazy loading
+    let coll: Collection<unknown> & { getData?: () => void };
+    let copyColl: Collection<unknown> & { getData?: () => void };
     let clen;
     let j;
     let loader;
@@ -1054,7 +1055,7 @@ export default class Sylvie extends SylvieEventEmitter {
         } else {
           for (j; j < clen; j++) {
             copyColl.data[j] = coll.data[j];
-            copyColl.addAutoUpdateObserver(copyColl.data[j]);
+            copyColl.addAutoUpdateObserver(copyColl.data[j] as object);
             if (!copyColl.disableFreeze) {
               deepFreeze(copyColl.data[j]);
             }
@@ -1333,23 +1334,23 @@ export default class Sylvie extends SylvieEventEmitter {
       }
     };
 
-    const handleLoadError = (dbString: undefined | Error | object) => {
+    const handleLoadError = (dbLoadResult: undefined | Error | object) => {
       // falsy result means new database
-      if (!dbString) {
+      if (!dbLoadResult) {
         cFun(null);
         this.emit("loaded", `empty database ${this.filename} loaded`);
         return;
       }
 
       // instanceof error means load faulted
-      if (dbString instanceof Error) {
-        cFun(dbString);
+      if (dbLoadResult instanceof Error) {
+        cFun(dbLoadResult);
         return;
       }
 
       // if adapter has returned an js object (other than null or error) attempt to load from JSON object
-      if (typeof dbString === "object") {
-        this.loadJSONObject(dbString, options || {});
+      if (typeof dbLoadResult === "object") {
+        this.loadJSONObject(dbLoadResult, options || {});
         cFun(null); // return null on success
         this.emit("loaded", `database ${this.filename} loaded`);
         return;
@@ -1357,18 +1358,8 @@ export default class Sylvie extends SylvieEventEmitter {
 
       cFun({
         success: false,
-        error: Error(`unexpected adapter response : ${dbString}`),
+        error: Error(`unexpected adapter response : ${dbLoadResult}`),
       });
-    };
-
-    const loadDatabaseCallback = (
-      dbString: string | undefined | Error | object,
-    ) => {
-      if (typeof dbString === "string") {
-        handleValidDbString(dbString);
-      } else {
-        handleLoadError(dbString);
-      }
     };
 
     // the persistenceAdapter should be present if all is ok, but check to be sure.
@@ -1381,7 +1372,13 @@ export default class Sylvie extends SylvieEventEmitter {
       } else {
         this.persistenceAdapter.loadDatabase(
           this.filename,
-          loadDatabaseCallback,
+          (dbString: string | undefined | Error | object) => {
+            if (typeof dbString === "string") {
+              handleValidDbString(dbString);
+            } else {
+              handleLoadError(dbString);
+            }
+          },
         );
       }
     } else {

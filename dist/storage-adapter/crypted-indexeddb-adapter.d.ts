@@ -2,7 +2,7 @@ import { NormalPersistenceAdapter } from "./src/models/persistence-adapter";
 import { NormalAsyncPersistenceAdapter } from "./src/models/async-persistence-adapter";
 import { IndexedDBAdapter } from "./indexeddb-adapter";
 import { PersistenceAdapterCallback } from "./src/models/persistence-adapter-callback";
-interface CryptedIndexedDBAdapterOptions {
+export interface CryptedIndexedDBAdapterOptions {
     appname: string;
     closeAfterSave: boolean;
     secret: string;
@@ -158,4 +158,3 @@ export declare class CryptedIndexedDBAdapter implements NormalPersistenceAdapter
     getDatabaseList: (callback: (_: string[] | Error) => void) => void;
     getDatabaseListAsync: () => Promise<string[]>;
 }
-export {};

@@ -155,7 +155,7 @@ export const getPasswordKey = (password) => {
     enc.encode(password),
     "PBKDF2",
     false,
-    ["deriveKey"]
+    ["deriveKey"],
   );
 };
 
@@ -170,7 +170,7 @@ export const deriveKey = (passwordKey, salt, keyUsage) =>
     passwordKey,
     { name: "AES-GCM", length: 256 },
     false,
-    keyUsage
+    keyUsage,
   );
 
 export async function encryptData(secretData, password) {
@@ -185,12 +185,12 @@ export async function encryptData(secretData, password) {
         iv: iv,
       },
       aesKey,
-      new TextEncoder().encode(secretData)
+      new TextEncoder().encode(secretData),
     );
 
     const encryptedContentArr = new Uint8Array(encryptedContent);
     const buff = new Uint8Array(
-      salt.byteLength + iv.byteLength + encryptedContentArr.byteLength
+      salt.byteLength + iv.byteLength + encryptedContentArr.byteLength,
     );
     buff.set(salt, 0);
     buff.set(iv, salt.byteLength);
@@ -218,7 +218,7 @@ export async function decryptData(encryptedData, password) {
         iv: iv,
       },
       aesKey,
-      data
+      data,
     );
     return new TextDecoder().decode(decryptedContent);
   } catch (e) {

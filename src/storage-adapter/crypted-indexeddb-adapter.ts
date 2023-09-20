@@ -19,7 +19,7 @@ if (!window.crypto.subtle) {
   throw new Error("Required crypto lib is not available");
 }
 
-interface CryptedIndexedDBAdapterOptions {
+export interface CryptedIndexedDBAdapterOptions {
   appname: string;
   closeAfterSave: boolean;
   secret: string;

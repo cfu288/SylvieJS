@@ -321,14 +321,15 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      * // alternatively, insert array of documents
      * users.insert([{ name: 'Thor', age: 35}, { name: 'Loki', age: 30}]);
      */
-    insert<T extends CollectionDocument | CollectionDocument[]>(doc: T, overrideAdaptiveIndices?: boolean): T;
+    insert<T extends ColT>(doc: T, overrideAdaptiveIndices?: boolean): T;
+    insert<T extends ColT>(doc: T[], overrideAdaptiveIndices?: boolean): T[];
     /**
      * Adds a single object, ensures it has meta properties, clone it if necessary, etc.
      * @param {object} doc - the document to be inserted
      * @param {boolean} bulkInsert - quiet pre-insert and insert event emits
      * @returns {object} document or 'undefined' if there was a problem inserting it
      */
-    insertOne<T extends CollectionDocument>(doc: T, bulkInsert?: boolean): T | undefined;
+    insertOne<T extends ColT>(doc: T, bulkInsert?: boolean): T | undefined;
     /**
      * Empties the collection of all data but leaves indexes and options intact by default.
      * @param {object=} options - configure clear behavior
@@ -342,11 +343,11 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      * @param {CollectionDocument} doc - document to update within the collection
      * @returns the document that was updated
      */
-    update(doc: CollectionDocument | CollectionDocument[]): any;
+    update<T extends ColT>(doc: T | T[]): any;
     /**
      * Add object to collection
      */
-    add(obj: any): any;
+    add<T extends ColT>(obj: T): T;
     /**
      * Applies a filter function and passes all results to an update function.
      *
@@ -372,23 +373,18 @@ export declare class Collection<ColT extends Partial<CollectionDocument>> extend
      *  Internal method called by remove()
      * @param {object[]|number[]} batch - array of documents or $loki ids to remove
      */
-    removeBatch(batch: CollectionDocument[] | number[]): void;
+    removeBatch<T extends ColT>(batch: T[] | number[]): void;
     /**
      * Remove a document from the collection
      * @param {object | array | number} newDoc - document(s) to remove from collection. If number, remove by id
      
      * @returns CollectionDocument | null - null if document not found, otherwise removed document. Array of new documents is not returned
      */
-    remove(docOrId: CollectionDocument | number | CollectionDocument[]): CollectionDocument;
-    /**
-     * Get by Id - faster than other methods because of the searching algorithm
-     * @param {int} id - $loki id of document you want to retrieve
-     * @param {boolean} returnPosition - if 'true' we will return [object, position]
-     * @returns {(object|array|null)} Object reference if document was found, null if not,
-     *     or an array if 'returnPosition' was passed.
-     
-     */
-    get(id: number, returnPosition?: boolean): object | Array<any> | null;
+    remove<T extends ColT>(doc: T): T | null;
+    remove<T extends ColT>(doc: T[]): null;
+    remove(doc: number): null;
+    get<T extends ColT>(id: number): T | null;
+    get<T extends ColT>(id: number, returnPosition: true): [T, number] | null;
     /**
      * Perform binary range lookup for the data[dataPosition][binaryIndexName] property value
      *    Since multiple documents may contain the same value (which the index is sorted on),

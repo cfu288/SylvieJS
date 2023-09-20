@@ -4,7 +4,10 @@ const loki = Sylvie;
 describe("remove", function () {
   it("removes", function () {
     const db = new loki();
-    const users = db.addCollection("users");
+    const users = db.addCollection<{
+      name: string;
+      age: number;
+    }>("users");
 
     users.insert({
       name: "joe",
@@ -61,7 +64,9 @@ describe("remove", function () {
     const bar = users.remove(foo);
     expect(users.data.length).toEqual(0);
     // test that $loki and meta properties have been removed correctly to allow object re-insertion
+    // @ts-ignore
     expect(!bar.$loki).toEqual(true);
+    // @ts-ignore
     expect(!bar.meta).toEqual(true);
     users.insert(bar);
     expect(users.data.length).toEqual(1);

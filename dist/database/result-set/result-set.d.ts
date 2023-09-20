@@ -312,7 +312,7 @@ export declare class ResultSet<RST extends Partial<CollectionDocument>> {
      *   };
      * });
      */
-    map<U>(mapFun: (value: RST, index: number, array: RST[]) => U, dataOptions?: Partial<ResultSetDataOptions>): this;
+    map<U extends RST>(mapFun: (value: RST, index: number, array: RST[]) => U, dataOptions?: Partial<ResultSetDataOptions>): this;
     /**
      * Alias of copy()
      * @memberof Resultset

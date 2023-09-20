@@ -124,7 +124,7 @@ export default class Sylvie extends SylvieEventEmitter {
      * @param {int=} options.ttlInterval - time interval for clearing out 'aged' documents; not set by default.
      * @returns {Collection} a reference to the collection which was just added
      */
-    addCollection(name: any, options?: Record<string, any>): Collection<Partial<CollectionDocument>>;
+    addCollection<TCollection extends Partial<CollectionDocument>>(name: any, options?: Record<string, any>): Collection<TCollection>;
     loadCollection(collection: any): void;
     /**
      * Retrieves reference to a collection by name.

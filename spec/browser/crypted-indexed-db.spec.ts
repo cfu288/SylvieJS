@@ -10,7 +10,14 @@ describe("CryptedIndexedDBAdapter", function () {
     });
 
     // Add some data, manipulate it
-    const collection = db.addCollection("items");
+    const collection = db.addCollection<
+      Partial<{
+        customId: number;
+        val: string;
+        extra: string;
+      }>
+    >("items");
+
     collection.insert([
       { customId: 0, val: "hello", extra: "world" },
       { customId: 1, val: "hello1" },
