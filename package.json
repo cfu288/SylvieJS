@@ -86,7 +86,7 @@
     "lodash.isequal": "^4.5.0",
     "memfs": "^4.2.1",
     "prettier": "^3.0.2",
-    "puppeteer": "^20.4.0",
+    "puppeteer": "^21.3.4",
     "release-it": "^16.1.5",
     "rimraf": "^2.5.4",
     "serve": "^14.2.0",
