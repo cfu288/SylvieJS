@@ -88,7 +88,7 @@
     "prettier": "^3.0.2",
     "puppeteer": "^20.4.0",
     "release-it": "^16.1.5",
-    "rimraf": "^2.5.4",
+    "rimraf": "^5.0.5",
     "serve": "^14.2.0",
     "should": "^4.6.5",
     "ts-jest": "^29.1.0",
