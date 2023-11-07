@@ -14,12 +14,7 @@ if (DEBUG) {
   console.log("DEBUG: Running crypted-indexeddb-adapter in DEBUG mode");
 }
 
-if (!window.crypto.subtle) {
-  alert("Required crypto lib is not available, are you using SSL?");
-  throw new Error("Required crypto lib is not available");
-}
-
-interface CryptedIndexedDBAdapterOptions {
+export interface CryptedIndexedDBAdapterOptions {
   appname: string;
   closeAfterSave: boolean;
   secret: string;
@@ -58,6 +53,11 @@ export class CryptedIndexedDBAdapter
   constructor(options?: Partial<CryptedIndexedDBAdapterOptions>) {
     DEBUG && console.log("Initialized crypted-indexeddb-adapter");
     this.app = "sylvie";
+
+    if (!window.crypto.subtle) {
+      alert("Required crypto lib is not available, are you using SSL?");
+      throw new Error("Required crypto lib is not available");
+    }
 
     if (typeof options?.appname !== "undefined") {
       this.app = options?.appname;
