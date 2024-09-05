@@ -16,7 +16,7 @@ esbuild
     minify: true,
     keepNames: true,
     format: "esm",
-    external: ["fs/promises"],
+    external: ["fs/promises", "node:stream", "node:readline", "node:fs"],
   })
   // eslint-disable-next-line no-undef
   .catch(() => process.exit(1));

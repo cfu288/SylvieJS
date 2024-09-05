@@ -930,6 +930,6 @@ function idbReq(request, onsuccess, onerror) {
   return request;
 }
 
-if (window !== undefined) {
+if (typeof window !== "undefined") {
   Object.assign(window, { IncrementalIndexedDBAdapter });
 }
