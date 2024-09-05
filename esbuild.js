@@ -1,5 +1,4 @@
 import esbuild from "esbuild";
-import { dtsPlugin } from "esbuild-plugin-d.ts";
 
 esbuild
   .build({
@@ -18,7 +17,7 @@ esbuild
     keepNames: true,
     format: "esm",
     external: ["fs/promises"],
-    plugins: [dtsPlugin()],
+    plugins: [],
   })
   // eslint-disable-next-line no-undef
   .catch(() => process.exit(1));
