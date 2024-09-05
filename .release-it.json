@@ -11,6 +11,6 @@
     "publishPath": "./dist/"
   },
   "hooks": {
-    "before:release": "cp package.json dist/package.json && cp LICENSE.txt dist/LICENSE && cp README.md dist/README.md"
+    "before:release": "cp package.json dist/package.json && cp LICENSE dist/LICENSE && cp README.md dist/README.md"
   }
 }
