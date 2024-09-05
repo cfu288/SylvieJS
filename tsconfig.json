@@ -6,8 +6,17 @@
     "module": "es2022",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationDir": "./dist"
   },
-  "include": ["./src/**/*", "./spec/**/*"],
+  "include": [
+    "./src/*",
+    "src/storage-adapter/incremental-indexeddb-adapter.ts",
+    "src/storage-adapter/crypted-indexeddb-adapter.ts",
+    "src/storage-adapter/opfs-adapter.ts",
+    "src/storage-adapter/fs-adapter.ts"
+  ],
   "exclude": ["node_modules"]
 }
