@@ -16,7 +16,9 @@
     "src/storage-adapter/incremental-indexeddb-adapter.ts",
     "src/storage-adapter/crypted-indexeddb-adapter.ts",
     "src/storage-adapter/opfs-adapter.ts",
-    "src/storage-adapter/fs-adapter.ts"
+    "src/storage-adapter/fs-adapter.ts",
+    "src/storage-adapter/fs-structured-adapter.ts",
+    "src/storage-adapter/indexeddb-adapter.ts"
   ],
   "exclude": ["node_modules"]
 }
