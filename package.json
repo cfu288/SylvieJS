@@ -3,7 +3,7 @@
   "version": "0.0.16",
   "description": "SylvieJS: Fast document oriented javascript in-memory database",
   "homepage": "https://cfu288.github.io/SylvieJS/",
-  "main": "dist/sylviejs.js",
+  "main": "sylviejs.js",
   "directories": {
     "example": "examples"
   },
