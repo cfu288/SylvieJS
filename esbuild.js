@@ -9,6 +9,7 @@ esbuild
       "src/storage-adapter/opfs-adapter.ts",
       "src/storage-adapter/fs-adapter.ts",
       "src/storage-adapter/fs-structured-adapter.ts",
+      "src/storage-adapter/indexeddb-adapter.ts",
     ],
     outdir: "dist",
     bundle: true,
