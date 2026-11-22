@@ -115,29 +115,19 @@ export function getBase64Code(charCode: number) {
 }
 
 export function bytesToBase64(bytes: Uint8Array) {
-  let result = "",
-    i,
-    l = bytes.length;
-  for (i = 2; i < l; i += 3) {
-    result += base64abc[bytes[i - 2]! >> 2];
-    result += base64abc[((bytes[i - 2]! & 0x03) << 4) | (bytes[i - 1]! >> 4)];
-    result += base64abc[((bytes[i - 1]! & 0x0f) << 2) | (bytes[i]! >> 6)];
-    result += base64abc[bytes[i]! & 0x3f];
+  const chunks: string[] = [];
+  const length = bytes.length;
+  // 8190 is a multiple of 3, so each chunk encodes on its own
+  for (let i = 0; i < length; i += 8190) {
+    const chunk = bytes.subarray(i, Math.min(i + 8190, length));
+    // base64abc uses _ and - in place of + and /
+    chunks.push(
+      btoa(String.fromCharCode.apply(null, chunk)).replace(/[+/]/g, (c) =>
+        c === "+" ? "_" : "-",
+      ),
+    );
   }
-  if (i === l + 1) {
-    // 1 octet yet to write
-    result += base64abc[bytes[i - 2]! >> 2];
-    result += base64abc[(bytes[i - 2]! & 0x03) << 4];
-    result += "==";
-  }
-  if (i === l) {
-    // 2 octets yet to write
-    result += base64abc[bytes[i - 2]! >> 2];
-    result += base64abc[((bytes[i - 2]! & 0x03) << 4) | (bytes[i - 1]! >> 4)];
-    result += base64abc[(bytes[i - 1]! & 0x0f) << 2];
-    result += "=";
-  }
-  return result;
+  return chunks.join("");
 }
 
 export function base64encode(str: string, encoder = new TextEncoder()) {
