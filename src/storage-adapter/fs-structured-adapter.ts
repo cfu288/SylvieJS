@@ -57,15 +57,17 @@ export class FsStructuredAdapter implements ReferencePersistenceAdapter {
   deleteDatabase(dbName: string, callback: PersistenceAdapterCallback): void {
     fsPromise
       .readdir(".")
-      .then((files) => {
-        for (const file of files) {
-          if (file === dbName || file.startsWith(dbName + ".") === true) {
-            fsPromise.unlink(file).catch((err) => {
-              callback(err);
-              return;
-            });
-          }
-        }
+      .then((files) =>
+        Promise.all(
+          files
+            .filter(
+              (file) =>
+                file === dbName || file.startsWith(dbName + ".") === true,
+            )
+            .map((file) => fsPromise.unlink(file)),
+        ),
+      )
+      .then(() => {
         callback({ success: true });
       })
       .catch((err) => {
