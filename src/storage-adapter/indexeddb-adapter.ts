@@ -265,8 +265,8 @@ export class IndexedDBAdapter
             // set (add/update) entry to AKV database
             this.catalog
               .setAppKeyAsync(this.app, dbname, serializedString)
-              .then((res) => {
-                callback(res);
+              .then(() => {
+                callback(null);
               })
               .catch((err) => {
                 callback(err);
@@ -279,8 +279,8 @@ export class IndexedDBAdapter
         DEBUG && console.debug(`SERIALIZED STRING: ${dbstring}`);
         this.catalog
           .setAppKeyAsync(this.app, dbname, dbstring)
-          .then((res) => {
-            callback(res);
+          .then(() => {
+            callback(null);
           })
           .catch((err) => {
             callback(err);
