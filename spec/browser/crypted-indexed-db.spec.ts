@@ -129,6 +129,27 @@ describe("CryptedIndexedDBAdapter", function () {
     }
   });
 
+  it("saveDatabase() should pass null to callback on every save", function (done) {
+    const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
+    const adapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+    });
+    // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
+    const db = new Sylvie(TEST_DB_NAME, {
+      adapter,
+    });
+    db.addCollection("items").insert({ val: "hello" });
+
+    db.saveDatabase(function (firstErr) {
+      expect(firstErr).toBeFalsy();
+      db.saveDatabase(function (secondErr) {
+        expect(secondErr).toBeFalsy();
+        done();
+      });
+    });
+  });
+
   it("deleteDatabase() the db should work", function (done) {
     // Note that other tests may save dbs as well which are not cleared between test runs, can't rely on absolute counts
     const TEST_DB_NAME = `test_db_to_delete_${self.crypto.randomUUID()}.db`;
@@ -211,6 +232,36 @@ describe("CryptedIndexedDBAdapter", function () {
     expect(docs[0].extra).toEqual("world");
     expect(docs[1].customId).toEqual(2);
     expect(docs[1].val).toEqual("hello2");
+  });
+
+  it("saveDatabaseAsync() after changePassword() should use new password", async function () {
+    const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
+    const adapter = new CryptedIndexedDBAdapter({
+      secret: "password",
+    });
+    const db = new Sylvie(TEST_DB_NAME, {
+      adapter,
+    });
+    const collection = db.addCollection("items");
+    collection.insert({ val: "before" });
+    await db.saveDatabaseAsync();
+
+    await adapter.changePassword(TEST_DB_NAME, "newpassword");
+
+    collection.insert({ val: "after" });
+    await db.saveDatabaseAsync();
+
+    const reopened = new Sylvie(TEST_DB_NAME, {
+      adapter: new CryptedIndexedDBAdapter({
+        secret: "newpassword",
+      }),
+    });
+    await reopened.loadDatabaseAsync({});
+    const values = reopened
+      .getCollection("items")
+      ?.find()
+      .map((doc) => doc.val);
+    expect(values).toEqual(["before", "after"]);
   });
 
   it("loadDatabaseAsync() using old password after changePassword() should fail", async function () {

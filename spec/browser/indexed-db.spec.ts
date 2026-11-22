@@ -398,6 +398,25 @@ describe("IndexedDBAdapter", function () {
     expect(docs[1].val).toEqual("hello2");
   });
 
+  it("saveDatabase() should pass null to callback on every save", function (done) {
+    const TEST_DB_NAME = `test_${self.crypto.randomUUID()}.db`;
+    const adapter = new IndexedDBAdapter();
+    // Force legacy use of callback sync API for testing purposes
+    delete adapter.isAsync;
+    const db = new Sylvie(TEST_DB_NAME, {
+      adapter,
+    });
+    db.addCollection("items").insert({ val: "hello" });
+
+    db.saveDatabase(function (firstErr) {
+      expect(firstErr).toBeFalsy();
+      db.saveDatabase(function (secondErr) {
+        expect(secondErr).toBeFalsy();
+        done();
+      });
+    });
+  });
+
   it("deleteDatabase() the db should work", function (done) {
     // Note that other tests may save dbs as well which are not cleared between test runs, can't rely on absolute counts
     const TEST_DB_NAME = `test_db_to_delete_${self.crypto.randomUUID()}.db`;
